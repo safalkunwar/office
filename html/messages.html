@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Messages - Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+            <ul>
+                <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="./students.html"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="./exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
+                <li><a href="./applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="./documents.html"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="./messages.html" class="active"><i class="fas fa-envelope"></i> Messages</a></li>
+                <li><a href="./tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
+                <li><a href="./security.html"><i class="fas fa-shield-alt"></i> Security</a></li>
+                <li><a href="./reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <main class="main-content">
+            <header>
+                <div class="header-content">
+                    <h1>Messages</h1>
+                    <div class="user-info">
+                        <span id="adminName">Admin</span>
+                        <img src="../assets/admin-avatar.png" alt="Admin" class="avatar">
+                    </div>
+                </div>
+            </header>
+
+            <div class="messages-container">
+                <div class="conversations-list">
+                    <div class="search-box">
+                        <input type="text" placeholder="Search conversations...">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <div class="conversations">
+                        <!-- Conversations will be loaded here -->
+                    </div>
+                </div>
+
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <div class="chat-info">
+                            <img src="../assets/student-avatar.png" alt="Student" class="avatar">
+                            <div>
+                                <h3>Student Name</h3>
+                                <p>Online</p>
+                            </div>
+                        </div>
+                        <div class="chat-actions">
+                            <button class="btn-icon" title="Video Call">
+                                <i class="fas fa-video"></i>
+                            </button>
+                            <button class="btn-icon" title="Voice Call">
+                                <i class="fas fa-phone"></i>
+                            </button>
+                            <button class="btn-icon" title="More Options">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages">
+                        <!-- Messages will be loaded here -->
+                    </div>
+
+                    <div class="message-input">
+                        <button class="btn-icon" id="attachFile">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <input type="text" placeholder="Type a message...">
+                        <button class="btn-icon" id="sendMessage">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- File Upload Modal -->
+    <div id="fileUploadModal" class="modal">
+        <div class="modal-content">
+            <h2>Upload File</h2>
+            <form id="fileUploadForm">
+                <div class="form-group">
+                    <label for="fileType">File Type</label>
+                    <select id="fileType" required>
+                        <option value="document">Document</option>
+                        <option value="image">Image</option>
+                        <option value="video">Video</option>
+                        <option value="audio">Audio</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="fileInput">Choose File</label>
+                    <input type="file" id="fileInput" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="../js/admin/messages.js"></script>
+</body>
+</html> 

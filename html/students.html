@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management - Consultancy Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar (Same as index.html) -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+            <ul>
+                <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="./students.html" class="active"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="./exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
+                <li><a href="./applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="./documents.html"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="./reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h1>Student Management</h1>
+                <button class="btn btn-primary" onclick="openAddStudentModal()">
+                    <i class="fas fa-plus"></i> Add New Student
+                </button>
+            </header>
+
+            <!-- Student Filters -->
+            <div class="filters">
+                <div class="form-group">
+                    <input type="text" id="searchStudent" placeholder="Search students...">
+                </div>
+                <div class="form-group">
+                    <select id="filterStatus">
+                        <option value="">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="pending">Pending</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select id="filterCourse">
+                        <option value="">All Courses</option>
+                        <option value="ielts">IELTS</option>
+                        <option value="pte">PTE</option>
+                        <option value="university">University Application</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Students Table -->
+            <div class="table-container">
+                <table id="studentsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Contact</th>
+                            <th>Course</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="studentsTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add Student Modal -->
+            <div id="addStudentModal" class="modal">
+                <div class="modal-content">
+                    <h2>Add New Student</h2>
+                    <form id="addStudentForm">
+                        <div class="form-group">
+                            <label for="studentName">Full Name</label>
+                            <input type="text" id="studentName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentEmail">Email</label>
+                            <input type="email" id="studentEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentPhone">Phone</label>
+                            <input type="tel" id="studentPhone" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentCourse">Course Interest</label>
+                            <select id="studentCourse" required>
+                                <option value="ielts">IELTS Preparation</option>
+                                <option value="pte">PTE Preparation</option>
+                                <option value="university">University Application</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentNotes">Additional Notes</label>
+                            <textarea id="studentNotes" rows="3"></textarea>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Add Student</button>
+                            <button type="button" class="btn" onclick="closeAddStudentModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="../js/students.js"></script>
+</body>
+</html> 

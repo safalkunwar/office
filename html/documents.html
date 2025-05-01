@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Management - Consultancy Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+            <ul>
+                <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="./students.html"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="./exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
+                <li><a href="./applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="./documents.html" class="active"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="./reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h1>Document Management</h1>
+                <button class="btn btn-primary" onclick="openAddDocumentModal()">
+                    <i class="fas fa-plus"></i> Upload Documents
+                </button>
+            </header>
+
+            <!-- Document Filters -->
+            <div class="filters">
+                <div class="form-group">
+                    <input type="text" id="searchDocument" placeholder="Search by student or document type...">
+                </div>
+                <div class="form-group">
+                    <select id="filterDocType">
+                        <option value="">All Document Types</option>
+                        <option value="passport">Passport</option>
+                        <option value="academic">Academic Documents</option>
+                        <option value="ielts">IELTS/PTE Score</option>
+                        <option value="resume">Resume/CV</option>
+                        <option value="recommendation">Recommendation Letters</option>
+                        <option value="financial">Financial Documents</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select id="filterVerification">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending Verification</option>
+                        <option value="verified">Verified</option>
+                        <option value="rejected">Rejected</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Documents Table -->
+            <div class="table-container">
+                <table id="documentsTable">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>Document Type</th>
+                            <th>File Name</th>
+                            <th>Upload Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="documentsTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add Document Modal -->
+            <div id="addDocumentModal" class="modal">
+                <div class="modal-content">
+                    <h2>Upload Documents</h2>
+                    <form id="addDocumentForm">
+                        <div class="form-group">
+                            <label for="studentId">Student</label>
+                            <select id="studentId" required>
+                                <!-- Populated by JavaScript -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="documentType">Document Type</label>
+                            <select id="documentType" required>
+                                <option value="passport">Passport</option>
+                                <option value="academic">Academic Documents</option>
+                                <option value="ielts">IELTS/PTE Score</option>
+                                <option value="resume">Resume/CV</option>
+                                <option value="recommendation">Recommendation Letters</option>
+                                <option value="financial">Financial Documents</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="documentFile">Upload File</label>
+                            <input type="file" id="documentFile" required>
+                            <small>Supported formats: PDF, JPG, PNG (Max size: 5MB)</small>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="documentNotes">Notes</label>
+                            <textarea id="documentNotes" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Upload Document</button>
+                            <button type="button" class="btn" onclick="closeAddDocumentModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- View Document Modal -->
+            <div id="viewDocumentModal" class="modal">
+                <div class="modal-content">
+                    <h2>Document Details</h2>
+                    <div id="documentDetails">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    <div class="document-preview">
+                        <h3>Document Preview</h3>
+                        <div id="documentPreview">
+                            <!-- Document preview iframe/img will be inserted here -->
+                        </div>
+                    </div>
+                    <div class="verification-section">
+                        <h3>Verification Status</h3>
+                        <div class="form-group">
+                            <select id="verificationStatus">
+                                <option value="pending">Pending Verification</option>
+                                <option value="verified">Verified</option>
+                                <option value="rejected">Rejected</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="verificationNotes">Verification Notes</label>
+                            <textarea id="verificationNotes" rows="2"></textarea>
+                        </div>
+                        <button class="btn btn-primary" onclick="updateVerification()">Update Verification</button>
+                    </div>
+                    <button class="btn" onclick="closeViewDocumentModal()">Close</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="../js/documents.js"></script>
+</body>
+</html> 

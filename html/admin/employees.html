@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+            <ul>
+                <li><a href="../../index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="dashboard.html"><i class="fas fa-gauge"></i> Dashboard</a></li>
+                <li><a href="employees.html" class="active"><i class="fas fa-users"></i> Employees</a></li>
+                <li><a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header class="content-header">
+                <h1>Employee Management</h1>
+                <button class="btn btn-primary" onclick="openAddEmployeeModal()">
+                    <i class="fas fa-user-plus"></i> Add Employee
+                </button>
+            </header>
+
+            <div class="employees-grid" id="employeesContainer">
+                <!-- Employees will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Employee Modal -->
+    <div id="addEmployeeModal" class="modal">
+        <div class="modal-content">
+            <h2>Add New Employee</h2>
+            <form id="addEmployeeForm">
+                <div class="form-group">
+                    <label for="employeeName">Full Name</label>
+                    <input type="text" id="employeeName" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeEmail">Email</label>
+                    <input type="email" id="employeeEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeRole">Role</label>
+                    <select id="employeeRole" required>
+                        <option value="counselor">Counselor</option>
+                        <option value="coordinator">Coordinator</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="employeePhone">Phone</label>
+                    <input type="tel" id="employeePhone" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Employee</button>
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Edit Employee Modal -->
+    <div id="editEmployeeModal" class="modal">
+        <div class="modal-content">
+            <h2>Edit Employee</h2>
+            <form id="editEmployeeForm">
+                <input type="hidden" id="editEmployeeId">
+                <div class="form-group">
+                    <label>Employee ID</label>
+                    <input type="text" id="editEmployeeIdDisplay" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="editEmployeeName">Full Name</label>
+                    <input type="text" id="editEmployeeName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmployeeEmail">Email</label>
+                    <input type="email" id="editEmployeeEmail" readonly>
+                    <small class="form-text text-muted">Email cannot be changed</small>
+                </div>
+                <div class="form-group">
+                    <label for="editEmployeeRole">Role</label>
+                    <select id="editEmployeeRole" required>
+                        <option value="counselor">Counselor</option>
+                        <option value="coordinator">Coordinator</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editEmployeePhone">Phone</label>
+                    <input type="tel" id="editEmployeePhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="editEmployeeStatus">Status</label>
+                    <select id="editEmployeeStatus" required>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Password Management</label>
+                    <button type="button" class="btn btn-secondary" onclick="resetPassword()">
+                        <i class="fas fa-key"></i> Send Password Reset Email
+                    </button>
+                    <small class="form-text text-muted">
+                        This will send a password reset email to the employee
+                    </small>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="../../js/admin/employees.js"></script>
+</body>
+</html> 

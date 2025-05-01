@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Admin Dashboard</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Admin Sidebar -->
+        <nav class="sidebar admin-sidebar">
+            <!-- ... sidebar content ... -->
+        </nav>
+
+        <main class="content">
+            <header>
+                <h1>System Settings</h1>
+            </header>
+
+            <!-- Settings Sections -->
+            <div class="settings-grid">
+                <!-- Branding Settings -->
+                <section class="settings-section">
+                    <h2>Branding Settings</h2>
+                    <form id="brandingForm" class="settings-form">
+                        <div class="form-group">
+                            <label>Company Logo</label>
+                            <div class="logo-upload">
+                                <img id="logoPreview" src="../../assets/default-logo.png" alt="Company Logo">
+                                <div class="logo-actions">
+                                    <input type="file" id="logoInput" accept="image/*" hidden>
+                                    <button type="button" class="btn" onclick="document.getElementById('logoInput').click()">
+                                        <i class="fas fa-upload"></i> Upload Logo
+                                    </button>
+                                    <small>Recommended size: 200x60px, Max size: 2MB</small>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="companyName">Company Name</label>
+                            <input type="text" id="companyName">
+                        </div>
+                        <div class="form-group">
+                            <label for="companyTagline">Tagline</label>
+                            <input type="text" id="companyTagline">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Branding</button>
+                    </form>
+                </section>
+
+                <!-- Notification Settings -->
+                <section class="settings-section">
+                    <h2>Notification Settings</h2>
+                    <form id="notificationSettingsForm" class="settings-form">
+                        <div class="checkbox-group">
+                            <label>
+                                <input type="checkbox" name="notifications" value="email"> Email Notifications
+                            </label>
+                            <label>
+                                <input type="checkbox" name="notifications" value="system"> System Notifications
+                            </label>
+                            <label>
+                                <input type="checkbox" name="notifications" value="tasks"> Task Updates
+                            </label>
+                            <label>
+                                <input type="checkbox" name="notifications" value="applications"> Application Updates
+                            </label>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save Notification Settings</button>
+                    </form>
+                </section>
+
+                <!-- System Settings -->
+                <section class="settings-section">
+                    <h2>System Settings</h2>
+                    <form id="systemSettingsForm" class="settings-form">
+                        <div class="form-group">
+                            <label for="timezone">Default Timezone</label>
+                            <select id="timezone">
+                                <!-- Populated by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="dateFormat">Date Format</label>
+                            <select id="dateFormat">
+                                <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save System Settings</button>
+                    </form>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="../../js/admin/settings.js"></script>
+</body>
+</html> 
