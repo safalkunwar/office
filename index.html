@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Consultancy Dashboard</title>
+    <link rel="stylesheet" href="./css/style.css">
+    <link rel="stylesheet" href="./css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="admin-navbar">
+        <div class="navbar-left">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <ul>
+                <li><a href="index.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="./html/students.html"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="./html/exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
+                <li><a href="./html/applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="./html/documents.html"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="./html/messages.html"><i class="fas fa-envelope"></i> Messages</a></li>
+                <li><a href="./html/tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
+                <li><a href="./html/security.html"><i class="fas fa-shield-alt"></i> Security</a></li>
+                <li><a href="./html/reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="content">
+        <header>
+            <h1>Dashboard Overview</h1>
+            <div class="user-info">
+                <span id="userName">Admin</span>
+                <a href="./html/login.html" class="logout">Logout</a>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="dashboard-grid">
+                <!-- Quick Stats -->
+                <section class="stats-container">
+                    <div class="stat-card">
+                        <i class="fas fa-user-graduate"></i>
+                        <div>
+                            <h3>Total Students</h3>
+                            <p id="totalStudents">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-file-alt"></i>
+                        <div>
+                            <h3>IELTS Students</h3>
+                            <p id="ieltsStudents">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-file-alt"></i>
+                        <div>
+                            <h3>PTE Students</h3>
+                            <p id="pteStudents">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-plane-departure"></i>
+                        <div>
+                            <h3>Active Applications</h3>
+                            <p id="activeApplications">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Task Management -->
+                <section class="task-management">
+                    <div class="section-header">
+                        <h2>Task Management</h2>
+                        <button class="btn btn-primary" onclick="openCreateTaskModal()">
+                            <i class="fas fa-plus"></i> Create Task
+                        </button>
+                    </div>
+                    <div class="task-filters">
+                        <select id="taskPriorityFilter">
+                            <option value="all">All Priorities</option>
+                            <option value="High">High Priority</option>
+                            <option value="Medium">Medium Priority</option>
+                            <option value="Low">Low Priority</option>
+                        </select>
+                        <select id="taskStatusFilter">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                    <div id="tasksList" class="tasks-list">
+                        <!-- Tasks will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Security Overview -->
+                <section class="security-overview">
+                    <div class="section-header">
+                        <h2>Security Overview</h2>
+                        <a href="./html/security.html" class="btn btn-secondary">
+                            <i class="fas fa-cog"></i> Security Settings
+                        </a>
+                    </div>
+                    <div class="security-stats">
+                        <div class="stat-card">
+                            <i class="fas fa-shield-alt"></i>
+                            <div>
+                                <h3>2FA Status</h3>
+                                <p id="twoFactorStatus">Disabled</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-history"></i>
+                            <div>
+                                <h3>Last Login</h3>
+                                <p id="lastLogin">Never</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <h3>Security Alerts</h3>
+                                <p id="securityAlerts">0</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="recent-security-events">
+                        <h3>Recent Security Events</h3>
+                        <div id="securityEventsList" class="events-list">
+                            <!-- Security events will be loaded here -->
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Recent Activities -->
+                <section class="recent-activities">
+                    <h2>Recent Activities</h2>
+                    <div id="activitiesList" class="activities-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </section>
+
+                <!-- Upcoming Tasks -->
+                <section class="upcoming-tasks">
+                    <h2>Upcoming Tasks</h2>
+                    <div id="tasksList" class="tasks-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </section>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="./js/index.js"></script>
+</body>
+</html>

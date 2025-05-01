@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Applications Management - Consultancy Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+            <ul>
+                <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="./students.html"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="./exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
+                <li><a href="./applications.html" class="active"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="./documents.html"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="./reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h1>Applications Management</h1>
+                <button class="btn btn-primary" onclick="openAddApplicationModal()">
+                    <i class="fas fa-plus"></i> New Application
+                </button>
+            </header>
+
+            <!-- Application Filters -->
+            <div class="filters">
+                <div class="form-group">
+                    <input type="text" id="searchApplication" placeholder="Search by student or university...">
+                </div>
+                <div class="form-group">
+                    <select id="filterStatus">
+                        <option value="">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="documents">Documents Collection</option>
+                        <option value="submitted">Submitted</option>
+                        <option value="accepted">Accepted</option>
+                        <option value="rejected">Rejected</option>
+                        <option value="visa">Visa Processing</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <select id="filterCountry">
+                        <option value="">All Countries</option>
+                        <option value="usa">USA</option>
+                        <option value="uk">UK</option>
+                        <option value="canada">Canada</option>
+                        <option value="australia">Australia</option>
+                        <option value="newzealand">New Zealand</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Applications Table -->
+            <div class="table-container">
+                <table id="applicationsTable">
+                    <thead>
+                        <tr>
+                            <th>Student</th>
+                            <th>University</th>
+                            <th>Course</th>
+                            <th>Country</th>
+                            <th>Status</th>
+                            <th>Last Updated</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="applicationsTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add Application Modal -->
+            <div id="addApplicationModal" class="modal">
+                <div class="modal-content">
+                    <h2>New Application</h2>
+                    <form id="addApplicationForm">
+                        <div class="form-group">
+                            <label for="studentId">Student</label>
+                            <select id="studentId" required>
+                                <!-- Populated by JavaScript -->
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="university">University</label>
+                            <input type="text" id="university" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="course">Course</label>
+                            <input type="text" id="course" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="country">Country</label>
+                            <select id="country" required>
+                                <option value="usa">USA</option>
+                                <option value="uk">UK</option>
+                                <option value="canada">Canada</option>
+                                <option value="australia">Australia</option>
+                                <option value="newzealand">New Zealand</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="intake">Intake</label>
+                            <input type="month" id="intake" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="applicationFee">Application Fee</label>
+                            <input type="number" id="applicationFee" min="0" step="0.01">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="applicationNotes">Notes</label>
+                            <textarea id="applicationNotes" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Create Application</button>
+                            <button type="button" class="btn" onclick="closeAddApplicationModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- View Application Details Modal -->
+            <div id="viewApplicationModal" class="modal">
+                <div class="modal-content">
+                    <h2>Application Details</h2>
+                    <div id="applicationDetails">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    <div class="timeline">
+                        <h3>Application Timeline</h3>
+                        <div id="applicationTimeline">
+                            <!-- Populated by JavaScript -->
+                        </div>
+                    </div>
+                    <button class="btn" onclick="closeViewApplicationModal()">Close</button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="../js/applications.js"></script>
+</body>
+</html> 

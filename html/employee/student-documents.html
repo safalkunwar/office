@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Documents</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/employee.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar (same as dashboard) -->
+        
+        <main class="content">
+            <header class="content-header">
+                <h1>Student Documents</h1>
+                <button class="btn btn-primary" onclick="openUploadModal()">
+                    <i class="fas fa-upload"></i> Upload Document
+                </button>
+            </header>
+
+            <div class="student-info-panel" id="studentInfo">
+                <!-- Student info will be loaded here -->
+            </div>
+
+            <div class="documents-grid" id="documentsGrid">
+                <!-- Documents will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Upload Document Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <h2>Upload Document</h2>
+            <form id="uploadDocumentForm">
+                <div class="form-group">
+                    <label for="documentType">Document Type</label>
+                    <select id="documentType" required>
+                        <!-- Populated dynamically -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="documentFile">File</label>
+                    <input 
+                        type="file" 
+                        id="documentFile" 
+                        accept=".pdf,.jpg,.jpeg,.png" 
+                        required
+                    >
+                    <small class="form-text text-muted">
+                        Supported formats: PDF, JPG, PNG. Maximum size: 5MB
+                    </small>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="../../js/employee/student-documents.js"></script>
+</body>
+</html> 

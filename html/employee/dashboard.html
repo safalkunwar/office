@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard - Consultancy Management</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/employee.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar employee-sidebar">
+            <div class="logo">
+                <h2>Employee Portal</h2>
+            </div>
+            <div class="employee-profile">
+                <div class="avatar-icon">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="employee-info">
+                    <h3 id="employeeName">Employee Name</h3>
+                    <p id="employeeRole">Employee</p>
+                </div>
+            </div>
+            <ul>
+                <li><a href="../../index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="dashboard.html" class="active"><i class="fas fa-gauge"></i> Dashboard</a></li>
+                <li><a href="#" id="tasksLink"><i class="fas fa-tasks"></i> Tasks</a></li>
+                <li><a href="#" id="messagesLink"><i class="fas fa-envelope"></i> Messages</a></li>
+                <li id="reportsLink" style="display: none;"><a href="#"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <!-- Dashboard Header -->
+            <header class="dashboard-header">
+                <h1>Dashboard</h1>
+                <div class="header-actions">
+                    <button class="btn btn-primary" id="newMessageBtn">
+                        <i class="fas fa-envelope"></i> New Message
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Stats -->
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-tasks"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Total Tasks</h3>
+                        <p id="totalTasksCount">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Tasks Due Today</h3>
+                        <p id="dueTodayCount">0</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <h3>Completed Tasks</h3>
+                        <p id="completedTasksCount">0</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reports Section (Admin Only) -->
+            <section id="reportsSection" class="reports-section" style="display: none;">
+                <div class="section-header">
+                    <h2>Reports</h2>
+                    <div class="report-filters">
+                        <select id="reportType">
+                            <option value="performance">Employee Performance</option>
+                            <option value="tasks">Task Completion</option>
+                            <option value="messages">Message Statistics</option>
+                        </select>
+                        <select id="reportPeriod">
+                            <option value="week">This Week</option>
+                            <option value="month">This Month</option>
+                            <option value="quarter">This Quarter</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="reportContent" class="report-content">
+                    <!-- Report content will be loaded here -->
+                </div>
+            </section>
+
+            <!-- Dashboard Content -->
+            <div class="dashboard-content">
+                <!-- Tasks Section -->
+                <section class="tasks-section">
+                    <div class="section-header">
+                        <h2>My Tasks</h2>
+                        <div class="task-filters">
+                            <select id="taskStatusFilter">
+                                <option value="all">All Status</option>
+                                <option value="pending">Pending</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="completed">Completed</option>
+                            </select>
+                            <select id="taskPriorityFilter">
+                                <option value="all">All Priorities</option>
+                                <option value="High">High Priority</option>
+                                <option value="Medium">Medium Priority</option>
+                                <option value="Low">Low Priority</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="taskList" class="tasks-list">
+                        <!-- Tasks will be loaded here -->
+                    </div>
+                </section>
+
+                <!-- Messages Section -->
+                <section class="messages-section">
+                    <div class="section-header">
+                        <h2>Messages</h2>
+                    </div>
+                    <div id="messageList" class="messages-list">
+                        <!-- Messages will be loaded here -->
+                    </div>
+                    <div class="message-input-container">
+                        <textarea id="messageInput" placeholder="Type your message..."></textarea>
+                        <button id="sendMessage" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <!-- New Message Modal -->
+    <div id="newMessageModal" class="modal">
+        <div class="modal-content">
+            <h2>New Message</h2>
+            <form id="newMessageForm">
+                <div class="form-group">
+                    <label for="messageRecipient">To</label>
+                    <select id="messageRecipient" required>
+                        <option value="">Select Recipient</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="messageSubject">Subject</label>
+                    <input type="text" id="messageSubject" required>
+                </div>
+                <div class="form-group">
+                    <label for="messageContent">Message</label>
+                    <textarea id="messageContent" rows="5" required></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                    <button type="button" class="btn" onclick="closeModal('newMessageModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="../../js/employee/dashboard.js"></script>
+</body>
+</html> 

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Documents - Student Portal</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/student.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>Student Portal</h2>
+            </div>
+            <ul>
+                <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+                <li><a href="documents.html" class="active"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="messages.html"><i class="fas fa-envelope"></i> Messages</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header class="content-header">
+                <h1>My Documents</h1>
+                <button class="btn btn-primary" onclick="openUploadModal()">
+                    <i class="fas fa-upload"></i> Upload Document
+                </button>
+            </header>
+
+            <!-- Student Information -->
+            <div class="student-info">
+                <div class="student-profile">
+                    <img id="studentAvatar" src="../../assets/default-avatar.png" alt="Student Avatar">
+                    <div class="student-details">
+                        <h2 id="studentName">Loading...</h2>
+                        <p id="studentId">Student ID: Loading...</p>
+                        <p id="studentEmail">Email: Loading...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Requirements -->
+            <div class="document-requirements">
+                <h2>Required Documents</h2>
+                <div class="requirements-grid">
+                    <div class="requirement-card" data-type="marksheet">
+                        <i class="fas fa-file-alt"></i>
+                        <h3>Academic Marksheets</h3>
+                        <p>Upload your academic transcripts and certificates</p>
+                        <div class="requirement-status">
+                            <span class="status-badge pending">Pending</span>
+                        </div>
+                    </div>
+                    <div class="requirement-card" data-type="financial">
+                        <i class="fas fa-money-bill-wave"></i>
+                        <h3>Financial Documents</h3>
+                        <p>Bank statements and sponsorship letters</p>
+                        <div class="requirement-status">
+                            <span class="status-badge pending">Pending</span>
+                        </div>
+                    </div>
+                    <div class="requirement-card" data-type="passport">
+                        <i class="fas fa-passport"></i>
+                        <h3>Passport</h3>
+                        <p>Valid passport copy</p>
+                        <div class="requirement-status">
+                            <span class="status-badge pending">Pending</span>
+                        </div>
+                    </div>
+                    <div class="requirement-card" data-type="ielts">
+                        <i class="fas fa-language"></i>
+                        <h3>IELTS/PTE Score</h3>
+                        <p>English proficiency test results</p>
+                        <div class="requirement-status">
+                            <span class="status-badge pending">Pending</span>
+                        </div>
+                    </div>
+                    <div class="requirement-card" data-type="recommendation">
+                        <i class="fas fa-envelope-open-text"></i>
+                        <h3>Recommendation Letters</h3>
+                        <p>Academic and professional references</p>
+                        <div class="requirement-status">
+                            <span class="status-badge pending">Pending</span>
+                        </div>
+                    </div>
+                    <div class="requirement-card" data-type="other">
+                        <i class="fas fa-file-upload"></i>
+                        <h3>Other Documents</h3>
+                        <p>Additional supporting documents</p>
+                        <div class="requirement-status">
+                            <span class="status-badge pending">Pending</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Uploaded Documents -->
+            <div class="uploaded-documents">
+                <h2>My Uploaded Documents</h2>
+                <div id="documentsGrid" class="documents-grid">
+                    <!-- Documents will be loaded here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Upload Document Modal -->
+    <div id="uploadModal" class="modal">
+        <div class="modal-content">
+            <h2>Upload Document</h2>
+            <form id="uploadDocumentForm">
+                <div class="form-group">
+                    <label for="documentType">Document Type</label>
+                    <select id="documentType" required>
+                        <option value="">Select Document Type</option>
+                        <option value="marksheet">Academic Marksheets</option>
+                        <option value="financial">Financial Documents</option>
+                        <option value="passport">Passport</option>
+                        <option value="ielts">IELTS/PTE Score</option>
+                        <option value="recommendation">Recommendation Letters</option>
+                        <option value="other">Other Documents</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="documentFile">File</label>
+                    <input 
+                        type="file" 
+                        id="documentFile" 
+                        accept=".pdf,.jpg,.jpeg,.png" 
+                        required
+                    >
+                    <small class="form-text text-muted">
+                        Supported formats: PDF, JPG, PNG. Maximum size: 5MB
+                    </small>
+                </div>
+                <div class="form-group">
+                    <label for="documentNotes">Notes (Optional)</label>
+                    <textarea id="documentNotes" rows="3"></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="../../js/student/documents.js"></script>
+</body>
+</html> 

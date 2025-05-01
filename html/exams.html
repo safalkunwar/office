@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Management - Consultancy Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+            <ul>
+                <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="./students.html"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="./exams.html" class="active"><i class="fas fa-file-alt"></i> Exams</a></li>
+                <li><a href="./applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="./documents.html"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="./reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h1>Exam Management</h1>
+                <button class="btn btn-primary" onclick="openAddExamModal()">
+                    <i class="fas fa-plus"></i> Add New Exam Record
+                </button>
+            </header>
+
+            <!-- Exam Type Tabs -->
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="ielts">IELTS</button>
+                <button class="tab-btn" data-tab="pte">PTE</button>
+            </div>
+
+            <!-- Filters -->
+            <div class="filters">
+                <div class="form-group">
+                    <input type="text" id="searchExam" placeholder="Search by student name...">
+                </div>
+                <div class="form-group">
+                    <select id="filterScore">
+                        <option value="">All Scores</option>
+                        <option value="high">7+ (IELTS) / 65+ (PTE)</option>
+                        <option value="medium">6-7 (IELTS) / 50-65 (PTE)</option>
+                        <option value="low">Below 6 (IELTS) / Below 50 (PTE)</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <input type="date" id="filterDate" placeholder="Filter by date">
+                </div>
+            </div>
+
+            <!-- Exam Records Table -->
+            <div class="table-container">
+                <table id="examsTable">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Exam Date</th>
+                            <th>Overall Score</th>
+                            <th>Individual Scores</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="examsTableBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Add Exam Modal -->
+            <div id="addExamModal" class="modal">
+                <div class="modal-content">
+                    <h2>Add New Exam Record</h2>
+                    <form id="addExamForm">
+                        <div class="form-group">
+                            <label for="examType">Exam Type</label>
+                            <select id="examType" required>
+                                <option value="ielts">IELTS</option>
+                                <option value="pte">PTE</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="studentId">Student</label>
+                            <select id="studentId" required>
+                                <!-- Populated by JavaScript -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="examDate">Exam Date</label>
+                            <input type="date" id="examDate" required>
+                        </div>
+                        
+                        <!-- IELTS Scores -->
+                        <div id="ieltsScores">
+                            <div class="form-group">
+                                <label for="listeningScore">Listening</label>
+                                <input type="number" id="listeningScore" step="0.5" min="0" max="9">
+                            </div>
+                            <div class="form-group">
+                                <label for="readingScore">Reading</label>
+                                <input type="number" id="readingScore" step="0.5" min="0" max="9">
+                            </div>
+                            <div class="form-group">
+                                <label for="writingScore">Writing</label>
+                                <input type="number" id="writingScore" step="0.5" min="0" max="9">
+                            </div>
+                            <div class="form-group">
+                                <label for="speakingScore">Speaking</label>
+                                <input type="number" id="speakingScore" step="0.5" min="0" max="9">
+                            </div>
+                        </div>
+
+                        <!-- PTE Scores -->
+                        <div id="pteScores" style="display: none;">
+                            <div class="form-group">
+                                <label for="overallScore">Overall Score</label>
+                                <input type="number" id="overallScore" min="0" max="90">
+                            </div>
+                            <div class="form-group">
+                                <label for="communicativeScore">Communicative Skills</label>
+                                <input type="number" id="communicativeScore" min="0" max="90">
+                            </div>
+                            <div class="form-group">
+                                <label for="enablerScore">Enabling Skills</label>
+                                <input type="number" id="enablerScore" min="0" max="90">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="examNotes">Notes</label>
+                            <textarea id="examNotes" rows="3"></textarea>
+                        </div>
+
+                        <div class="form-actions">
+                            <button type="submit" class="btn btn-primary">Save Record</button>
+                            <button type="button" class="btn" onclick="closeAddExamModal()">Cancel</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="../js/exams.js"></script>
+</body>
+</html> 

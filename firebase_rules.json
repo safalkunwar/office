@@ -1,0 +1,76 @@
+{
+  "rules": {
+    ".read": "auth != null", 
+    ".write": "auth != null",
+    "test": {
+      ".read": true,
+      ".write": true
+    },
+    "admins": {
+      ".read": "auth != null",
+      ".write": "auth != null",
+      "$uid": {
+        ".validate": "newData.hasChildren(['email', 'role', 'status']) && newData.child('role').val() === 'admin'"
+      }
+    },
+    "employees": {
+      ".read": "auth != null || !data.exists()",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+      ".indexOn": ["employeeId", "email", "role", "status"],
+      "$uid": {
+        ".validate": "newData.hasChildren(['email', 'role', 'status', 'employeeId'])"
+      }
+    },
+    "tasks": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).exists() || query.orderByChild('assignedTo').equalTo(auth.token.email).exists())",
+      ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || (query.orderByChild('assignedTo').equalTo(auth.token.email).exists() && !newData.child('assignedTo').exists()))",
+      "$taskId": {
+        ".read": "auth != null && (root.child('admins').child(auth.uid).exists() || data.child('assignedTo').val() === auth.token.email)",
+        ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || data.child('assignedTo').val() === auth.token.email)",
+        ".validate": "newData.hasChildren(['title', 'description', 'assignedTo', 'status'])",
+        "status": {
+          ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || data.parent().child('assignedTo').val() === auth.token.email)"
+        }
+      }
+    },
+    "notifications": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$notificationId": {
+        "readBy": {
+          "$uid": {
+            ".write": "auth != null && $uid === auth.uid"
+          }
+        }
+      }
+    },
+    "activities": {
+      ".read": "auth != null && root.child('admins').child(auth.uid).exists()",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()"
+    },
+    "password_resets": {
+      ".read": "auth != null",
+      ".write": "auth != null"
+    },
+    "documentRequirements": {
+      ".read": "auth != null",
+      ".write": "auth != null && root.child('admins').child(auth.uid).exists()",
+      "$requirementId": {
+        ".validate": "newData.hasChildren(['name', 'description', 'required', 'allowedFormats'])"
+      }
+    },
+    "students": {
+      ".read": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('employees').child(auth.uid).exists())",
+      ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('employees').child(auth.uid).exists())",
+      "$studentId": {
+        "documents": {
+          ".read": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('employees').child(auth.uid).exists())",
+          ".write": "auth != null && (root.child('admins').child(auth.uid).exists() || root.child('employees').child(auth.uid).exists())",
+          "$documentType": {
+            ".validate": "newData.hasChildren(['url', 'filename', 'uploadedAt', 'uploadedBy'])"
+          }
+        }
+      }
+    }
+  }
+}

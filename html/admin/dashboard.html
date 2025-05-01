@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Consultancy Management</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="admin-navbar">
+        <div class="navbar-left">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+            <div class="admin-profile">
+                <img src="../../assets/admin-avatar.png" alt="Admin" class="admin-avatar">
+                <div class="admin-info">
+                    <h3 id="adminName">Admin Name</h3>
+                    <p>Super Admin</p>
+                </div>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <ul>
+                <li><a href="../../index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="dashboard.html" class="active"><i class="fas fa-gauge"></i> Dashboard</a></li>
+                <li><a href="employees.html"><i class="fas fa-users"></i> Employees</a></li>
+                <li><a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
+                <li><a href="messages.html"><i class="fas fa-tasks"></i> Messages</a></li>
+                
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="content">
+        <!-- Dashboard Header -->
+        <header class="dashboard-header">
+            <h1>Dashboard</h1>
+            <div class="header-actions">
+                <button class="btn btn-primary" onclick="openModal('addEmployeeModal')">
+                    <i class="fas fa-user-plus"></i> Add Employee
+                </button>
+                <button class="btn btn-primary" onclick="openModal('createTaskModal')">
+                    <i class="fas fa-plus"></i> Create Task
+                </button>
+            </div>
+        </header>
+
+        <!-- Dashboard Stats -->
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Total Employees</h3>
+                    <p id="employeeCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-tasks"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Active Tasks</h3>
+                    <p id="activeTasksCount">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div class="stat-content">
+                    <h3>Tasks Due Today</h3>
+                    <p id="dueTodayCount">0</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Content -->
+        <div class="dashboard-content">
+            <!-- Upcoming Tasks -->
+            <section class="upcoming-tasks">
+                <div class="section-header">
+                    <h2>Upcoming Tasks</h2>
+                    <div class="task-filters">
+                        <select id="taskPriorityFilter">
+                            <option value="all">All Priorities</option>
+                            <option value="High">High Priority</option>
+                            <option value="Medium">Medium Priority</option>
+                            <option value="Low">Low Priority</option>
+                        </select>
+                        <select id="taskStatusFilter">
+                            <option value="all">All Status</option>
+                            <option value="pending">Pending</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="completed">Completed</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="tasksList" class="tasks-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Employee Performance -->
+            <section class="employee-performance">
+                <h2>Employee Performance</h2>
+                <div class="performance-filters">
+                    <select id="performancePeriod">
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="quarter">This Quarter</option>
+                    </select>
+                </div>
+                <div id="performanceList" class="performance-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </section>
+
+            <!-- Recent Activities -->
+            <section class="activities-section">
+                <h2>Recent Activities</h2>
+                <div id="activitiesList" class="activities-list">
+                    <!-- Populated by JavaScript -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Add Employee Modal -->
+    <div id="addEmployeeModal" class="modal">
+        <div class="modal-content">
+            <h2>Add New Employee</h2>
+            <form id="addEmployeeForm">
+                <div class="form-group">
+                    <label for="employeeName">Full Name</label>
+                    <input type="text" id="employeeName" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeEmail">Email</label>
+                    <input type="email" id="employeeEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeRole">Role</label>
+                    <select id="employeeRole" required>
+                        <option value="">Select Role</option>
+                        <option value="counselor">Counselor</option>
+                        <option value="coordinator">Coordinator</option>
+                        <option value="staff">Staff</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="employeePhone">Phone</label>
+                    <input type="tel" id="employeePhone">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Employee</button>
+                    <button type="button" class="btn" onclick="closeModal('addEmployeeModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create Task Modal -->
+    <div id="createTaskModal" class="modal">
+        <div class="modal-content">
+            <h2>Create New Task</h2>
+            <form id="createTaskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="assignedTo">Assign To</label>
+                    <select id="assignedTo" required>
+                        <option value="">Select Employee</option>
+                        <!-- Populated by JavaScript -->
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Priority</label>
+                    <select id="taskPriority" required>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dueDate">Due Date</label>
+                    <input type="date" id="dueDate" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Create Task</button>
+                    <button type="button" class="btn" onclick="closeModal('createTaskModal')">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Messaging Modal -->
+    <div id="messagingModal" class="modal">
+        <div class="modal-content messaging-content">
+            <div class="messaging-header">
+                <h2>Messages</h2>
+                <div class="message-filters">
+                    <select id="messageTypeFilter">
+                        <option value="all">All Messages</option>
+                        <option value="unread">Unread</option>
+                        <option value="important">Important</option>
+                    </select>
+                </div>
+            </div>
+            <div class="messaging-container">
+                <div class="conversation-list">
+                    <div class="search-box">
+                        <input type="text" id="messageSearch" placeholder="Search conversations...">
+                    </div>
+                    <div id="conversationList" class="conversations">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+                <div class="message-thread">
+                    <div id="messageThread" class="messages">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                    <div class="message-input">
+                        <textarea id="messageInput" placeholder="Type your message..."></textarea>
+                        <button id="sendMessage" class="btn btn-primary">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="../../js/admin/dashboard.js"></script>
+</body>
+</html> 

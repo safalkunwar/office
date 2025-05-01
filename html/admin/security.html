@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Settings - Admin Dashboard</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Admin Sidebar -->
+        <nav class="sidebar admin-sidebar">
+            <!-- ... sidebar content ... -->
+        </nav>
+
+        <main class="content">
+            <header>
+                <h1>Security Settings</h1>
+            </header>
+
+            <div class="settings-grid">
+                <!-- Password Change Section -->
+                <section class="settings-section">
+                    <h2><i class="fas fa-key"></i> Change Password</h2>
+                    <form id="passwordChangeForm" class="settings-form">
+                        <div class="form-group">
+                            <label for="currentPassword">Current Password</label>
+                            <input type="password" id="currentPassword" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" id="newPassword" required>
+                            <div class="password-strength" id="passwordStrength"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmPassword">Confirm New Password</label>
+                            <input type="password" id="confirmPassword" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update Password</button>
+                    </form>
+                </section>
+
+                <!-- 2FA Section -->
+                <section class="settings-section">
+                    <h2><i class="fas fa-shield-alt"></i> Two-Factor Authentication</h2>
+                    <div id="2faStatus">
+                        <div class="status-indicator">
+                            <span class="status-dot"></span>
+                            <span class="status-text">2FA is currently disabled</span>
+                        </div>
+                        <button id="setup2FA" class="btn btn-secondary">Set Up 2FA</button>
+                    </div>
+                    <div id="2faSetup" style="display: none;">
+                        <div class="qr-code-container">
+                            <img id="qrCode" alt="2FA QR Code">
+                        </div>
+                        <p class="backup-code">Backup Code: <span id="backupCode"></span></p>
+                        <div class="form-group">
+                            <label for="verificationCode">Enter Verification Code</label>
+                            <input type="text" id="verificationCode" maxlength="6">
+                        </div>
+                        <button id="verify2FA" class="btn btn-primary">Verify and Enable 2FA</button>
+                    </div>
+                </section>
+
+                <!-- Security Log -->
+                <section class="settings-section">
+                    <h2><i class="fas fa-history"></i> Security Activity Log</h2>
+                    <div class="security-log" id="securityLog">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </section>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="../../js/admin/security.js"></script>
+</body>
+</html> 

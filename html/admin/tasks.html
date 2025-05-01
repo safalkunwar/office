@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Management - Admin Dashboard</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar admin-sidebar">
+            <div class="logo">
+                <img id="companyLogo" src="../../assets/default-logo.png" alt="Company Logo">
+                <h2 id="companyName">Admin Panel</h2>
+            </div>
+            <ul>
+                <li><a href="../../index.html"><i class="fas fa-home"></i> Home</a></li>
+                <li><a href="dashboard.html"><i class="fas fa-gauge"></i> Dashboard</a></li>
+                <li><a href="employees.html"><i class="fas fa-users"></i> Employees</a></li>
+                <li><a href="tasks.html" class="active"><i class="fas fa-tasks"></i> Tasks</a></li>
+                <li><a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="content">
+            <header class="content-header">
+                <h1>Task Management</h1>
+                <button class="btn btn-primary" onclick="openAddTaskModal()">
+                    <i class="fas fa-plus"></i> Add New Task
+                </button>
+            </header>
+
+            <div class="tasks-container">
+                <!-- Tasks will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Task Modal -->
+    <div id="addTaskModal" class="modal">
+        <div class="modal-content">
+            <h2>Add New Task</h2>
+            <form id="addTaskForm">
+                <div class="form-group">
+                    <label for="taskTitle">Task Title</label>
+                    <input type="text" id="taskTitle" required>
+                </div>
+                <div class="form-group">
+                    <label for="taskDescription">Description</label>
+                    <textarea id="taskDescription" rows="3" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="assignedTo">Assign To</label>
+                    <select id="assignedTo" required>
+                        <option value="">Select Employee</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="taskPriority">Priority</label>
+                    <select id="taskPriority" required>
+                        <option value="Low">Low</option>
+                        <option value="Medium">Medium</option>
+                        <option value="High">High</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="dueDate">Due Date</label>
+                    <input type="date" id="dueDate" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Task</button>
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script type="module" src="../../js/admin/tasks.js"></script>
+</body>
+</html> 

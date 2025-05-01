@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Requirements - Admin</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        
+        <main class="content">
+            <header>
+                <h1>Document Requirements</h1>
+                <button class="btn btn-primary" onclick="openAddRequirementModal()">
+                    <i class="fas fa-plus"></i> Add Requirement
+                </button>
+            </header>
+
+            <div class="requirements-grid" id="requirementsGrid">
+                <!-- Requirements will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Requirement Modal -->
+    <div id="addRequirementModal" class="modal">
+        <div class="modal-content">
+            <h2>Add Document Requirement</h2>
+            <form id="addRequirementForm">
+                <div class="form-group">
+                    <label for="documentName">Document Name</label>
+                    <input type="text" id="documentName" required>
+                </div>
+                <div class="form-group">
+                    <label for="documentDescription">Description</label>
+                    <textarea id="documentDescription" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="isRequired">
+                        Required Document
+                    </label>
+                </div>
+                <div class="form-group">
+                    <label for="allowedFormats">Allowed Formats</label>
+                    <input type="text" id="allowedFormats" placeholder="pdf,jpg,png" required>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Add Requirement</button>
+                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="../../js/admin/document-requirements.js"></script>
+</body>
+</html> 
