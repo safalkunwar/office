@@ -1,4 +1,4 @@
-# Target Application
+#application
 
 A web application with Firebase integration for managing student records, applications, and documents.
 
