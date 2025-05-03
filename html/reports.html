@@ -3,145 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Reports - Consultancy Dashboard</title>
+    <title>Reports - Admin Dashboard</title>
     <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <!-- Chart.js for visualizations -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
+    <!-- Top Navigation Bar -->
+    <nav class="admin-navbar">
+        <div class="navbar-left">
             <div class="logo">
                 <h2>Admin Panel</h2>
             </div>
+        </div>
+        <div class="navbar-right">
             <ul>
                 <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="./students.html"><i class="fas fa-users"></i> Students</a></li>
-                <li><a href="./exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
-                <li><a href="./applications.html"><i class="fas fa-university"></i> Applications</a></li>
-                <li><a href="./documents.html"><i class="fas fa-folder"></i> Documents</a></li>
-                <li><a href="./reports.html" class="active"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                <li><a href="students.html"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
+                <li><a href="applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="documents.html"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="messages.html"><i class="fas fa-envelope"></i> Messages</a></li>
+                <li><a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
+                <li><a href="security.html"><i class="fas fa-shield-alt"></i> Security</a></li>
+                <li><a href="reports.html" class="active"><i class="fas fa-chart-bar"></i> Reports</a></li>
             </ul>
-        </nav>
+        </div>
+    </nav>
 
-        <main class="content">
-            <header>
-                <h1>Reports & Analytics</h1>
-                <div class="header-actions">
-                    <button class="btn" onclick="exportReport()">
-                        <i class="fas fa-download"></i> Export Report
+    <main class="content">
+        <header>
+            <h1>Reports & Analytics</h1>
+            <div class="user-info">
+                <span id="userName">Admin</span>
+                <a href="login.html" class="logout">Logout</a>
+            </div>
+        </header>
+
+        <div class="container">
+            <div class="reports-container">
+                <!-- Report Filters -->
+                <div class="report-filters">
+                    <div class="filter-group">
+                        <label>Time Period</label>
+                        <select id="timePeriod">
+                            <option value="today">Today</option>
+                            <option value="week">This Week</option>
+                            <option value="month" selected>This Month</option>
+                            <option value="quarter">This Quarter</option>
+                            <option value="year">This Year</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Report Type</label>
+                        <select id="reportType">
+                            <option value="overview">Overview</option>
+                            <option value="students">Students</option>
+                            <option value="exams">Exams</option>
+                            <option value="applications">Applications</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-primary" id="generateReport">
+                        <i class="fas fa-sync"></i> Generate Report
                     </button>
-                    <select id="reportPeriod" class="form-control">
-                        <option value="7">Last 7 Days</option>
-                        <option value="30">Last 30 Days</option>
-                        <option value="90">Last 3 Months</option>
-                        <option value="365">Last Year</option>
-                    </select>
-                </div>
-            </header>
-
-            <!-- Key Metrics -->
-            <section class="metrics-grid">
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-users"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h3>Total Students</h3>
-                        <p id="totalStudentsMetric">0</p>
-                        <small class="trend positive">+5% from last period</small>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-graduation-cap"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h3>Success Rate</h3>
-                        <p id="successRateMetric">0%</p>
-                        <small class="trend positive">+2% from last period</small>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-file-alt"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h3>Active Applications</h3>
-                        <p id="activeApplicationsMetric">0</p>
-                        <small class="trend negative">-3% from last period</small>
-                    </div>
-                </div>
-                <div class="metric-card">
-                    <div class="metric-icon">
-                        <i class="fas fa-dollar-sign"></i>
-                    </div>
-                    <div class="metric-content">
-                        <h3>Revenue</h3>
-                        <p id="revenueMetric">$0</p>
-                        <small class="trend positive">+10% from last period</small>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Charts Section -->
-            <div class="charts-grid">
-                <!-- Applications by Country -->
-                <div class="chart-container">
-                    <h3>Applications by Country</h3>
-                    <canvas id="applicationsByCountry"></canvas>
+                    <button class="btn btn-secondary" id="exportReport">
+                        <i class="fas fa-download"></i> Export
+                    </button>
                 </div>
 
-                <!-- Student Progress -->
-                <div class="chart-container">
-                    <h3>Student Progress Timeline</h3>
-                    <canvas id="studentProgress"></canvas>
+                <!-- Key Metrics -->
+                <div class="metrics-grid">
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Total Students</h3>
+                            <p class="metric-value">1,234</p>
+                            <p class="metric-change positive">
+                                <i class="fas fa-arrow-up"></i> 12% from last month
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-file-alt"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Applications</h3>
+                            <p class="metric-value">456</p>
+                            <p class="metric-change positive">
+                                <i class="fas fa-arrow-up"></i> 8% from last month
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Success Rate</h3>
+                            <p class="metric-value">85%</p>
+                            <p class="metric-change positive">
+                                <i class="fas fa-arrow-up"></i> 5% from last month
+                            </p>
+                        </div>
+                    </div>
+
+                    <div class="metric-card">
+                        <div class="metric-icon">
+                            <i class="fas fa-dollar-sign"></i>
+                        </div>
+                        <div class="metric-content">
+                            <h3>Revenue</h3>
+                            <p class="metric-value">$45,678</p>
+                            <p class="metric-change positive">
+                                <i class="fas fa-arrow-up"></i> 15% from last month
+                            </p>
+                        </div>
+                    </div>
                 </div>
 
-                <!-- Exam Scores Distribution -->
-                <div class="chart-container">
-                    <h3>Exam Scores Distribution</h3>
-                    <canvas id="examScores"></canvas>
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Student Growth</h3>
+                        <canvas id="studentGrowthChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Application Status</h3>
+                        <canvas id="applicationStatusChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Exam Results</h3>
+                        <canvas id="examResultsChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Revenue Trend</h3>
+                        <canvas id="revenueTrendChart"></canvas>
+                    </div>
                 </div>
 
-                <!-- Revenue Trends -->
-                <div class="chart-container">
-                    <h3>Revenue Trends</h3>
-                    <canvas id="revenueTrends"></canvas>
+                <!-- Detailed Reports -->
+                <div class="detailed-reports">
+                    <div class="report-section">
+                        <h3>Student Demographics</h3>
+                        <div class="report-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Count</th>
+                                        <th>Percentage</th>
+                                        <th>Trend</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Undergraduate</td>
+                                        <td>789</td>
+                                        <td>64%</td>
+                                        <td class="trend positive">↑ 5%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Graduate</td>
+                                        <td>345</td>
+                                        <td>28%</td>
+                                        <td class="trend positive">↑ 3%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>PhD</td>
+                                        <td>100</td>
+                                        <td>8%</td>
+                                        <td class="trend neutral">→ 0%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="report-section">
+                        <h3>Application Statistics</h3>
+                        <div class="report-table">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>University</th>
+                                        <th>Applications</th>
+                                        <th>Accepted</th>
+                                        <th>Rejected</th>
+                                        <th>Success Rate</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>University A</td>
+                                        <td>150</td>
+                                        <td>120</td>
+                                        <td>30</td>
+                                        <td class="success-rate">80%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>University B</td>
+                                        <td>200</td>
+                                        <td>160</td>
+                                        <td>40</td>
+                                        <td class="success-rate">80%</td>
+                                    </tr>
+                                    <tr>
+                                        <td>University C</td>
+                                        <td>106</td>
+                                        <td>85</td>
+                                        <td>21</td>
+                                        <td class="success-rate">80%</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+    </main>
 
-            <!-- Detailed Reports Section -->
-            <section class="detailed-reports">
-                <h2>Detailed Reports</h2>
-                <div class="report-filters">
-                    <select id="reportType" class="form-control">
-                        <option value="students">Student Report</option>
-                        <option value="applications">Applications Report</option>
-                        <option value="exams">Exam Results Report</option>
-                        <option value="financial">Financial Report</option>
-                    </select>
-                    <button class="btn btn-primary" onclick="generateDetailedReport()">
-                        Generate Report
-                    </button>
-                </div>
-
-                <div class="report-table-container">
-                    <table id="reportTable">
-                        <thead>
-                            <!-- Dynamic headers based on report type -->
-                        </thead>
-                        <tbody id="reportTableBody">
-                            <!-- Populated by JavaScript -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <script type="module" src="../js/reports.js"></script>
+    <script type="module" src="../js/admin/reports.js"></script>
 </body>
 </html> 

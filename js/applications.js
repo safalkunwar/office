@@ -1,227 +1,265 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
-import { 
-    getDatabase, 
-    ref, 
-    push,
-    onValue,
-    update,
-    remove 
-} from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
-import { firebaseConfig } from './config/firebase.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
+import { getDatabase, ref, onValue, push, set, remove, get } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
+import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+
+// Firebase configuration
+const firebaseConfig = {
+    apiKey: "AIzaSyA910SEIzx0ER4Ps_EdXBUU0Jgf2wTRm8Q",
+    authDomain: "fir-a7a69.firebaseapp.com",
+    databaseURL: "https://fir-a7a69-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "fir-a7a69",
+    storageBucket: "fir-a7a69.firebasestorage.app",
+    messagingSenderId: "1060643495940",
+    appId: "1:1060643495940:web:19bc515d82d737d73d1551",
+    measurementId: "G-YG82VTV644"
+};
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+const database = getDatabase(app);
+const auth = getAuth(app);
 
 // DOM Elements
-const applicationsTableBody = document.getElementById('applicationsTableBody');
-const addApplicationForm = document.getElementById('addApplicationForm');
-const searchInput = document.getElementById('searchApplication');
-const filterStatus = document.getElementById('filterStatus');
-const filterCountry = document.getElementById('filterCountry');
+const applicationsList = document.getElementById('applicationsList');
+const createApplicationModal = document.getElementById('createApplicationModal');
+const createApplicationForm = document.getElementById('createApplicationForm');
+const searchInput = document.querySelector('.search-box input');
+const universityFilter = document.getElementById('universityFilter');
+const statusFilter = document.getElementById('statusFilter');
+const studentSelect = document.getElementById('studentSelect');
+const themeToggle = document.querySelector('.theme-toggle');
+const themeIcon = themeToggle.querySelector('i');
+const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+const navMenu = document.querySelector('.navbar-right ul');
 
-// Load Students for Select Dropdown
-function loadStudents() {
-    const studentSelect = document.getElementById('studentId');
-    const studentsRef = ref(db, 'students');
+// Theme Management
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme === 'dark') {
+    document.body.classList.add('dark-mode');
+    themeIcon.classList.replace('fa-moon', 'fa-sun');
+}
+
+themeToggle.addEventListener('click', () => {
+    document.body.classList.toggle('dark-mode');
+    const isDarkMode = document.body.classList.contains('dark-mode');
+    themeIcon.classList.toggle('fa-moon');
+    themeIcon.classList.toggle('fa-sun');
+    localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+});
+
+// Mobile Menu Toggle
+mobileMenuBtn.addEventListener('click', () => {
+    const isExpanded = mobileMenuBtn.getAttribute('aria-expanded') === 'true';
+    mobileMenuBtn.setAttribute('aria-expanded', !isExpanded);
+    navMenu.classList.toggle('active');
+});
+
+// Close mobile menu when clicking outside
+document.addEventListener('click', (e) => {
+    if (!navMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
+        navMenu.classList.remove('active');
+    }
+});
+
+// Modal Functions
+function openCreateApplicationModal() {
+    createApplicationModal.style.display = 'block';
+    loadStudents();
+}
+
+function closeCreateApplicationModal() {
+    createApplicationModal.style.display = 'none';
+    createApplicationForm.reset();
+}
+
+// Close modal when clicking outside
+window.addEventListener('click', (e) => {
+    if (e.target === createApplicationModal) {
+        closeCreateApplicationModal();
+    }
+});
+
+// Form Submission
+createApplicationForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
     
-    onValue(studentsRef, (snapshot) => {
-        const students = snapshot.val();
-        studentSelect.innerHTML = '<option value="">Select Student</option>';
+    const formData = {
+        studentId: studentSelect.value,
+        university: document.getElementById('universitySelect').value,
+        program: document.getElementById('programSelect').value,
+        intake: document.getElementById('intakeSelect').value,
+        notes: document.getElementById('applicationNotes').value,
+        status: 'pending',
+        submittedAt: new Date().toISOString()
+    };
+
+    try {
+        const applicationsRef = ref(database, 'applications');
+        const newApplicationRef = push(applicationsRef);
+        await set(newApplicationRef, formData);
         
-        if (students) {
-            Object.entries(students).forEach(([id, student]) => {
+        showSuccess('Application created successfully!');
+        closeCreateApplicationModal();
+    } catch (error) {
+        showError('Failed to create application. Please try again.');
+        console.error('Error creating application:', error);
+    }
+});
+
+// Load Students for Select
+async function loadStudents() {
+    try {
+        const studentsRef = ref(database, 'students');
+        onValue(studentsRef, (snapshot) => {
+            studentSelect.innerHTML = '<option value="">Select Student</option>';
+            snapshot.forEach((childSnapshot) => {
+                const student = childSnapshot.val();
                 const option = document.createElement('option');
-                option.value = id;
-                option.textContent = student.name;
+                option.value = childSnapshot.key;
+                option.textContent = `${student.name} (${student.email})`;
                 studentSelect.appendChild(option);
             });
-        }
-    });
+        });
+    } catch (error) {
+        showError('Failed to load students. Please try again.');
+        console.error('Error loading students:', error);
+    }
 }
 
-// Load Applications
+// Load and Display Applications
 function loadApplications() {
-    const applicationsRef = ref(db, 'applications');
+    const applicationsRef = ref(database, 'applications');
     onValue(applicationsRef, (snapshot) => {
-        const applications = snapshot.val();
-        displayApplications(applications);
-    });
-}
-
-// Display Applications
-function displayApplications(applications) {
-    applicationsTableBody.innerHTML = '';
-    
-    if (!applications) return;
-
-    Object.entries(applications).forEach(([id, application]) => {
-        if (filterApplication(application)) {
+        applicationsList.innerHTML = '';
+        snapshot.forEach((childSnapshot) => {
+            const application = childSnapshot.val();
             const row = document.createElement('tr');
+            
             row.innerHTML = `
-                <td>${application.studentName}</td>
+                <td>${childSnapshot.key}</td>
+                <td>${application.studentName || 'Loading...'}</td>
                 <td>${application.university}</td>
-                <td>${application.course}</td>
-                <td>${application.country.toUpperCase()}</td>
+                <td>${application.program}</td>
                 <td><span class="status-badge ${application.status}">${application.status}</span></td>
-                <td>${new Date(application.lastUpdated).toLocaleDateString()}</td>
+                <td>${new Date(application.submittedAt).toLocaleDateString()}</td>
                 <td>
-                    <button onclick="viewApplication('${id}')" class="btn-icon">
+                    <button class="btn btn-sm btn-primary" onclick="viewApplication('${childSnapshot.key}')">
                         <i class="fas fa-eye"></i>
                     </button>
-                    <button onclick="editApplication('${id}')" class="btn-icon">
+                    <button class="btn btn-sm btn-secondary" onclick="editApplication('${childSnapshot.key}')">
                         <i class="fas fa-edit"></i>
                     </button>
-                    <button onclick="updateStatus('${id}')" class="btn-icon">
-                        <i class="fas fa-sync-alt"></i>
+                    <button class="btn btn-sm btn-danger" onclick="deleteApplication('${childSnapshot.key}')">
+                        <i class="fas fa-trash"></i>
                     </button>
                 </td>
             `;
-            applicationsTableBody.appendChild(row);
-        }
+            
+            applicationsList.appendChild(row);
+        });
     });
 }
 
 // Filter Applications
-function filterApplication(application) {
+function filterApplications() {
     const searchTerm = searchInput.value.toLowerCase();
-    const statusFilter = filterStatus.value;
-    const countryFilter = filterCountry.value;
-
-    const matchesSearch = application.studentName.toLowerCase().includes(searchTerm) ||
-                         application.university.toLowerCase().includes(searchTerm);
-    const matchesStatus = !statusFilter || application.status === statusFilter;
-    const matchesCountry = !countryFilter || application.country === countryFilter;
-
-    return matchesSearch && matchesStatus && matchesCountry;
-}
-
-// Add New Application
-addApplicationForm.addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const formData = {
-        studentId: addApplicationForm.studentId.value,
-        studentName: addApplicationForm.studentId.options[addApplicationForm.studentId.selectedIndex].text,
-        university: addApplicationForm.university.value,
-        course: addApplicationForm.course.value,
-        country: addApplicationForm.country.value,
-        intake: addApplicationForm.intake.value,
-        applicationFee: addApplicationForm.applicationFee.value,
-        notes: addApplicationForm.applicationNotes.value,
-        status: 'pending',
-        timeline: [{
-            status: 'pending',
-            date: new Date().toISOString(),
-            note: 'Application initiated'
-        }],
-        createdAt: new Date().toISOString(),
-        lastUpdated: new Date().toISOString()
-    };
-
-    push(ref(db, 'applications'), formData)
-        .then(() => {
-            closeAddApplicationModal();
-            addApplicationForm.reset();
-            alert('Application created successfully!');
-        })
-        .catch((error) => {
-            alert('Error creating application: ' + error.message);
-        });
-});
-
-// Update Application Status
-window.updateStatus = function(applicationId) {
-    const newStatus = prompt('Enter new status:\npending, documents, submitted, accepted, rejected, visa, completed');
-    if (!newStatus) return;
-
-    const updates = {
-        [`applications/${applicationId}/status`]: newStatus,
-        [`applications/${applicationId}/lastUpdated`]: new Date().toISOString(),
-        [`applications/${applicationId}/timeline`]: push(ref(db, `applications/${applicationId}/timeline`), {
-            status: newStatus,
-            date: new Date().toISOString(),
-            note: `Status updated to ${newStatus}`
-        })
-    };
-
-    update(ref(db), updates)
-        .then(() => alert('Status updated successfully!'))
-        .catch(error => alert('Error updating status: ' + error.message));
-};
-
-// View Application Details
-window.viewApplication = function(applicationId) {
-    const applicationRef = ref(db, `applications/${applicationId}`);
-    onValue(applicationRef, (snapshot) => {
-        const application = snapshot.val();
-        if (application) {
-            displayApplicationDetails(application);
-            document.getElementById('viewApplicationModal').style.display = 'block';
-        }
+    const selectedUniversity = universityFilter.value;
+    const selectedStatus = statusFilter.value;
+    
+    const rows = applicationsList.getElementsByTagName('tr');
+    Array.from(rows).forEach(row => {
+        const cells = row.getElementsByTagName('td');
+        const studentName = cells[1].textContent.toLowerCase();
+        const university = cells[2].textContent;
+        const status = cells[4].querySelector('.status-badge').textContent;
+        
+        const matchesSearch = studentName.includes(searchTerm);
+        const matchesUniversity = selectedUniversity === 'all' || university === selectedUniversity;
+        const matchesStatus = selectedStatus === 'all' || status === selectedStatus;
+        
+        row.style.display = matchesSearch && matchesUniversity && matchesStatus ? '' : 'none';
     });
-};
-
-function displayApplicationDetails(application) {
-    const detailsDiv = document.getElementById('applicationDetails');
-    const timelineDiv = document.getElementById('applicationTimeline');
-
-    detailsDiv.innerHTML = `
-        <div class="details-grid">
-            <div class="detail-item">
-                <strong>Student:</strong> ${application.studentName}
-            </div>
-            <div class="detail-item">
-                <strong>University:</strong> ${application.university}
-            </div>
-            <div class="detail-item">
-                <strong>Course:</strong> ${application.course}
-            </div>
-            <div class="detail-item">
-                <strong>Country:</strong> ${application.country.toUpperCase()}
-            </div>
-            <div class="detail-item">
-                <strong>Intake:</strong> ${application.intake}
-            </div>
-            <div class="detail-item">
-                <strong>Status:</strong> ${application.status}
-            </div>
-            <div class="detail-item">
-                <strong>Application Fee:</strong> ${application.applicationFee || 'N/A'}
-            </div>
-            <div class="detail-item">
-                <strong>Notes:</strong> ${application.notes || 'No notes'}
-            </div>
-        </div>
-    `;
-
-    timelineDiv.innerHTML = application.timeline.map(event => `
-        <div class="timeline-item">
-            <div class="timeline-date">${new Date(event.date).toLocaleDateString()}</div>
-            <div class="timeline-status ${event.status}">${event.status}</div>
-            <div class="timeline-note">${event.note}</div>
-        </div>
-    `).join('');
 }
 
 // Event Listeners for Filters
-searchInput.addEventListener('input', loadApplications);
-filterStatus.addEventListener('change', loadApplications);
-filterCountry.addEventListener('change', loadApplications);
+searchInput.addEventListener('input', filterApplications);
+universityFilter.addEventListener('change', filterApplications);
+statusFilter.addEventListener('change', filterApplications);
 
-// Modal Functions
-window.openAddApplicationModal = function() {
-    document.getElementById('addApplicationModal').style.display = 'block';
-};
+// Utility Functions
+function showSuccess(message) {
+    const successDiv = document.createElement('div');
+    successDiv.className = 'alert alert-success';
+    successDiv.textContent = message;
+    document.body.appendChild(successDiv);
+    
+    setTimeout(() => {
+        successDiv.remove();
+    }, 3000);
+}
 
-window.closeAddApplicationModal = function() {
-    document.getElementById('addApplicationModal').style.display = 'none';
-};
+function showError(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'alert alert-error';
+    errorDiv.textContent = message;
+    document.body.appendChild(errorDiv);
+    
+    setTimeout(() => {
+        errorDiv.remove();
+    }, 3000);
+}
 
-window.closeViewApplicationModal = function() {
-    document.getElementById('viewApplicationModal').style.display = 'none';
-};
+// Initialize App
+function initApp() {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('userName').textContent = user.displayName || 'Admin';
+            loadApplications();
+        } else {
+            window.location.href = 'login.html';
+        }
+    });
+}
 
-// Initialize
-loadStudents();
-loadApplications(); 
+// Start the application
+initApp();
+
+// View Application
+function viewApplication(id) {
+    const applicationsRef = ref(database, `applications/${id}`);
+    get(applicationsRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            const application = snapshot.val();
+            // Open a modal or navigate to a detailed view
+            console.log('Viewing application:', application);
+        }
+    });
+}
+
+// Edit Application
+function editApplication(id) {
+    const applicationsRef = ref(database, `applications/${id}`);
+    get(applicationsRef).then((snapshot) => {
+        if (snapshot.exists()) {
+            const application = snapshot.val();
+            // Open edit modal with pre-filled data
+            console.log('Editing application:', application);
+        }
+    });
+}
+
+// Delete Application
+function deleteApplication(id) {
+    if (confirm('Are you sure you want to delete this application?')) {
+        const applicationsRef = ref(database, `applications/${id}`);
+        remove(applicationsRef)
+            .then(() => {
+                showSuccess('Application deleted successfully!');
+            })
+            .catch((error) => {
+                showError('Failed to delete application. Please try again.');
+                console.error('Error deleting application:', error);
+            });
+    }
+} 

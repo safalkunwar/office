@@ -3,22 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Consultancy Dashboard</title>
+    <meta name="description" content="Admin Dashboard for managing students, exams, and applications">
+    <title>Admin Dashboard</title>
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Top Navigation Bar -->
-    <nav class="admin-navbar">
+    <nav class="admin-navbar" role="navigation" aria-label="Main navigation">
         <div class="navbar-left">
             <div class="logo">
                 <h2>Admin Panel</h2>
             </div>
         </div>
         <div class="navbar-right">
+            <button class="theme-toggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
             <ul>
-                <li><a href="index.html" class="active"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="index.html" class="active" aria-current="page"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="./html/students.html"><i class="fas fa-users"></i> Students</a></li>
                 <li><a href="./html/exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
                 <li><a href="./html/applications.html"><i class="fas fa-university"></i> Applications</a></li>
@@ -31,128 +38,181 @@
         </div>
     </nav>
     
-    <main class="content">
+    <main class="content" role="main">
         <header>
             <h1>Dashboard Overview</h1>
             <div class="user-info">
                 <span id="userName">Admin</span>
-                <a href="./html/login.html" class="logout">Logout</a>
+                <a href="./html/login.html" class="logout" aria-label="Logout">Logout</a>
             </div>
         </header>
 
         <div class="container">
             <div class="dashboard-grid">
                 <!-- Quick Stats -->
-                <section class="stats-container">
-                    <div class="stat-card">
-                        <i class="fas fa-user-graduate"></i>
+                <section class="stats-container" aria-label="Quick statistics">
+                    <div class="stat-card" tabindex="0" data-stat="total-students">
+                        <i class="fas fa-user-graduate" aria-hidden="true"></i>
                         <div>
                             <h3>Total Students</h3>
-                            <p id="totalStudents">0</p>
+                            <p id="totalStudents" data-db-field="total">0</p>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <i class="fas fa-file-alt"></i>
+                    <div class="stat-card" tabindex="0" data-stat="ielts-students">
+                        <i class="fas fa-file-alt" aria-hidden="true"></i>
                         <div>
                             <h3>IELTS Students</h3>
-                            <p id="ieltsStudents">0</p>
+                            <p id="ieltsStudents" data-db-field="ielts">0</p>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <i class="fas fa-file-alt"></i>
+                    <div class="stat-card" tabindex="0" data-stat="pte-students">
+                        <i class="fas fa-file-alt" aria-hidden="true"></i>
                         <div>
                             <h3>PTE Students</h3>
-                            <p id="pteStudents">0</p>
+                            <p id="pteStudents" data-db-field="pte">0</p>
                         </div>
                     </div>
-                    <div class="stat-card">
-                        <i class="fas fa-plane-departure"></i>
+                    <div class="stat-card" tabindex="0" data-stat="active-applications">
+                        <i class="fas fa-plane-departure" aria-hidden="true"></i>
                         <div>
                             <h3>Active Applications</h3>
-                            <p id="activeApplications">0</p>
+                            <p id="activeApplications" data-db-field="active">0</p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Student Progress Overview -->
+                <section class="progress-overview" aria-label="Student progress overview">
+                    <div class="section-header">
+                        <h2>Student Progress Overview</h2>
+                        <div class="filter-actions">
+                            <select id="courseFilter" aria-label="Filter by course" data-db-field="course">
+                                <option value="all">All Courses</option>
+                                <option value="ielts">IELTS</option>
+                                <option value="pte">PTE</option>
+                            </select>
+                            <select id="progressFilter" aria-label="Filter by progress" data-db-field="progress">
+                                <option value="all">All Progress</option>
+                                <option value="high">High Progress</option>
+                                <option value="medium">Medium Progress</option>
+                                <option value="low">Low Progress</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="progress-grid">
+                        <div class="progress-card" data-chart="ielts-progress">
+                            <h3>IELTS Progress</h3>
+                            <canvas id="ieltsProgressChart" data-db-collection="exams" data-db-type="ielts"></canvas>
+                        </div>
+                        <div class="progress-card" data-chart="pte-progress">
+                            <h3>PTE Progress</h3>
+                            <canvas id="pteProgressChart" data-db-collection="exams" data-db-type="pte"></canvas>
+                        </div>
+                        <div class="progress-card" data-chart="overall-performance">
+                            <h3>Overall Performance</h3>
+                            <canvas id="overallPerformanceChart" data-db-collection="exams"></canvas>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Application Analytics -->
+                <section class="application-analytics" aria-label="Application analytics">
+                    <div class="section-header">
+                        <h2>Application Analytics</h2>
+                        <div class="date-filter">
+                            <input type="date" id="startDate" aria-label="Start date" data-db-field="startDate">
+                            <input type="date" id="endDate" aria-label="End date" data-db-field="endDate">
+                            <button class="btn btn-primary" onclick="filterApplications()">
+                                <i class="fas fa-filter"></i> Filter
+                            </button>
+                        </div>
+                    </div>
+                    <div class="analytics-grid">
+                        <div class="analytics-card" data-chart="application-status">
+                            <h3>Application Status Distribution</h3>
+                            <canvas id="applicationStatusChart" data-db-collection="students"></canvas>
+                        </div>
+                        <div class="analytics-card" data-chart="university-applications">
+                            <h3>University Applications</h3>
+                            <canvas id="universityApplicationsChart" data-db-collection="applications"></canvas>
+                        </div>
+                        <div class="analytics-card" data-chart="visa-success">
+                            <h3>Visa Success Rate</h3>
+                            <canvas id="visaSuccessChart" data-db-collection="visas"></canvas>
                         </div>
                     </div>
                 </section>
 
                 <!-- Task Management -->
-                <section class="task-management">
+                <section class="task-management" aria-label="Task management">
                     <div class="section-header">
                         <h2>Task Management</h2>
-                        <button class="btn btn-primary" onclick="openCreateTaskModal()">
+                        <button class="btn btn-primary" onclick="openCreateTaskModal()" aria-label="Create new task">
                             <i class="fas fa-plus"></i> Create Task
                         </button>
                     </div>
                     <div class="task-filters">
-                        <select id="taskPriorityFilter">
+                        <select id="taskPriorityFilter" aria-label="Filter by priority">
                             <option value="all">All Priorities</option>
                             <option value="High">High Priority</option>
                             <option value="Medium">Medium Priority</option>
                             <option value="Low">Low Priority</option>
                         </select>
-                        <select id="taskStatusFilter">
+                        <select id="taskStatusFilter" aria-label="Filter by status">
                             <option value="all">All Status</option>
                             <option value="pending">Pending</option>
                             <option value="in-progress">In Progress</option>
                             <option value="completed">Completed</option>
                         </select>
                     </div>
-                    <div id="tasksList" class="tasks-list">
+                    <div id="tasksList" class="tasks-list" role="list">
                         <!-- Tasks will be loaded here -->
                     </div>
                 </section>
 
+                <!-- Recent Activities -->
+                <section class="recent-activities" aria-label="Recent activities">
+                    <div class="section-header">
+                        <h2>Recent Activities</h2>
+                        <button class="btn btn-primary" onclick="refreshActivities()" aria-label="Refresh activities">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    <div id="activitiesList" class="activities-list" role="list">
+                        <!-- Activities will be loaded here -->
+                    </div>
+                </section>
+
                 <!-- Security Overview -->
-                <section class="security-overview">
+                <section class="security-overview" aria-label="Security overview">
                     <div class="section-header">
                         <h2>Security Overview</h2>
-                        <a href="./html/security.html" class="btn btn-secondary">
+                        <a href="./html/security.html" class="btn btn-secondary" aria-label="Go to security settings">
                             <i class="fas fa-cog"></i> Security Settings
                         </a>
                     </div>
                     <div class="security-stats">
-                        <div class="stat-card">
+                        <div class="stat-card" tabindex="0">
                             <i class="fas fa-shield-alt"></i>
                             <div>
                                 <h3>2FA Status</h3>
                                 <p id="twoFactorStatus">Disabled</p>
                             </div>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card" tabindex="0">
                             <i class="fas fa-history"></i>
                             <div>
                                 <h3>Last Login</h3>
                                 <p id="lastLogin">Never</p>
                             </div>
                         </div>
-                        <div class="stat-card">
+                        <div class="stat-card" tabindex="0">
                             <i class="fas fa-exclamation-triangle"></i>
                             <div>
                                 <h3>Security Alerts</h3>
                                 <p id="securityAlerts">0</p>
                             </div>
                         </div>
-                    </div>
-                    <div class="recent-security-events">
-                        <h3>Recent Security Events</h3>
-                        <div id="securityEventsList" class="events-list">
-                            <!-- Security events will be loaded here -->
-                        </div>
-                    </div>
-                </section>
-
-                <!-- Recent Activities -->
-                <section class="recent-activities">
-                    <h2>Recent Activities</h2>
-                    <div id="activitiesList" class="activities-list">
-                        <!-- Populated by JavaScript -->
-                    </div>
-                </section>
-
-                <!-- Upcoming Tasks -->
-                <section class="upcoming-tasks">
-                    <h2>Upcoming Tasks</h2>
-                    <div id="tasksList" class="tasks-list">
-                        <!-- Populated by JavaScript -->
                     </div>
                 </section>
             </div>
