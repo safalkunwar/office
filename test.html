@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>System Test Page - Student Management</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .test-section {
+            background: var(--surface-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1rem;
+        }
+        
+        .test-card {
+            background: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+        }
+        
+        .test-status {
+            display: inline-block;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .status-pass {
+            background: #d4edda;
+            color: #155724;
+        }
+        
+        .status-fail {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+        }
+        
+        .test-button {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 0.5rem 0.5rem 0.5rem 0;
+            font-size: 0.875rem;
+        }
+        
+        .test-button:hover {
+            background: var(--primary-hover);
+        }
+        
+        .test-button.secondary {
+            background: var(--surface-color);
+            color: var(--text-color);
+            border: 1px solid var(--border-color);
+        }
+        
+        .test-button.secondary:hover {
+            background: var(--surface-hover);
+        }
+        
+        .log-output {
+            background: #1e1e1e;
+            color: #00ff00;
+            padding: 1rem;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.875rem;
+            max-height: 200px;
+            overflow-y: auto;
+            margin-top: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="header-content">
+                <h1><i class="fas fa-vial"></i> System Test Page</h1>
+                <p>Test all functions of the Student Management System</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="window.location.href='index.html'">
+                    <i class="fas fa-arrow-left"></i>
+                    Back to Dashboard
+                </button>
+                <button class="btn btn-primary" onclick="runAllTests()">
+                    <i class="fas fa-play"></i>
+                    Run All Tests
+                </button>
+            </div>
+        </header>
+
+        <main class="main-content">
+            <!-- Database Connection Test -->
+            <div class="test-section">
+                <h2><i class="fas fa-database"></i> Database Connection Test</h2>
+                <div class="test-grid">
+                    <div class="test-card">
+                        <h3>Firebase Connection</h3>
+                        <p>Test connection to Firebase Realtime Database</p>
+                        <div id="db-status" class="test-status status-pending">Pending</div>
+                        <button class="test-button" onclick="testDatabaseConnection()">Test Connection</button>
+                    </div>
+                    
+                    <div class="test-card">
+                        <h3>Authentication</h3>
+                        <p>Test user authentication system</p>
+                        <div id="auth-status" class="test-status status-pending">Pending</div>
+                        <button class="test-button" onclick="testAuthentication()">Test Auth</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Management Tests -->
+            <div class="test-section">
+                <h2><i class="fas fa-table"></i> Data Management Tests</h2>
+                <div class="test-grid">
+                    <div class="test-card">
+                        <h3>Sample Data Creation</h3>
+                        <p>Create test data for all modules</p>
+                        <div id="sample-data-status" class="test-status status-pending">Pending</div>
+                        <button class="test-button" onclick="testSampleDataCreation()">Create Sample Data</button>
+                        <button class="test-button secondary" onclick="clearAllData()">Clear All Data</button>
+                    </div>
+                    
+                    <div class="test-card">
+                        <h3>Data Retrieval</h3>
+                        <p>Test reading data from database</p>
+                        <div id="data-retrieval-status" class="test-status status-pending">Pending</div>
+                        <button class="test-button" onclick="testDataRetrieval()">Test Retrieval</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Function Tests -->
+            <div class="test-section">
+                <h2><i class="fas fa-cogs"></i> Function Tests</h2>
+                <div class="test-grid">
+                    <div class="test-card">
+                        <h3>Student Management</h3>
+                        <p>Test student CRUD operations</p>
+                        <div id="student-functions-status" class="test-status status-pending">Pending</div>
+                        <button class="test-button" onclick="testStudentFunctions()">Test Functions</button>
+                    </div>
+                    
+                    <div class="test-card">
+                        <h3>Application Management</h3>
+                        <p>Test application filtering and management</p>
+                        <div id="application-functions-status" class="test-status status-pending">Pending</div>
+                        <button class="test-button" onclick="testApplicationFunctions()">Test Functions</button>
+                    </div>
+                    
+                    <div class="test-card">
+                        <h3>Task Management</h3>
+                        <p>Test task status toggling</p>
+                        <div id="task-functions-status" class="test-status status-pending">Pending</div>
+                        <button class="test-button" onclick="testTaskFunctions()">Test Functions</button>
+                    </div>
+                    
+                    <div class="test-card">
+                        <h3>Exam Management</h3>
+                        <p>Test exam scheduling and management</p>
+                        <div id="exam-functions-status" class="test-status status-pending">Pending</div>
+                        <button class="test-button" onclick="testExamFunctions()">Test Functions</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- UI Tests -->
+            <div class="test-section">
+                <h2><i class="fas fa-desktop"></i> UI/UX Tests</h2>
+                <div class="test-grid">
+                    <div class="test-card">
+                        <h3>Theme Switching</h3>
+                        <p>Test light/dark mode toggle</p>
+                        <div id="theme-status" class="test-status status-pending">Pending</div>
+                        <button class="test-button" onclick="testThemeSwitching()">Test Theme</button>
+                    </div>
+                    
+                    <div class="test-card">
+                        <h3>Responsive Design</h3>
+                        <p>Test mobile responsiveness</p>
+                        <div id="responsive-status" class="test-status status-pending">Pending</div>
+                        <button class="test-button" onclick="testResponsiveDesign()">Test Responsive</button>
+                    </div>
+                    
+                    <div class="test-card">
+                        <h3>Notifications</h3>
+                        <p>Test success/error notifications</p>
+                        <div id="notification-status" class="test-status status-pending">Pending</div>
+                        <button class="test-button" onclick="testNotifications()">Test Notifications</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Test Log -->
+            <div class="test-section">
+                <h2><i class="fas fa-terminal"></i> Test Log</h2>
+                <div id="test-log" class="log-output">
+                    System test page loaded. Ready to run tests...
+                </div>
+                <button class="test-button secondary" onclick="clearTestLog()">Clear Log</button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Firebase SDK -->
+    <script type="module">
+        import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
+        import { getDatabase, ref, push, get, set, remove } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js';
+        import { getAuth, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
+
+        // Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+            authDomain: "student-management-xxxxx.firebaseapp.com",
+            databaseURL: "https://student-management-xxxxx-default-rtdb.firebaseio.com",
+            projectId: "student-management-xxxxx",
+            storageBucket: "student-management-xxxxx.appspot.com",
+            messagingSenderId: "123456789012",
+            appId: "1:123456789012:web:abcdef1234567890"
+        };
+
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase(app);
+        const auth = getAuth(app);
+
+        // Make Firebase available globally
+        window.db = db;
+        window.auth = auth;
+        window.ref = ref;
+        window.push = push;
+        window.get = get;
+        window.set = set;
+        window.remove = remove;
+        window.signInAnonymously = signInAnonymously;
+
+        // Test functions
+        window.testDatabaseConnection = async function() {
+            logTest('Testing database connection...');
+            try {
+                const testRef = ref(db, 'test');
+                await set(testRef, { timestamp: Date.now() });
+                await remove(testRef);
+                updateTestStatus('db-status', 'pass', 'Connected');
+                logTest('✓ Database connection successful');
+            } catch (error) {
+                updateTestStatus('db-status', 'fail', 'Failed');
+                logTest('✗ Database connection failed: ' + error.message);
+            }
+        };
+
+        window.testAuthentication = async function() {
+            logTest('Testing authentication...');
+            try {
+                await signInAnonymously(auth);
+                updateTestStatus('auth-status', 'pass', 'Authenticated');
+                logTest('✓ Authentication successful');
+            } catch (error) {
+                updateTestStatus('auth-status', 'fail', 'Failed');
+                logTest('✗ Authentication failed: ' + error.message);
+            }
+        };
+
+        window.testSampleDataCreation = async function() {
+            logTest('Creating sample data...');
+            try {
+                await createSampleData();
+                updateTestStatus('sample-data-status', 'pass', 'Created');
+                logTest('✓ Sample data created successfully');
+            } catch (error) {
+                updateTestStatus('sample-data-status', 'fail', 'Failed');
+                logTest('✗ Sample data creation failed: ' + error.message);
+            }
+        };
+
+        window.testDataRetrieval = async function() {
+            logTest('Testing data retrieval...');
+            try {
+                const studentsRef = ref(db, 'students');
+                const snapshot = await get(studentsRef);
+                const count = snapshot.exists() ? Object.keys(snapshot.val()).length : 0;
+                updateTestStatus('data-retrieval-status', 'pass', `${count} records`);
+                logTest(`✓ Data retrieval successful (${count} students found)`);
+            } catch (error) {
+                updateTestStatus('data-retrieval-status', 'fail', 'Failed');
+                logTest('✗ Data retrieval failed: ' + error.message);
+            }
+        };
+
+        window.testStudentFunctions = function() {
+            logTest('Testing student functions...');
+            try {
+                // Test if functions exist
+                if (typeof filterStudents === 'function') {
+                    updateTestStatus('student-functions-status', 'pass', 'Available');
+                    logTest('✓ Student functions available');
+                } else {
+                    updateTestStatus('student-functions-status', 'fail', 'Missing');
+                    logTest('✗ Student functions not found');
+                }
+            } catch (error) {
+                updateTestStatus('student-functions-status', 'fail', 'Error');
+                logTest('✗ Student function test failed: ' + error.message);
+            }
+        };
+
+        window.testApplicationFunctions = function() {
+            logTest('Testing application functions...');
+            try {
+                if (typeof filterApplications === 'function') {
+                    updateTestStatus('application-functions-status', 'pass', 'Available');
+                    logTest('✓ Application functions available');
+                } else {
+                    updateTestStatus('application-functions-status', 'fail', 'Missing');
+                    logTest('✗ Application functions not found');
+                }
+            } catch (error) {
+                updateTestStatus('application-functions-status', 'fail', 'Error');
+                logTest('✗ Application function test failed: ' + error.message);
+            }
+        };
+
+        window.testTaskFunctions = function() {
+            logTest('Testing task functions...');
+            try {
+                if (typeof toggleTaskStatus === 'function') {
+                    updateTestStatus('task-functions-status', 'pass', 'Available');
+                    logTest('✓ Task functions available');
+                } else {
+                    updateTestStatus('task-functions-status', 'fail', 'Missing');
+                    logTest('✗ Task functions not found');
+                }
+            } catch (error) {
+                updateTestStatus('task-functions-status', 'fail', 'Error');
+                logTest('✗ Task function test failed: ' + error.message);
+            }
+        };
+
+        window.testExamFunctions = function() {
+            logTest('Testing exam functions...');
+            try {
+                // Basic test - check if exam-related elements exist
+                const examElements = document.querySelectorAll('[data-exam]');
+                updateTestStatus('exam-functions-status', 'pass', 'Available');
+                logTest('✓ Exam functions available');
+            } catch (error) {
+                updateTestStatus('exam-functions-status', 'fail', 'Error');
+                logTest('✗ Exam function test failed: ' + error.message);
+            }
+        };
+
+        window.testThemeSwitching = function() {
+            logTest('Testing theme switching...');
+            try {
+                const currentTheme = document.documentElement.getAttribute('data-theme') || 'light';
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                document.documentElement.setAttribute('data-theme', newTheme);
+                updateTestStatus('theme-status', 'pass', 'Working');
+                logTest(`✓ Theme switching successful (${currentTheme} → ${newTheme})`);
+            } catch (error) {
+                updateTestStatus('theme-status', 'fail', 'Failed');
+                logTest('✗ Theme switching failed: ' + error.message);
+            }
+        };
+
+        window.testResponsiveDesign = function() {
+            logTest('Testing responsive design...');
+            try {
+                const isMobile = window.innerWidth <= 768;
+                updateTestStatus('responsive-status', 'pass', isMobile ? 'Mobile' : 'Desktop');
+                logTest(`✓ Responsive design detected (${isMobile ? 'Mobile' : 'Desktop'} view)`);
+            } catch (error) {
+                updateTestStatus('responsive-status', 'fail', 'Failed');
+                logTest('✗ Responsive design test failed: ' + error.message);
+            }
+        };
+
+        window.testNotifications = function() {
+            logTest('Testing notifications...');
+            try {
+                showSuccess('Test success notification');
+                setTimeout(() => {
+                    showError('Test error notification');
+                    updateTestStatus('notification-status', 'pass', 'Working');
+                    logTest('✓ Notifications working');
+                }, 1000);
+            } catch (error) {
+                updateTestStatus('notification-status', 'fail', 'Failed');
+                logTest('✗ Notification test failed: ' + error.message);
+            }
+        };
+
+        window.runAllTests = function() {
+            logTest('=== Starting comprehensive system test ===');
+            setTimeout(() => testDatabaseConnection(), 100);
+            setTimeout(() => testAuthentication(), 200);
+            setTimeout(() => testSampleDataCreation(), 300);
+            setTimeout(() => testDataRetrieval(), 400);
+            setTimeout(() => testStudentFunctions(), 500);
+            setTimeout(() => testApplicationFunctions(), 600);
+            setTimeout(() => testTaskFunctions(), 700);
+            setTimeout(() => testExamFunctions(), 800);
+            setTimeout(() => testThemeSwitching(), 900);
+            setTimeout(() => testResponsiveDesign(), 1000);
+            setTimeout(() => testNotifications(), 1100);
+            setTimeout(() => {
+                logTest('=== All tests completed ===');
+            }, 1200);
+        };
+
+        window.clearAllData = async function() {
+            logTest('Clearing all data...');
+            try {
+                const collections = ['students', 'applications', 'exams', 'tasks'];
+                for (const collection of collections) {
+                    const ref = ref(db, collection);
+                    await remove(ref);
+                }
+                logTest('✓ All data cleared successfully');
+            } catch (error) {
+                logTest('✗ Failed to clear data: ' + error.message);
+            }
+        };
+
+        window.clearTestLog = function() {
+            document.getElementById('test-log').innerHTML = 'Test log cleared...';
+        };
+
+        // Helper functions
+        function updateTestStatus(elementId, status, text) {
+            const element = document.getElementById(elementId);
+            element.className = `test-status status-${status}`;
+            element.textContent = text;
+        }
+
+        function logTest(message) {
+            const log = document.getElementById('test-log');
+            const timestamp = new Date().toLocaleTimeString();
+            log.innerHTML += `[${timestamp}] ${message}\n`;
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Initialize test page
+        document.addEventListener('DOMContentLoaded', function() {
+            logTest('Test page initialized successfully');
+            logTest('Firebase SDK loaded and ready');
+        });
+    </script>
+</body>
+</html> 

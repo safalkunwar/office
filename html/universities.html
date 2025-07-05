@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>University Management - Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="admin-navbar" role="navigation" aria-label="Main navigation">
+        <div class="navbar-left">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <button class="theme-toggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul>
+                <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="students.html"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
+                <li><a href="applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="universities.html" class="active" aria-current="page"><i class="fas fa-graduation-cap"></i> Universities</a></li>
+                <li><a href="documents.html"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="messages.html"><i class="fas fa-envelope"></i> Messages</a></li>
+                <li><a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
+                <li><a href="security.html"><i class="fas fa-shield-alt"></i> Security</a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="content" role="main">
+        <header>
+            <h1>University Management</h1>
+            <div class="user-info">
+                <span id="userName">Admin</span>
+                <a href="login.html" class="logout" aria-label="Logout">Logout</a>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- University Filters -->
+            <div class="filters-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search universities..." aria-label="Search universities">
+                </div>
+                <div class="filter-options">
+                    <select id="countryFilter" aria-label="Filter by country">
+                        <option value="all">All Countries</option>
+                        <option value="Canada">Canada</option>
+                        <option value="USA">USA</option>
+                        <option value="UK">UK</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Germany">Germany</option>
+                    </select>
+                    <select id="typeFilter" aria-label="Filter by type">
+                        <option value="all">All Types</option>
+                        <option value="Public">Public</option>
+                        <option value="Private">Private</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="openCreateUniversityModal()">
+                        <i class="fas fa-plus"></i> Add University
+                    </button>
+                </div>
+            </div>
+
+            <!-- Universities List -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>University ID</th>
+                            <th>Name & Location</th>
+                            <th>Country</th>
+                            <th>Type</th>
+                            <th>QS Ranking</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="universitiesList">
+                        <!-- Universities will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="btn btn-secondary" disabled>
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="page-info">Page 1 of 5</span>
+                <button class="btn btn-secondary">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- Create University Modal -->
+    <div class="modal" id="createUniversityModal">
+        <div class="modal-content">
+            <h2>Add New University</h2>
+            <form id="createUniversityForm">
+                <div class="form-group">
+                    <label for="universityName">University Name</label>
+                    <input type="text" id="universityName" required placeholder="e.g., University of Toronto">
+                </div>
+                <div class="form-group">
+                    <label for="universityCountry">Country</label>
+                    <select id="universityCountry" required>
+                        <option value="">Select Country</option>
+                        <option value="Canada">Canada</option>
+                        <option value="USA">USA</option>
+                        <option value="UK">UK</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Germany">Germany</option>
+                        <option value="Netherlands">Netherlands</option>
+                        <option value="Sweden">Sweden</option>
+                        <option value="Switzerland">Switzerland</option>
+                        <option value="New Zealand">New Zealand</option>
+                        <option value="Ireland">Ireland</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="universityCity">City</label>
+                    <input type="text" id="universityCity" required placeholder="e.g., Toronto">
+                </div>
+                <div class="form-group">
+                    <label for="universityType">Type</label>
+                    <select id="universityType" required>
+                        <option value="">Select Type</option>
+                        <option value="Public">Public</option>
+                        <option value="Private">Private</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="universityRanking">QS World Ranking</label>
+                    <input type="number" id="universityRanking" min="1" placeholder="e.g., 25">
+                </div>
+                <div class="form-group">
+                    <label for="universityWebsite">Website</label>
+                    <input type="url" id="universityWebsite" placeholder="https://www.university.edu">
+                </div>
+                <div class="form-group">
+                    <label for="universityDescription">Description</label>
+                    <textarea id="universityDescription" rows="3" placeholder="Brief description of the university..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateUniversityModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create University</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module" src="../js/universities.js"></script>
+</body>
+</html> 

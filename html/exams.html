@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exams Management - Admin Dashboard</title>
+    <title>Exam Management - Admin Dashboard</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -39,7 +39,7 @@
 
     <main class="content" role="main">
         <header>
-            <h1>Exams Management</h1>
+            <h1>Exam Management</h1>
             <div class="user-info">
                 <span id="userName">Admin</span>
                 <a href="login.html" class="logout" aria-label="Logout">Logout</a>
@@ -56,8 +56,10 @@
                 <div class="filter-options">
                     <select id="examTypeFilter" aria-label="Filter by exam type">
                         <option value="all">All Types</option>
-                        <option value="ielts">IELTS</option>
-                        <option value="pte">PTE</option>
+                        <option value="IELTS">IELTS</option>
+                        <option value="PTE">PTE</option>
+                        <option value="TOEFL">TOEFL</option>
+                        <option value="Practice">Practice Test</option>
                     </select>
                     <select id="statusFilter" aria-label="Filter by status">
                         <option value="all">All Status</option>
@@ -66,7 +68,7 @@
                         <option value="completed">Completed</option>
                     </select>
                     <button class="btn btn-primary" onclick="openCreateExamModal()">
-                        <i class="fas fa-plus"></i> Create Exam
+                        <i class="fas fa-plus"></i> Add Exam
                     </button>
                 </div>
             </div>
@@ -77,9 +79,9 @@
                     <thead>
                         <tr>
                             <th>Exam ID</th>
-                            <th>Name</th>
+                            <th>Exam Name</th>
                             <th>Type</th>
-                            <th>Date</th>
+                            <th>Date & Time</th>
                             <th>Duration</th>
                             <th>Status</th>
                             <th>Actions</th>
@@ -107,30 +109,33 @@
     <!-- Create Exam Modal -->
     <div class="modal" id="createExamModal">
         <div class="modal-content">
-            <h2>Create New Exam</h2>
+            <h2>Add New Exam</h2>
             <form id="createExamForm">
                 <div class="form-group">
                     <label for="examName">Exam Name</label>
-                    <input type="text" id="examName" required>
+                    <input type="text" id="examName" required placeholder="e.g., IELTS Practice Test 1">
                 </div>
                 <div class="form-group">
                     <label for="examType">Exam Type</label>
                     <select id="examType" required>
-                        <option value="ielts">IELTS</option>
-                        <option value="pte">PTE</option>
+                        <option value="">Select Exam Type</option>
+                        <option value="IELTS">IELTS</option>
+                        <option value="PTE">PTE</option>
+                        <option value="TOEFL">TOEFL</option>
+                        <option value="Practice">Practice Test</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="examDate">Exam Date</label>
+                    <label for="examDate">Date & Time</label>
                     <input type="datetime-local" id="examDate" required>
                 </div>
                 <div class="form-group">
                     <label for="examDuration">Duration (minutes)</label>
-                    <input type="number" id="examDuration" required min="30" max="240">
+                    <input type="number" id="examDuration" required min="30" max="300" placeholder="e.g., 180">
                 </div>
                 <div class="form-group">
                     <label for="examDescription">Description</label>
-                    <textarea id="examDescription" rows="3"></textarea>
+                    <textarea id="examDescription" rows="3" placeholder="Brief description of the exam..."></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeCreateExamModal()">Cancel</button>

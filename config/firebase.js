@@ -1,15 +1,18 @@
-import { initializeApp } from 'firebase/app';
-import { getAuth } from 'firebase/auth';
-import { getDatabase } from 'firebase/database';
-import { getStorage } from 'firebase/storage';
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+import { getDatabase } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+import { getStorage } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-storage.js";
+
 
 const firebaseConfig = {
-    apiKey: "YOUR_API_KEY",
-    authDomain: "YOUR_AUTH_DOMAIN",
-    projectId: "YOUR_PROJECT_ID",
-    storageBucket: "YOUR_STORAGE_BUCKET",
-    messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-    appId: "YOUR_APP_ID"
+    apiKey: "AIzaSyA910SEIzx0ER4Ps_EdXBUU0Jgf2wTRm8Q",
+    authDomain: "fir-a7a69.firebaseapp.com",
+    databaseURL: "https://fir-a7a69-default-rtdb.asia-southeast1.firebasedatabase.app",
+    projectId: "fir-a7a69",
+    storageBucket: "fir-a7a69.firebasestorage.app",
+    messagingSenderId: "1060643495940",
+    appId: "1:1060643495940:web:19bc515d82d737d73d1551",
+    measurementId: "G-YG82VTV644"
 };
 
 // Initialize Firebase

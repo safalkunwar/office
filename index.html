@@ -14,7 +14,7 @@
     <nav class="admin-navbar" role="navigation" aria-label="Main navigation">
         <div class="navbar-left">
             <div class="logo">
-                <h2>Admin Panel</h2>
+                <h2><i class="fas fa-chart-line"></i> Admin Panel</h2>
             </div>
         </div>
         <div class="navbar-right">
@@ -29,21 +29,48 @@
                 <li><a href="./html/students.html"><i class="fas fa-users"></i> Students</a></li>
                 <li><a href="./html/exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
                 <li><a href="./html/applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="./html/universities.html"><i class="fas fa-graduation-cap"></i> Universities</a></li>
                 <li><a href="./html/documents.html"><i class="fas fa-folder"></i> Documents</a></li>
                 <li><a href="./html/messages.html"><i class="fas fa-envelope"></i> Messages</a></li>
                 <li><a href="./html/tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
                 <li><a href="./html/security.html"><i class="fas fa-shield-alt"></i> Security</a></li>
                 <li><a href="./html/reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                <li><a href="./html/recent-activities.html"><i class="fas fa-history"></i> Activities</a></li>
             </ul>
         </div>
     </nav>
     
     <main class="content" role="main">
         <header>
-            <h1>Dashboard Overview</h1>
+            <div class="header-content">
+                <h1><i class="fas fa-tachometer-alt"></i> Dashboard Overview</h1>
+                <p class="header-subtitle">Welcome back! Here's what's happening today.</p>
+            </div>
             <div class="user-info">
-                <span id="userName">Admin</span>
-                <a href="./html/login.html" class="logout" aria-label="Logout">Logout</a>
+                <div class="user-avatar">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <div class="user-details">
+                    <span id="userName">Admin</span>
+                    <small>Administrator</small>
+                </div>
+                <a href="./html/admin/login.html" class="logout" aria-label="Logout">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </a>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="createSampleData()">
+                    <i class="fas fa-database"></i>
+                    Create Sample Data
+                </button>
+                <a href="test.html" class="btn btn-secondary">
+                    <i class="fas fa-vial"></i>
+                    Test System
+                </a>
+                <button class="btn btn-primary" onclick="openCreateTaskModal()">
+                    <i class="fas fa-plus"></i>
+                    Create Task
+                </button>
             </div>
         </header>
 
@@ -52,31 +79,51 @@
                 <!-- Quick Stats -->
                 <section class="stats-container" aria-label="Quick statistics">
                     <div class="stat-card" tabindex="0" data-stat="total-students">
-                        <i class="fas fa-user-graduate" aria-hidden="true"></i>
-                        <div>
+                        <div class="stat-icon">
+                            <i class="fas fa-user-graduate" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
                             <h3>Total Students</h3>
                             <p id="totalStudents" data-db-field="total">0</p>
+                            <span class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> +12%
+                            </span>
                         </div>
                     </div>
                     <div class="stat-card" tabindex="0" data-stat="ielts-students">
-                        <i class="fas fa-file-alt" aria-hidden="true"></i>
-                        <div>
+                        <div class="stat-icon">
+                            <i class="fas fa-file-alt" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
                             <h3>IELTS Students</h3>
                             <p id="ieltsStudents" data-db-field="ielts">0</p>
+                            <span class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> +8%
+                            </span>
                         </div>
                     </div>
                     <div class="stat-card" tabindex="0" data-stat="pte-students">
-                        <i class="fas fa-file-alt" aria-hidden="true"></i>
-                        <div>
+                        <div class="stat-icon">
+                            <i class="fas fa-file-alt" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
                             <h3>PTE Students</h3>
                             <p id="pteStudents" data-db-field="pte">0</p>
+                            <span class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> +15%
+                            </span>
                         </div>
                     </div>
                     <div class="stat-card" tabindex="0" data-stat="active-applications">
-                        <i class="fas fa-plane-departure" aria-hidden="true"></i>
-                        <div>
+                        <div class="stat-icon">
+                            <i class="fas fa-plane-departure" aria-hidden="true"></i>
+                        </div>
+                        <div class="stat-content">
                             <h3>Active Applications</h3>
                             <p id="activeApplications" data-db-field="active">0</p>
+                            <span class="stat-trend positive">
+                                <i class="fas fa-arrow-up"></i> +5%
+                            </span>
                         </div>
                     </div>
                 </section>
@@ -84,7 +131,7 @@
                 <!-- Student Progress Overview -->
                 <section class="progress-overview" aria-label="Student progress overview">
                     <div class="section-header">
-                        <h2>Student Progress Overview</h2>
+                        <h2><i class="fas fa-chart-line"></i> Student Progress Overview</h2>
                         <div class="filter-actions">
                             <select id="courseFilter" aria-label="Filter by course" data-db-field="course">
                                 <option value="all">All Courses</option>
@@ -101,15 +148,15 @@
                     </div>
                     <div class="progress-grid">
                         <div class="progress-card" data-chart="ielts-progress">
-                            <h3>IELTS Progress</h3>
+                            <h3><i class="fas fa-chart-bar"></i> IELTS Progress</h3>
                             <canvas id="ieltsProgressChart" data-db-collection="exams" data-db-type="ielts"></canvas>
                         </div>
                         <div class="progress-card" data-chart="pte-progress">
-                            <h3>PTE Progress</h3>
+                            <h3><i class="fas fa-chart-bar"></i> PTE Progress</h3>
                             <canvas id="pteProgressChart" data-db-collection="exams" data-db-type="pte"></canvas>
                         </div>
                         <div class="progress-card" data-chart="overall-performance">
-                            <h3>Overall Performance</h3>
+                            <h3><i class="fas fa-chart-pie"></i> Overall Performance</h3>
                             <canvas id="overallPerformanceChart" data-db-collection="exams"></canvas>
                         </div>
                     </div>
@@ -118,7 +165,7 @@
                 <!-- Application Analytics -->
                 <section class="application-analytics" aria-label="Application analytics">
                     <div class="section-header">
-                        <h2>Application Analytics</h2>
+                        <h2><i class="fas fa-analytics"></i> Application Analytics</h2>
                         <div class="date-filter">
                             <input type="date" id="startDate" aria-label="Start date" data-db-field="startDate">
                             <input type="date" id="endDate" aria-label="End date" data-db-field="endDate">
@@ -129,15 +176,15 @@
                     </div>
                     <div class="analytics-grid">
                         <div class="analytics-card" data-chart="application-status">
-                            <h3>Application Status Distribution</h3>
+                            <h3><i class="fas fa-pie-chart"></i> Application Status Distribution</h3>
                             <canvas id="applicationStatusChart" data-db-collection="students"></canvas>
                         </div>
                         <div class="analytics-card" data-chart="university-applications">
-                            <h3>University Applications</h3>
+                            <h3><i class="fas fa-university"></i> University Applications</h3>
                             <canvas id="universityApplicationsChart" data-db-collection="applications"></canvas>
                         </div>
                         <div class="analytics-card" data-chart="visa-success">
-                            <h3>Visa Success Rate</h3>
+                            <h3><i class="fas fa-passport"></i> Visa Success Rate</h3>
                             <canvas id="visaSuccessChart" data-db-collection="visas"></canvas>
                         </div>
                     </div>
@@ -146,10 +193,15 @@
                 <!-- Task Management -->
                 <section class="task-management" aria-label="Task management">
                     <div class="section-header">
-                        <h2>Task Management</h2>
-                        <button class="btn btn-primary" onclick="openCreateTaskModal()" aria-label="Create new task">
-                            <i class="fas fa-plus"></i> Create Task
-                        </button>
+                        <h2><i class="fas fa-tasks"></i> Task Management</h2>
+                        <div class="section-actions">
+                            <button class="btn btn-primary" onclick="openCreateTaskModal()" aria-label="Create new task">
+                                <i class="fas fa-plus"></i> Create Task
+                            </button>
+                            <a href="./html/tasks.html" class="btn btn-secondary" aria-label="View all tasks">
+                                <i class="fas fa-external-link-alt"></i> View All
+                            </a>
+                        </div>
                     </div>
                     <div class="task-filters">
                         <select id="taskPriorityFilter" aria-label="Filter by priority">
@@ -170,47 +222,115 @@
                     </div>
                 </section>
 
-                <!-- Recent Activities -->
-                <section class="recent-activities" aria-label="Recent activities">
+                <!-- Quick Actions -->
+                <section class="quick-actions" aria-label="Quick actions">
                     <div class="section-header">
-                        <h2>Recent Activities</h2>
-                        <button class="btn btn-primary" onclick="refreshActivities()" aria-label="Refresh activities">
-                            <i class="fas fa-sync-alt"></i> Refresh
-                        </button>
+                        <h2><i class="fas fa-bolt"></i> Quick Actions</h2>
                     </div>
-                    <div id="activitiesList" class="activities-list" role="list">
-                        <!-- Activities will be loaded here -->
+                    <div class="actions-grid">
+                        <a href="./html/students.html" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <h3>Add Student</h3>
+                            <p>Register a new student</p>
+                        </a>
+                        <a href="./html/exams.html" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-calendar-plus"></i>
+                            </div>
+                            <h3>Schedule Exam</h3>
+                            <p>Create new exam schedule</p>
+                        </a>
+                        <a href="#" class="action-card" onclick="openCreateExamModal()">
+                            <div class="action-icon">
+                                <i class="fas fa-file-alt"></i>
+                            </div>
+                            <h3>Quick Exam</h3>
+                            <p>Create exam instantly</p>
+                        </a>
+                        <a href="./html/applications.html" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-file-upload"></i>
+                            </div>
+                            <h3>New Application</h3>
+                            <p>Submit application</p>
+                        </a>
+                        <a href="./html/universities.html" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-graduation-cap"></i>
+                            </div>
+                            <h3>Manage Universities</h3>
+                            <p>Add/edit universities</p>
+                        </a>
+                        <a href="#" class="action-card" onclick="openCreateUniversityModal()">
+                            <div class="action-icon">
+                                <i class="fas fa-plus-circle"></i>
+                            </div>
+                            <h3>Quick University</h3>
+                            <p>Add university instantly</p>
+                        </a>
+                        <a href="./html/messages.html" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-comment-dots"></i>
+                            </div>
+                            <h3>Send Message</h3>
+                            <p>Contact students</p>
+                        </a>
+                        <a href="./html/recent-activities.html" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h3>View Activities</h3>
+                            <p>Recent system activities</p>
+                        </a>
+                        <a href="./html/reports.html" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h3>Generate Report</h3>
+                            <p>Create detailed reports</p>
+                        </a>
                     </div>
                 </section>
 
                 <!-- Security Overview -->
                 <section class="security-overview" aria-label="Security overview">
                     <div class="section-header">
-                        <h2>Security Overview</h2>
+                        <h2><i class="fas fa-shield-alt"></i> Security Overview</h2>
                         <a href="./html/security.html" class="btn btn-secondary" aria-label="Go to security settings">
                             <i class="fas fa-cog"></i> Security Settings
                         </a>
                     </div>
                     <div class="security-stats">
                         <div class="stat-card" tabindex="0">
-                            <i class="fas fa-shield-alt"></i>
-                            <div>
+                            <div class="stat-icon">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="stat-content">
                                 <h3>2FA Status</h3>
                                 <p id="twoFactorStatus">Disabled</p>
+                                <span class="stat-badge warning">Setup Required</span>
                             </div>
                         </div>
                         <div class="stat-card" tabindex="0">
-                            <i class="fas fa-history"></i>
-                            <div>
+                            <div class="stat-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <div class="stat-content">
                                 <h3>Last Login</h3>
                                 <p id="lastLogin">Never</p>
+                                <span class="stat-badge info">Today</span>
                             </div>
                         </div>
                         <div class="stat-card" tabindex="0">
-                            <i class="fas fa-exclamation-triangle"></i>
-                            <div>
+                            <div class="stat-icon">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-content">
                                 <h3>Security Alerts</h3>
                                 <p id="securityAlerts">0</p>
+                                <span class="stat-badge success">All Clear</span>
                             </div>
                         </div>
                     </div>
@@ -218,6 +338,102 @@
             </div>
         </div>
     </main>
+
+    <!-- Create Exam Modal -->
+    <div class="modal" id="createExamModal">
+        <div class="modal-content">
+            <h2>Create New Exam</h2>
+            <form id="createExamForm">
+                <div class="form-group">
+                    <label for="examName">Exam Name</label>
+                    <input type="text" id="examName" required placeholder="e.g., IELTS Practice Test 1">
+                </div>
+                <div class="form-group">
+                    <label for="examType">Exam Type</label>
+                    <select id="examType" required>
+                        <option value="">Select Exam Type</option>
+                        <option value="IELTS">IELTS</option>
+                        <option value="PTE">PTE</option>
+                        <option value="TOEFL">TOEFL</option>
+                        <option value="Practice">Practice Test</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="examDate">Date & Time</label>
+                    <input type="datetime-local" id="examDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="examDuration">Duration (minutes)</label>
+                    <input type="number" id="examDuration" required min="30" max="300" placeholder="e.g., 180">
+                </div>
+                <div class="form-group">
+                    <label for="examDescription">Description</label>
+                    <textarea id="examDescription" rows="3" placeholder="Brief description of the exam..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateExamModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Exam</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Create University Modal -->
+    <div class="modal" id="createUniversityModal">
+        <div class="modal-content">
+            <h2>Add New University</h2>
+            <form id="createUniversityForm">
+                <div class="form-group">
+                    <label for="universityName">University Name</label>
+                    <input type="text" id="universityName" required placeholder="e.g., University of Toronto">
+                </div>
+                <div class="form-group">
+                    <label for="universityCountry">Country</label>
+                    <select id="universityCountry" required>
+                        <option value="">Select Country</option>
+                        <option value="Canada">Canada</option>
+                        <option value="USA">USA</option>
+                        <option value="UK">UK</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Germany">Germany</option>
+                        <option value="Netherlands">Netherlands</option>
+                        <option value="Sweden">Sweden</option>
+                        <option value="Switzerland">Switzerland</option>
+                        <option value="New Zealand">New Zealand</option>
+                        <option value="Ireland">Ireland</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="universityCity">City</label>
+                    <input type="text" id="universityCity" required placeholder="e.g., Toronto">
+                </div>
+                <div class="form-group">
+                    <label for="universityType">Type</label>
+                    <select id="universityType" required>
+                        <option value="">Select Type</option>
+                        <option value="Public">Public</option>
+                        <option value="Private">Private</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="universityRanking">QS World Ranking</label>
+                    <input type="number" id="universityRanking" min="1" placeholder="e.g., 25">
+                </div>
+                <div class="form-group">
+                    <label for="universityWebsite">Website</label>
+                    <input type="url" id="universityWebsite" placeholder="https://www.university.edu">
+                </div>
+                <div class="form-group">
+                    <label for="universityDescription">Description</label>
+                    <textarea id="universityDescription" rows="3" placeholder="Brief description of the university..."></textarea>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateUniversityModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create University</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <script type="module" src="./js/index.js"></script>
 </body>

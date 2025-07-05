@@ -1,7 +1,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
 import { getDatabase, ref, onValue, get, set, push, update, remove } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
-import { firebaseConfig } from './config/firebase.js';
+import { firebaseConfig } from '../config.js';
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -92,60 +92,87 @@ createExamForm.addEventListener('submit', async (e) => {
     };
 
     try {
+        // Show loading state
+        const submitBtn = createExamForm.querySelector('button[type="submit"]');
+        const originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Creating...';
+        submitBtn.disabled = true;
+
         const examsRef = ref(db, 'exams');
         const newExamRef = push(examsRef);
         await set(newExamRef, examData);
         
-        showSuccessMessage('Exam created successfully!');
+        showSuccess('Exam created successfully!');
         closeCreateExamModal();
+        
+        // Reset button
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     } catch (error) {
-        showErrorMessage('Failed to create exam. Please try again.');
+        showError('Failed to create exam. Please try again.');
         console.error('Error creating exam:', error);
+        
+        // Reset button
+        const submitBtn = createExamForm.querySelector('button[type="submit"]');
+        submitBtn.textContent = 'Create Exam';
+        submitBtn.disabled = false;
     }
 });
 
-// Load Exams
-async function loadExams() {
-    try {
-        const examsRef = ref(db, 'exams');
-        const snapshot = await get(examsRef);
+// Load and Display Exams
+function loadExams() {
+    const examsRef = ref(db, 'exams');
+    onValue(examsRef, (snapshot) => {
+        examsList.innerHTML = '';
         
         if (snapshot.exists()) {
-            const exams = snapshot.val();
+            const exams = [];
+            snapshot.forEach((childSnapshot) => {
+                exams.push({
+                    id: childSnapshot.key,
+                    ...childSnapshot.val()
+                });
+            });
+            
+            // Sort by date (earliest first)
+            exams.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
             displayExams(exams);
         } else {
             examsList.innerHTML = '<tr><td colspan="7" class="no-data">No exams found</td></tr>';
         }
-    } catch (error) {
-        showErrorMessage('Failed to load exams. Please try again.');
-        console.error('Error loading exams:', error);
-    }
+    });
 }
 
 // Display Exams
 function displayExams(exams) {
     examsList.innerHTML = '';
     
-    Object.entries(exams).forEach(([id, exam]) => {
+    exams.forEach(exam => {
         const row = document.createElement('tr');
         const examDate = new Date(exam.date);
         const status = getExamStatus(examDate, exam.duration);
         
         row.innerHTML = `
-            <td>${id.substring(0, 8)}</td>
-            <td>${exam.name}</td>
-            <td>${exam.type.toUpperCase()}</td>
+            <td>${exam.id.substring(0, 8)}</td>
+            <td>
+                <div class="exam-info">
+                    <strong>${exam.name}</strong>
+                    <small>${exam.description}</small>
+                </div>
+            </td>
+            <td><span class="exam-type-badge ${exam.type.toLowerCase()}">${exam.type}</span></td>
             <td>${examDate.toLocaleString()}</td>
             <td>${exam.duration} minutes</td>
             <td><span class="status-badge ${status.toLowerCase()}">${status}</span></td>
             <td>
-                <button class="btn-icon" onclick="viewExam('${id}')" aria-label="View exam">
+                <button class="btn-icon" onclick="viewExam('${exam.id}')" aria-label="View exam">
                     <i class="fas fa-eye"></i>
                 </button>
-                <button class="btn-icon" onclick="editExam('${id}')" aria-label="Edit exam">
+                <button class="btn-icon" onclick="editExam('${exam.id}')" aria-label="Edit exam">
                     <i class="fas fa-edit"></i>
                 </button>
-                <button class="btn-icon" onclick="deleteExam('${id}')" aria-label="Delete exam">
+                <button class="btn-icon" onclick="deleteExam('${exam.id}')" aria-label="Delete exam">
                     <i class="fas fa-trash"></i>
                 </button>
             </td>
@@ -168,48 +195,36 @@ function getExamStatus(date, duration) {
     }
 }
 
-// Filter and Search
+// Filter Exams
 function filterExams() {
     const searchTerm = searchInput.value.toLowerCase();
-    const examTypeValue = examTypeFilter.value;
-    const statusValue = statusFilter.value;
+    const selectedType = examTypeFilter.value;
+    const selectedStatus = statusFilter.value;
     
     const rows = examsList.getElementsByTagName('tr');
-    
     Array.from(rows).forEach(row => {
-        const name = row.cells[1].textContent.toLowerCase();
-        const type = row.cells[2].textContent.toLowerCase();
-        const status = row.cells[5].querySelector('.status-badge').textContent.toLowerCase();
+        const cells = row.getElementsByTagName('td');
+        if (cells.length < 7) return; // Skip header or empty rows
         
-        const matchesSearch = name.includes(searchTerm);
-        const matchesType = examTypeValue === 'all' || type === examTypeValue;
-        const matchesStatus = statusValue === 'all' || status === statusValue;
+        const examName = cells[1].textContent.toLowerCase();
+        const examType = cells[2].querySelector('.exam-type-badge')?.textContent || '';
+        const status = cells[5].querySelector('.status-badge')?.textContent || '';
+        
+        const matchesSearch = examName.includes(searchTerm);
+        const matchesType = selectedType === 'all' || examType.toLowerCase() === selectedType;
+        const matchesStatus = selectedStatus === 'all' || status === selectedStatus;
         
         row.style.display = matchesSearch && matchesType && matchesStatus ? '' : 'none';
     });
 }
 
-// Event Listeners
+// Event Listeners for Filters
 searchInput.addEventListener('input', filterExams);
 examTypeFilter.addEventListener('change', filterExams);
 statusFilter.addEventListener('change', filterExams);
 
-// Initialize
-function initApp() {
-    onAuthStateChanged(auth, (user) => {
-        if (user) {
-            document.getElementById('userName').textContent = user.displayName || 'Admin';
-            loadExams();
-        } else {
-            window.location.href = './login.html';
-        }
-    });
-}
-
-document.addEventListener('DOMContentLoaded', initApp);
-
 // Utility Functions
-function showSuccessMessage(message) {
+function showSuccess(message) {
     const successDiv = document.createElement('div');
     successDiv.className = 'success-message visible';
     successDiv.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
@@ -217,7 +232,7 @@ function showSuccessMessage(message) {
     setTimeout(() => successDiv.remove(), 3000);
 }
 
-function showErrorMessage(message) {
+function showError(message) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message visible';
     errorDiv.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
@@ -226,40 +241,74 @@ function showErrorMessage(message) {
 }
 
 // View Exam
-function viewExam(id) {
-    const examsRef = ref(db, `exams/${id}`);
-    get(examsRef).then((snapshot) => {
+async function viewExam(id) {
+    try {
+        const examRef = ref(db, `exams/${id}`);
+        const snapshot = await get(examRef);
+        
         if (snapshot.exists()) {
             const exam = snapshot.val();
-            // Open a modal or navigate to a detailed view
-            console.log('Viewing exam:', exam);
+            const examDate = new Date(exam.date);
+            alert(`Exam Details:\nName: ${exam.name}\nType: ${exam.type}\nDate: ${examDate.toLocaleString()}\nDuration: ${exam.duration} minutes\nDescription: ${exam.description}`);
+        } else {
+            showError('Exam not found.');
         }
-    });
+    } catch (error) {
+        showError('Failed to load exam details.');
+        console.error('Error viewing exam:', error);
+    }
 }
 
 // Edit Exam
-function editExam(id) {
-    const examsRef = ref(db, `exams/${id}`);
-    get(examsRef).then((snapshot) => {
+async function editExam(id) {
+    try {
+        const examRef = ref(db, `exams/${id}`);
+        const snapshot = await get(examRef);
+        
         if (snapshot.exists()) {
             const exam = snapshot.val();
-            // Open edit modal with pre-filled data
-            console.log('Editing exam:', exam);
+            // You can implement an edit modal here
+            showSuccess('Edit functionality coming soon!');
+        } else {
+            showError('Exam not found.');
+        }
+    } catch (error) {
+        showError('Failed to load exam for editing.');
+        console.error('Error editing exam:', error);
+    }
+}
+
+// Delete Exam
+async function deleteExam(id) {
+    if (confirm('Are you sure you want to delete this exam? This action cannot be undone.')) {
+        try {
+            const examRef = ref(db, `exams/${id}`);
+            await remove(examRef);
+            showSuccess('Exam deleted successfully!');
+        } catch (error) {
+            showError('Failed to delete exam. Please try again.');
+            console.error('Error deleting exam:', error);
+        }
+    }
+}
+
+// Make functions globally available
+window.openCreateExamModal = openCreateExamModal;
+window.closeCreateExamModal = closeCreateExamModal;
+window.viewExam = viewExam;
+window.editExam = editExam;
+window.deleteExam = deleteExam;
+
+// Initialize App
+function initApp() {
+    onAuthStateChanged(auth, (user) => {
+        if (user) {
+            document.getElementById('userName').textContent = user.displayName || 'Admin';
+            loadExams();
+        } else {
+            window.location.href = '../login.html';
         }
     });
 }
 
-// Delete Exam
-function deleteExam(id) {
-    if (confirm('Are you sure you want to delete this exam?')) {
-        const examsRef = ref(db, `exams/${id}`);
-        remove(examsRef)
-            .then(() => {
-                showSuccessMessage('Exam deleted successfully!');
-            })
-            .catch((error) => {
-                showErrorMessage('Failed to delete exam. Please try again.');
-                console.error('Error deleting exam:', error);
-            });
-    }
-} 
+document.addEventListener('DOMContentLoaded', initApp); 

@@ -3,27 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Messages - Admin Dashboard</title>
+    <title>Message Management - Admin Dashboard</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Top Navigation Bar -->
-    <nav class="admin-navbar">
+    <nav class="admin-navbar" role="navigation" aria-label="Main navigation">
         <div class="navbar-left">
             <div class="logo">
                 <h2>Admin Panel</h2>
             </div>
         </div>
         <div class="navbar-right">
+            <button class="theme-toggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
             <ul>
                 <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
                 <li><a href="students.html"><i class="fas fa-users"></i> Students</a></li>
                 <li><a href="exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
                 <li><a href="applications.html"><i class="fas fa-university"></i> Applications</a></li>
                 <li><a href="documents.html"><i class="fas fa-folder"></i> Documents</a></li>
-                <li><a href="messages.html" class="active"><i class="fas fa-envelope"></i> Messages</a></li>
+                <li><a href="messages.html" class="active" aria-current="page"><i class="fas fa-envelope"></i> Messages</a></li>
                 <li><a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
                 <li><a href="security.html"><i class="fas fa-shield-alt"></i> Security</a></li>
                 <li><a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
@@ -31,102 +37,209 @@
         </div>
     </nav>
 
-    <main class="content">
+    <main class="content" role="main">
         <header>
-            <h1>Messages</h1>
+            <h1>Message Management</h1>
             <div class="user-info">
                 <span id="userName">Admin</span>
-                <a href="login.html" class="logout">Logout</a>
+                <a href="login.html" class="logout" aria-label="Logout">Logout</a>
             </div>
         </header>
 
         <div class="container">
-            <div class="messaging-container">
-                <!-- Conversations List -->
-                <div class="conversation-list">
-                    <div class="search-box">
-                        <input type="text" placeholder="Search conversations..." id="conversationSearch">
-                        <i class="fas fa-search"></i>
+            <!-- Message Filters -->
+            <div class="filters-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search messages..." aria-label="Search messages">
+                </div>
+                <div class="filter-options">
+                    <select id="messageTypeFilter" aria-label="Filter by message type">
+                        <option value="all">All Types</option>
+                        <option value="inbox">Inbox</option>
+                        <option value="sent">Sent</option>
+                        <option value="draft">Draft</option>
+                    </select>
+                    <select id="priorityFilter" aria-label="Filter by priority">
+                        <option value="all">All Priorities</option>
+                        <option value="high">High Priority</option>
+                        <option value="normal">Normal</option>
+                        <option value="low">Low Priority</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="openCreateMessageModal()">
+                        <i class="fas fa-plus"></i> Compose Message
+                    </button>
+                </div>
+            </div>
+
+            <!-- Messages List -->
+            <div class="messages-container">
+                <div class="message-item unread">
+                    <div class="message-preview-header">
+                        <span class="sender">John Smith</span>
+                        <span class="timestamp">2 hours ago</span>
                     </div>
-                    <div class="conversations">
-                        <div class="conversation-item active">
-                            <div class="conversation-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div class="conversation-content">
-                                <h4>John Doe</h4>
-                                <p>Hello, I have a question about my application...</p>
-                                <small>2 hours ago</small>
-                            </div>
-                            <span class="unread-badge">3</span>
-                        </div>
-                        <!-- More conversation items will be added here -->
-                    </div>
+                    <div class="message-preview-subject">IELTS Test Schedule Request</div>
+                    <div class="message-preview-content">Hi, I would like to know about the upcoming IELTS test schedule...</div>
                 </div>
 
-                <!-- Message Thread -->
-                <div class="message-thread">
-                    <div class="message-header">
-                        <div class="recipient-info">
-                            <div class="recipient-avatar">
-                                <i class="fas fa-user"></i>
-                            </div>
-                            <div>
-                                <h3>John Doe</h3>
-                                <p>Student ID: S12345</p>
-                            </div>
-                        </div>
-                        <div class="message-actions">
-                            <button class="btn-icon" title="Call">
-                                <i class="fas fa-phone"></i>
-                            </button>
-                            <button class="btn-icon" title="Video Call">
-                                <i class="fas fa-video"></i>
-                            </button>
-                            <button class="btn-icon" title="More">
-                                <i class="fas fa-ellipsis-v"></i>
-                            </button>
-                        </div>
+                <div class="message-item">
+                    <div class="message-preview-header">
+                        <span class="sender">Sarah Johnson</span>
+                        <span class="timestamp">1 day ago</span>
                     </div>
-
-                    <div class="messages">
-                        <div class="message received">
-                            <p>Hello, I have a question about my application status.</p>
-                            <small>2 hours ago</small>
-                        </div>
-                        <div class="message sent">
-                            <p>Hello John, I can help you with that. What would you like to know?</p>
-                            <small>1 hour ago</small>
-                        </div>
-                        <div class="message received">
-                            <p>When will I receive the decision from the university?</p>
-                            <small>1 hour ago</small>
-                        </div>
-                        <div class="message sent">
-                            <p>Typically, it takes 4-6 weeks after submission. I'll check the status and get back to you.</p>
-                            <small>Just now</small>
-                        </div>
-                    </div>
-
-                    <div class="message-input">
-                        <div class="input-actions">
-                            <button class="btn-icon" title="Attach File">
-                                <i class="fas fa-paperclip"></i>
-                            </button>
-                            <button class="btn-icon" title="Send Image">
-                                <i class="fas fa-image"></i>
-                            </button>
-                        </div>
-                        <textarea placeholder="Type your message..." id="messageInput"></textarea>
-                        <button class="btn btn-primary" id="sendMessage">
-                            <i class="fas fa-paper-plane"></i>
-                        </button>
-                    </div>
+                    <div class="message-preview-subject">Application Status Update</div>
+                    <div class="message-preview-content">Could you please provide an update on my university application...</div>
                 </div>
+
+                <div class="message-item important">
+                    <div class="message-preview-header">
+                        <span class="sender">Michael Brown</span>
+                        <span class="timestamp">3 days ago</span>
+                    </div>
+                    <div class="message-preview-subject">Urgent: Document Verification</div>
+                    <div class="message-preview-content">I need urgent assistance with document verification for my application...</div>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="btn btn-secondary" disabled>
+                    <i class="fas fa-chevron-left"></i> Previous
+                </button>
+                <span class="page-info">Page 1 of 5</span>
+                <button class="btn btn-secondary">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
         </div>
     </main>
 
-    <script type="module" src="../js/admin/messages.js"></script>
+    <!-- Create Message Modal -->
+    <div class="modal" id="createMessageModal">
+        <div class="modal-content">
+            <h2>Compose New Message</h2>
+            <form id="createMessageForm">
+                <div class="form-group">
+                    <label for="messageTo">To</label>
+                    <select id="messageTo" required>
+                        <option value="">Select Recipient</option>
+                        <option value="all">All Students</option>
+                        <option value="ielts">IELTS Students</option>
+                        <option value="pte">PTE Students</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="messageSubject">Subject</label>
+                    <input type="text" id="messageSubject" required placeholder="Enter message subject">
+                </div>
+                <div class="form-group">
+                    <label for="messageContent">Message</label>
+                    <textarea id="messageContent" rows="6" required placeholder="Enter your message..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="messagePriority">Priority</label>
+                    <select id="messagePriority" required>
+                        <option value="normal">Normal</option>
+                        <option value="high">High Priority</option>
+                        <option value="low">Low Priority</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateMessageModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Send Message</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- View Message Modal -->
+    <div id="viewMessageModal">
+        <div class="view-message-content">
+            <div class="view-message-header">
+                <h2>Message Details</h2>
+                <button onclick="closeViewMessageModal()" class="btn-icon">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="message-meta">
+                <div class="message-sender">From: <span id="viewSender">John Smith</span></div>
+                <div class="message-date">Date: <span id="viewDate">March 15, 2024</span></div>
+            </div>
+            <div class="message-subject" id="viewSubject">IELTS Test Schedule Request</div>
+            <div class="message-content" id="viewContent">
+                Hi, I would like to know about the upcoming IELTS test schedule. Could you please provide me with the available dates and times? Thank you.
+            </div>
+            <div class="message-actions">
+                <button class="reply-btn">
+                    <i class="fas fa-reply"></i> Reply
+                </button>
+                <button class="delete-btn">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simple message functionality
+        function openCreateMessageModal() {
+            document.getElementById('createMessageModal').style.display = 'flex';
+        }
+
+        function closeCreateMessageModal() {
+            document.getElementById('createMessageModal').style.display = 'none';
+            document.getElementById('createMessageForm').reset();
+        }
+
+        function closeViewMessageModal() {
+            document.getElementById('viewMessageModal').style.display = 'none';
+        }
+
+        // Make functions globally available
+        window.openCreateMessageModal = openCreateMessageModal;
+        window.closeCreateMessageModal = closeCreateMessageModal;
+        window.closeViewMessageModal = closeViewMessageModal;
+
+        // Close modals when clicking outside
+        window.addEventListener('click', (e) => {
+            if (e.target.id === 'createMessageModal') {
+                closeCreateMessageModal();
+            }
+            if (e.target.id === 'viewMessageModal') {
+                closeViewMessageModal();
+            }
+        });
+
+        // Form submission
+        document.getElementById('createMessageForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Message functionality coming soon!');
+            closeCreateMessageModal();
+        });
+
+        // Theme toggle
+        const themeToggle = document.querySelector('.theme-toggle');
+        const themeIcon = themeToggle.querySelector('i');
+
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-mode');
+            themeIcon.classList.replace('fa-moon', 'fa-sun');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            const isDarkMode = document.body.classList.contains('dark-mode');
+            
+            if (isDarkMode) {
+                themeIcon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                themeIcon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
 </body>
 </html> 

@@ -12,6 +12,15 @@ import {
     remove
 } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
 
+// Global error handler for external scripts
+window.addEventListener('error', function(e) {
+    if (e.filename && (e.filename.includes('inspector') || e.filename.includes('ads'))) {
+        console.warn('External script error intercepted:', e.filename, e.message);
+        e.preventDefault();
+        return false;
+    }
+});
+
 // Get DOM elements
 const loginForm = document.getElementById('loginForm');
 const errorMessage = document.getElementById('errorMessage');
@@ -67,18 +76,23 @@ async function testDatabaseConnection() {
 
 // Check if user is already logged in
 auth.onAuthStateChanged(async (user) => {
-    if (user) {
-        // Check if user is an admin
-        const adminRef = ref(db, `admins/${user.uid}`);
-        const snapshot = await get(adminRef);
-        const adminData = snapshot.val();
-        
-        if (adminData && adminData.role === 'admin') {
-            window.location.href = 'dashboard.html';
-        } else {
-            // If not an admin, sign out
-            await signOut(auth);
+    try {
+        if (user) {
+            // Check if user is an admin
+            const adminRef = ref(db, `admins/${user.uid}`);
+            const snapshot = await get(adminRef);
+            const adminData = snapshot.val();
+            
+            if (adminData && adminData.role === 'admin') {
+                window.location.href = 'dashboard.html';
+            } else {
+                // If not an admin, sign out
+                await signOut(auth);
+            }
         }
+    } catch (error) {
+        console.error('Auth state change error:', error);
+        // Don't show error to user for auth state changes
     }
 });
 
@@ -153,4 +167,6 @@ testDatabaseConnection().then(success => {
     } else {
         console.log("❌ Database connection test failed");
     }
+}).catch(error => {
+    console.error("❌ Connection test error:", error);
 }); 

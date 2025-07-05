@@ -65,7 +65,7 @@
                         <option value="inactive">Inactive</option>
                         <option value="completed">Completed</option>
                     </select>
-                    <button class="btn btn-primary" onclick="openAddStudentModal()">
+                    <button class="btn btn-primary" onclick="openCreateStudentModal()">
                         <i class="fas fa-plus"></i> Add Student
                     </button>
                 </div>
@@ -103,11 +103,11 @@
         </div>
     </main>
 
-    <!-- Add Student Modal -->
-    <div class="modal" id="addStudentModal">
+    <!-- Create Student Modal -->
+    <div class="modal" id="createStudentModal">
         <div class="modal-content">
             <h2>Add New Student</h2>
-            <form id="addStudentForm">
+            <form id="createStudentForm">
                 <div class="form-group">
                     <label for="studentName">Full Name</label>
                     <input type="text" id="studentName" required>
@@ -117,19 +117,24 @@
                     <input type="email" id="studentEmail" required>
                 </div>
                 <div class="form-group">
-                    <label for="studentCourse">Course</label>
-                    <select id="studentCourse" required>
-                        <option value="ielts">IELTS</option>
-                        <option value="pte">PTE</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label for="studentPhone">Phone Number</label>
                     <input type="tel" id="studentPhone" required>
                 </div>
+                <div class="form-group">
+                    <label for="studentCourse">Course</label>
+                    <select id="studentCourse" required>
+                        <option value="">Select Course</option>
+                        <option value="IELTS">IELTS</option>
+                        <option value="PTE">PTE</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Start Date</label>
+                    <input type="date" id="startDate" required>
+                </div>
                 <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeAddStudentModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Add Student</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateStudentModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Student</button>
                 </div>
             </form>
         </div>

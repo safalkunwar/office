@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Recent Activities - Admin Dashboard">
+    <title>Recent Activities - Admin Dashboard</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Top Navigation Bar -->
+    <nav class="admin-navbar" role="navigation" aria-label="Main navigation">
+        <div class="navbar-left">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <button class="theme-toggle" aria-label="Toggle dark mode">
+                <i class="fas fa-moon"></i>
+            </button>
+            <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
+                <i class="fas fa-bars"></i>
+            </button>
+            <ul>
+                <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="./students.html"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="./exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
+                <li><a href="./applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="./documents.html"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="./messages.html"><i class="fas fa-envelope"></i> Messages</a></li>
+                <li><a href="./tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
+                <li><a href="./security.html"><i class="fas fa-shield-alt"></i> Security</a></li>
+                <li><a href="./reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <main class="content" role="main">
+        <header>
+            <h1>Recent Activities</h1>
+            <div class="user-info">
+                <span id="userName">Admin</span>
+                <a href="./admin/login.html" class="logout" aria-label="Logout">Logout</a>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Activity Filters -->
+            <div class="activity-filters">
+                <div class="filter-group">
+                    <label for="activityType">Activity Type:</label>
+                    <select id="activityType" class="filter-select">
+                        <option value="all">All Activities</option>
+                        <option value="student">Student Activities</option>
+                        <option value="exam">Exam Activities</option>
+                        <option value="application">Application Activities</option>
+                        <option value="system">System Activities</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="timeRange">Time Range:</label>
+                    <select id="timeRange" class="filter-select">
+                        <option value="today">Today</option>
+                        <option value="week">This Week</option>
+                        <option value="month">This Month</option>
+                        <option value="all">All Time</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label for="userFilter">User:</label>
+                    <select id="userFilter" class="filter-select">
+                        <option value="all">All Users</option>
+                        <option value="admin">Admin</option>
+                        <option value="employee">Employee</option>
+                        <option value="student">Student</option>
+                    </select>
+                </div>
+                <button class="btn btn-primary" onclick="refreshActivities()">
+                    <i class="fas fa-sync-alt"></i> Refresh
+                </button>
+            </div>
+
+            <!-- Activity Timeline -->
+            <div class="activity-timeline">
+                <div class="timeline-header">
+                    <h2>Activity Timeline</h2>
+                    <div class="timeline-stats">
+                        <span class="stat-item">
+                            <i class="fas fa-clock"></i>
+                            <span id="totalActivities">0</span> Activities
+                        </span>
+                        <span class="stat-item">
+                            <i class="fas fa-users"></i>
+                            <span id="activeUsers">0</span> Active Users
+                        </span>
+                    </div>
+                </div>
+                
+                <div id="activitiesList" class="activities-list" role="list">
+                    <!-- Activities will be loaded here -->
+                </div>
+            </div>
+
+            <!-- Activity Summary -->
+            <div class="activity-summary">
+                <div class="summary-card">
+                    <h3>Today's Summary</h3>
+                    <div class="summary-stats">
+                        <div class="summary-stat">
+                            <i class="fas fa-user-plus"></i>
+                            <div>
+                                <span class="stat-number" id="newStudents">0</span>
+                                <span class="stat-label">New Students</span>
+                            </div>
+                        </div>
+                        <div class="summary-stat">
+                            <i class="fas fa-file-alt"></i>
+                            <div>
+                                <span class="stat-number" id="newApplications">0</span>
+                                <span class="stat-label">New Applications</span>
+                            </div>
+                        </div>
+                        <div class="summary-stat">
+                            <i class="fas fa-check-circle"></i>
+                            <div>
+                                <span class="stat-number" id="completedTasks">0</span>
+                                <span class="stat-label">Completed Tasks</span>
+                            </div>
+                        </div>
+                        <div class="summary-stat">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <div>
+                                <span class="stat-number" id="pendingItems">0</span>
+                                <span class="stat-label">Pending Items</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module" src="../js/recent-activities.js"></script>
+</body>
+</html> 
