@@ -39,105 +39,244 @@
 
     <main class="content" role="main">
         <header>
-            <h1>Documents Management</h1>
+            <div class="header-content">
+                <h1><i class="fas fa-folder-open"></i> Documents Management</h1>
+                <p class="header-subtitle">Manage student documents and track missing requirements</p>
+            </div>
             <div class="user-info">
                 <span id="userName">Admin</span>
                 <a href="login.html" class="logout" aria-label="Logout">Logout</a>
             </div>
+            <div class="header-actions">
+                <button class="btn btn-secondary" onclick="openCreateStudentModal()">
+                    <i class="fas fa-user-plus"></i> Add Student
+                </button>
+                <button class="btn btn-primary" onclick="openUploadDocumentModal()">
+                    <i class="fas fa-upload"></i> Upload Document
+                </button>
+            </div>
         </header>
 
+        <!-- Students Stats Bar -->
+        <div class="students-stats-bar">
+          <div class="stat-card" id="totalStudentsStat">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div>
+              <h3>Total Students</h3>
+              <p id="totalStudentsCount">0</p>
+            </div>
+          </div>
+          <div class="stat-card" id="completedStudentsStat">
+            <div class="stat-icon"><i class="fas fa-check-circle"></i></div>
+            <div>
+              <h3>Completed</h3>
+              <p id="completedStudentsCount">0</p>
+            </div>
+          </div>
+          <div class="stat-card" id="incompleteStudentsStat">
+            <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <div>
+              <h3>Incomplete</h3>
+              <p id="incompleteStudentsCount">0</p>
+            </div>
+          </div>
+          <div class="stat-card" id="pendingStudentsStat">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div>
+              <h3>Pending</h3>
+              <p id="pendingStudentsCount">0</p>
+            </div>
+          </div>
+          <div class="stat-card overview-card" id="overviewCard" style="cursor:pointer;">
+            <div class="stat-icon"><i class="fas fa-chart-bar"></i></div>
+            <div>
+              <h3>Overview</h3>
+              <p>See Details</p>
+            </div>
+          </div>
+        </div>
+
         <div class="container">
+            <!-- Missing Documents Alert -->
+            <div id="missingDocumentsAlert" class="alert alert-warning" style="display: none;">
+                <div class="alert-header">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <h3>Missing Documents Alert</h3>
+                    <button class="alert-close" onclick="closeMissingDocumentsAlert()">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+                <div id="missingDocumentsList" class="missing-documents-list">
+                    <!-- Missing documents will be listed here -->
+                </div>
+            </div>
+
             <!-- Document Filters -->
             <div class="filters-container">
                 <div class="search-box">
                     <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search documents..." aria-label="Search documents">
+                    <input type="text" id="searchInput" placeholder="Search students or documents..." aria-label="Search students or documents">
                 </div>
                 <div class="filter-options">
+                    <select id="studentFilter" aria-label="Filter by student">
+                        <option value="all">All Students</option>
+                    </select>
                     <select id="documentTypeFilter" aria-label="Filter by document type">
                         <option value="all">All Types</option>
-                        <option value="application">Application</option>
-                        <option value="transcript">Transcript</option>
-                        <option value="certificate">Certificate</option>
-                        <option value="letter">Letter</option>
+                        <option value="passport">Passport</option>
+                        <option value="transcript">Academic Transcript</option>
+                        <option value="certificate">Language Certificate</option>
+                        <option value="cv">CV/Resume</option>
+                        <option value="letter">Recommendation Letter</option>
+                        <option value="financial">Financial Statement</option>
+                        <option value="medical">Medical Certificate</option>
+                        <option value="other">Other</option>
                     </select>
                     <select id="statusFilter" aria-label="Filter by status">
                         <option value="all">All Status</option>
                         <option value="pending">Pending</option>
                         <option value="verified">Verified</option>
                         <option value="rejected">Rejected</option>
+                        <option value="missing">Missing</option>
                     </select>
-                    <button class="btn btn-primary" onclick="openUploadDocumentModal()">
-                        <i class="fas fa-upload"></i> Upload Document
+                    <button class="btn btn-secondary" onclick="exportDocumentsReport()">
+                        <i class="fas fa-download"></i> Export Report
                     </button>
                 </div>
             </div>
 
-            <!-- Documents List -->
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Document ID</th>
-                            <th>Name</th>
-                            <th>Type</th>
-                            <th>Student</th>
-                            <th>Status</th>
-                            <th>Uploaded</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="documentsList">
-                        <!-- Documents will be loaded here -->
-                    </tbody>
-                </table>
+            <!-- Students and Documents Grid -->
+            <div class="students-documents-grid">
+                <div class="students-list" id="studentsList">
+                    <!-- Students will be loaded here -->
+                </div>
             </div>
 
             <!-- Pagination -->
             <div class="pagination">
-                <button class="btn btn-secondary" disabled>
+                <button class="btn btn-secondary" id="prevPage" disabled>
                     <i class="fas fa-chevron-left"></i> Previous
                 </button>
-                <span class="page-info">Page 1 of 5</span>
-                <button class="btn btn-secondary">
+                <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                <button class="btn btn-secondary" id="nextPage">
                     Next <i class="fas fa-chevron-right"></i>
                 </button>
             </div>
         </div>
+
+        <!-- Reports Section -->
+        <div id="reports" class="reports-section" style="margin-top:2rem;">
+          <h2>Students Overview</h2>
+          <canvas id="studentsOverviewChart" style="max-width:600px;"></canvas>
+          <div id="studentsOverviewTable"></div>
+        </div>
     </main>
+
+    <!-- Create Student Modal -->
+    <div class="modal" id="createStudentModal">
+        <div class="modal-content">
+            <h2><i class="fas fa-user-plus"></i> Add New Student</h2>
+            <form id="createStudentForm">
+                <div class="form-group">
+                    <label for="studentName">Full Name *</label>
+                    <input type="text" id="studentName" required placeholder="Enter student's full name">
+                </div>
+                <div class="form-group">
+                    <label for="studentEmail">Email Address *</label>
+                    <input type="email" id="studentEmail" required placeholder="Enter email address">
+                </div>
+                <div class="form-group">
+                    <label for="studentPhone">Phone Number *</label>
+                    <input type="tel" id="studentPhone" required placeholder="Enter phone number">
+                </div>
+                <div class="form-group">
+                    <label for="studentCourse">Course *</label>
+                    <select id="studentCourse" required>
+                        <option value="">Select Course</option>
+                        <option value="IELTS">IELTS</option>
+                        <option value="PTE">PTE</option>
+                        <option value="TOEFL">TOEFL</option>
+                        <option value="Academic">Academic Preparation</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="studentCountry">Target Country</label>
+                    <select id="studentCountry">
+                        <option value="">Select Country</option>
+                        <option value="Canada">Canada</option>
+                        <option value="USA">USA</option>
+                        <option value="UK">UK</option>
+                        <option value="Australia">Australia</option>
+                        <option value="Germany">Germany</option>
+                        <option value="Netherlands">Netherlands</option>
+                        <option value="Sweden">Sweden</option>
+                        <option value="Switzerland">Switzerland</option>
+                        <option value="New Zealand">New Zealand</option>
+                        <option value="Ireland">Ireland</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="startDate">Start Date *</label>
+                    <input type="date" id="startDate" required>
+                </div>
+                <div class="form-group">
+                    <label for="studentNotes">Notes</label>
+                    <textarea id="studentNotes" rows="3" placeholder="Additional notes about the student..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="studentImage">Student Image (optional)</label>
+                    <input type="file" id="studentImage" accept="image/*">
+                    <small>Accepted: JPG, PNG, Max 2MB</small>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateStudentModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Student</button>
+                </div>
+            </form>
+        </div>
+    </div>
 
     <!-- Upload Document Modal -->
     <div class="modal" id="uploadDocumentModal">
         <div class="modal-content">
-            <h2>Upload New Document</h2>
+            <h2><i class="fas fa-upload"></i> Upload Document</h2>
             <form id="uploadDocumentForm">
                 <div class="form-group">
-                    <label for="documentName">Document Name</label>
-                    <input type="text" id="documentName" required>
-                </div>
-                <div class="form-group">
-                    <label for="documentType">Document Type</label>
-                    <select id="documentType" required>
-                        <option value="">Select Type</option>
-                        <option value="application">Application</option>
-                        <option value="transcript">Transcript</option>
-                        <option value="certificate">Certificate</option>
-                        <option value="letter">Letter</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="studentSelect">Student</label>
-                    <select id="studentSelect" required>
+                    <label for="documentStudent">Student *</label>
+                    <select id="documentStudent" required>
                         <option value="">Select Student</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="documentFile">Document File</label>
-                    <input type="file" id="documentFile" required>
+                    <label for="documentName">Document Name *</label>
+                    <input type="text" id="documentName" required placeholder="e.g., Academic Transcript 2023">
+                </div>
+                <div class="form-group">
+                    <label for="documentType">Document Type *</label>
+                    <select id="documentType" required>
+                        <option value="">Select Type</option>
+                        <option value="passport">Passport</option>
+                        <option value="transcript">Academic Transcript</option>
+                        <option value="certificate">Language Certificate</option>
+                        <option value="cv">CV/Resume</option>
+                        <option value="letter">Recommendation Letter</option>
+                        <option value="financial">Financial Statement</option>
+                        <option value="medical">Medical Certificate</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="documentFile">Document File *</label>
+                    <input type="file" id="documentFile" required accept=".pdf,.doc,.docx,.jpg,.jpeg,.png">
+                    <small>Accepted formats: PDF, DOC, DOCX, JPG, PNG (Max 10MB)</small>
+                </div>
+                <div class="form-group">
+                    <label for="documentExpiry">Expiry Date (if applicable)</label>
+                    <input type="date" id="documentExpiry">
                 </div>
                 <div class="form-group">
                     <label for="documentNotes">Notes</label>
-                    <textarea id="documentNotes" rows="3"></textarea>
+                    <textarea id="documentNotes" rows="3" placeholder="Additional notes about this document..."></textarea>
                 </div>
                 <div class="form-actions">
                     <button type="button" class="btn btn-secondary" onclick="closeUploadDocumentModal()">Cancel</button>
@@ -147,6 +286,32 @@
         </div>
     </div>
 
-    <script type="module" src="../js/documents.js"></script>
+    <!-- View Student Documents Modal -->
+    <div class="modal" id="viewStudentDocumentsModal">
+        <div class="modal-content large">
+            <div class="modal-header">
+                <h2 id="studentDocumentsTitle"><i class="fas fa-folder-open"></i> Student Documents</h2>
+                <button class="modal-close" onclick="closeViewStudentDocumentsModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="student-info-summary" id="studentInfoSummary">
+                    <!-- Student info will be displayed here -->
+                </div>
+                <div class="documents-overview">
+                    <div class="documents-stats" id="documentsStats">
+                        <!-- Document statistics will be displayed here -->
+                    </div>
+                    <div class="documents-list" id="studentDocumentsList">
+                        <!-- Student's documents will be displayed here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+<!-- Chart.js for graphs -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script type="module" src="../js/documents.js"></script>
 </body>
 </html> 
