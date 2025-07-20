@@ -1,7 +1,7 @@
-import { auth, db, storage } from '../../config/firebase.js';
+import { auth, db } from '../../config/firebase.js';
 import { ref, onValue, push, remove, update } from 'firebase/database';
-import { ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'firebase/storage';
 import { onAuthStateChanged } from 'firebase/auth';
+import { uploadFileToDrive } from '../google-drive.js';
 
 // DOM Elements
 const studentAvatar = document.getElementById('studentAvatar');
@@ -11,6 +11,7 @@ const studentEmail = document.getElementById('studentEmail');
 const documentsGrid = document.getElementById('documentsGrid');
 const uploadModal = document.getElementById('uploadModal');
 const uploadForm = document.getElementById('uploadDocumentForm');
+const errorContainer = document.getElementById('errorContainer');
 
 // Required document types
 const requiredDocuments = [
@@ -28,12 +29,25 @@ onAuthStateChanged(auth, (user) => {
         loadDocuments(user.uid);
         setupEventListeners(user.uid);
     } else {
-        window.location.href = '../login.html';
+        // For demo purposes, use a mock user if not authenticated
+        const mockUserId = 'demo-user-123';
+        loadStudentInfo(mockUserId);
+        loadDocuments(mockUserId);
+        setupEventListeners(mockUserId);
     }
 });
 
 // Load student information
 function loadStudentInfo(userId) {
+    if (userId === 'demo-user-123') {
+        // Mock data for demo
+        studentName.textContent = 'John Doe';
+        studentId.textContent = 'Student ID: STU001';
+        studentEmail.textContent = 'Email: john.doe@example.com';
+        studentAvatar.src = '../../assets/default-avatar.svg';
+        return;
+    }
+
     const studentRef = ref(db, `students/${userId}`);
     onValue(studentRef, (snapshot) => {
         const studentData = snapshot.val();
@@ -44,18 +58,45 @@ function loadStudentInfo(userId) {
             
             if (studentData.avatar) {
                 studentAvatar.src = studentData.avatar;
+            } else {
+                studentAvatar.src = '../../assets/default-avatar.svg';
             }
         }
+    }, (error) => {
+        console.error('Error loading student info:', error);
+        showError('Failed to load student information');
     });
 }
 
 // Load documents
 function loadDocuments(userId) {
+    if (userId === 'demo-user-123') {
+        // Mock documents for demo
+        const mockDocuments = {
+            marksheet: {
+                name: 'Academic Transcript.pdf',
+                type: 'marksheet',
+                url: '#',
+                size: 1024000,
+                timestamp: Date.now() - 86400000,
+                notes: 'High school transcript',
+                previewUrl: null,
+                driveId: 'mock-drive-id-1'
+            }
+        };
+        updateDocumentStatus(mockDocuments);
+        renderDocuments(mockDocuments);
+        return;
+    }
+
     const documentsRef = ref(db, `documents/${userId}`);
     onValue(documentsRef, (snapshot) => {
         const documents = snapshot.val() || {};
         updateDocumentStatus(documents);
         renderDocuments(documents);
+    }, (error) => {
+        console.error('Error loading documents:', error);
+        showError('Failed to load documents');
     });
 }
 
@@ -63,14 +104,16 @@ function loadDocuments(userId) {
 function updateDocumentStatus(documents) {
     requiredDocuments.forEach(type => {
         const card = document.querySelector(`.requirement-card[data-type="${type}"]`);
-        const statusBadge = card.querySelector('.status-badge');
-        
-        if (documents[type]) {
-            statusBadge.className = 'status-badge completed';
-            statusBadge.textContent = 'Completed';
-        } else {
-            statusBadge.className = 'status-badge missing';
-            statusBadge.textContent = 'Missing';
+        if (card) {
+            const statusBadge = card.querySelector('.status-badge');
+            
+            if (documents[type]) {
+                statusBadge.className = 'status-badge completed';
+                statusBadge.textContent = 'Completed';
+            } else {
+                statusBadge.className = 'status-badge missing';
+                statusBadge.textContent = 'Missing';
+            }
         }
     });
 }
@@ -78,6 +121,11 @@ function updateDocumentStatus(documents) {
 // Render documents in the grid
 function renderDocuments(documents) {
     documentsGrid.innerHTML = '';
+    
+    if (Object.keys(documents).length === 0) {
+        documentsGrid.innerHTML = '<p class="no-documents">No documents uploaded yet.</p>';
+        return;
+    }
     
     Object.entries(documents).forEach(([type, doc]) => {
         const documentCard = createDocumentCard(type, doc);
@@ -91,8 +139,11 @@ function createDocumentCard(type, doc) {
     card.className = 'document-card';
     
     const preview = document.createElement('img');
-    preview.src = doc.previewUrl || '../../assets/document-placeholder.png';
+    preview.src = doc.previewUrl || '../../assets/document-placeholder.svg';
     preview.alt = doc.name;
+    preview.onerror = function() {
+        this.src = '../../assets/document-placeholder.svg';
+    };
     
     const info = document.createElement('div');
     info.className = 'document-info';
@@ -112,12 +163,21 @@ function createDocumentCard(type, doc) {
     const viewBtn = document.createElement('button');
     viewBtn.className = 'btn-view';
     viewBtn.innerHTML = '<i class="fas fa-eye"></i> View';
-    viewBtn.onclick = () => window.open(doc.url, '_blank');
+    viewBtn.onclick = () => {
+        if (doc.driveId && doc.driveId !== 'mock-drive-id-1') {
+            // Open Google Drive file
+            window.open(`https://drive.google.com/file/d/${doc.driveId}/view`, '_blank');
+        } else if (doc.url && doc.url !== '#') {
+            window.open(doc.url, '_blank');
+        } else {
+            showError('Document preview not available');
+        }
+    };
     
     const deleteBtn = document.createElement('button');
     deleteBtn.className = 'btn-delete';
     deleteBtn.innerHTML = '<i class="fas fa-trash"></i> Delete';
-    deleteBtn.onclick = () => deleteDocument(doc.id);
+    deleteBtn.onclick = () => deleteDocument(doc.id, doc.driveId);
     
     info.appendChild(title);
     info.appendChild(date);
@@ -143,13 +203,29 @@ function setupEventListeners(userId) {
         const type = document.getElementById('documentType').value;
         const notes = document.getElementById('documentNotes').value;
         
-        if (!file || !type) return;
+        if (!file || !type) {
+            showError('Please select a file and document type');
+            return;
+        }
+        
+        // Validate file size (5MB limit)
+        if (file.size > 5 * 1024 * 1024) {
+            showError('File size must be less than 5MB');
+            return;
+        }
         
         try {
-            await uploadDocument(userId, file, type, notes);
+            if (userId === 'demo-user-123') {
+                // Mock upload for demo
+                await mockUploadDocument(file, type, notes);
+            } else {
+                await uploadDocumentToGoogleDrive(userId, file, type, notes);
+            }
             closeModal();
             uploadForm.reset();
+            showSuccess('Document uploaded successfully');
         } catch (error) {
+            console.error('Upload error:', error);
             showError('Failed to upload document. Please try again.');
         }
     });
@@ -164,38 +240,105 @@ function setupEventListeners(userId) {
     });
 }
 
-// Upload document to Firebase
-async function uploadDocument(userId, file, type, notes) {
-    const fileRef = storageRef(storage, `documents/${userId}/${type}/${file.name}`);
-    const snapshot = await uploadBytes(fileRef, file);
-    const url = await getDownloadURL(snapshot.ref);
-    
-    const documentData = {
-        name: file.name,
-        type: type,
-        url: url,
-        size: file.size,
-        timestamp: Date.now(),
-        notes: notes || '',
-        previewUrl: file.type.startsWith('image/') ? url : null
-    };
-    
-    const documentsRef = ref(db, `documents/${userId}/${type}`);
-    await push(documentsRef, documentData);
+// Mock upload for demo purposes
+async function mockUploadDocument(file, type, notes) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const mockDoc = {
+                name: file.name,
+                type: type,
+                url: '#',
+                size: file.size,
+                timestamp: Date.now(),
+                notes: notes || '',
+                previewUrl: null,
+                driveId: 'mock-drive-id-' + Date.now()
+            };
+            
+            // Add to mock documents
+            const documentsGrid = document.getElementById('documentsGrid');
+            const noDocumentsMsg = documentsGrid.querySelector('.no-documents');
+            if (noDocumentsMsg) {
+                noDocumentsMsg.remove();
+            }
+            
+            const documentCard = createDocumentCard(type, mockDoc);
+            documentsGrid.appendChild(documentCard);
+            
+            // Update status
+            updateDocumentStatus({ [type]: mockDoc });
+            
+            resolve();
+        }, 1000);
+    });
+}
+
+// Upload document to Google Drive
+async function uploadDocumentToGoogleDrive(userId, file, type, notes) {
+    try {
+        // Check if Google Drive is connected
+        const token = localStorage.getItem('gdrive_token');
+        const folder = localStorage.getItem('gdrive_folder');
+        
+        if (!token || !folder) {
+            throw new Error('Google Drive not connected. Please connect your Google Drive first.');
+        }
+        
+        // Upload to Google Drive
+        const driveResponse = await uploadFileToDrive(file);
+        
+        if (!driveResponse.id) {
+            throw new Error('Failed to upload file to Google Drive');
+        }
+        
+        const documentData = {
+            name: file.name,
+            type: type,
+            url: `https://drive.google.com/file/d/${driveResponse.id}/view`,
+            size: file.size,
+            timestamp: Date.now(),
+            notes: notes || '',
+            previewUrl: file.type.startsWith('image/') ? `https://drive.google.com/uc?id=${driveResponse.id}` : null,
+            driveId: driveResponse.id
+        };
+        
+        // Save to Firebase Database
+        const documentsRef = ref(db, `documents/${userId}/${type}`);
+        await push(documentsRef, documentData);
+        
+    } catch (error) {
+        console.error('Upload error:', error);
+        throw new Error(error.message || 'Failed to upload document');
+    }
 }
 
 // Delete document
-async function deleteDocument(documentId) {
+async function deleteDocument(documentId, driveId) {
     if (!confirm('Are you sure you want to delete this document?')) return;
     
     try {
-        const documentRef = ref(db, `documents/${auth.currentUser.uid}/${documentId}`);
-        await remove(documentRef);
+        // Delete from Google Drive if it's a real file
+        if (driveId && driveId !== 'mock-drive-id-1' && !driveId.startsWith('mock-drive-id-')) {
+            const token = localStorage.getItem('gdrive_token');
+            if (token) {
+                await fetch(`https://www.googleapis.com/drive/v3/files/${driveId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+            }
+        }
         
-        // Also delete from storage if needed
-        const storageReference = storageRef(storage, `documents/${auth.currentUser.uid}/${documentId}`);
-        await deleteObject(storageReference);
+        // Delete from Firebase Database
+        if (auth.currentUser && auth.currentUser.uid !== 'demo-user-123') {
+            const documentRef = ref(db, `documents/${auth.currentUser.uid}/${documentId}`);
+            await remove(documentRef);
+        }
+        
+        showSuccess('Document deleted successfully');
     } catch (error) {
+        console.error('Delete error:', error);
         showError('Failed to delete document. Please try again.');
     }
 }
@@ -221,28 +364,70 @@ function formatFileSize(bytes) {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
 }
 
-function openUploadModal() {
-    uploadModal.style.display = 'block';
-}
-
-function closeModal() {
-    uploadModal.style.display = 'none';
-}
-
 function showError(message) {
-    const errorDiv = document.createElement('div');
-    errorDiv.className = 'error-message';
-    errorDiv.textContent = message;
-    document.body.appendChild(errorDiv);
-    
-    setTimeout(() => {
-        errorDiv.remove();
-    }, 3000);
+    if (errorContainer) {
+        errorContainer.innerHTML = `<div class="error-message">${message}</div>`;
+        errorContainer.style.display = 'block';
+        
+        setTimeout(() => {
+            errorContainer.style.display = 'none';
+        }, 5000);
+    } else {
+        alert(message);
+    }
 }
 
-// Close modal when clicking outside
-window.onclick = (event) => {
-    if (event.target === uploadModal) {
-        closeModal();
+function showSuccess(message) {
+    if (errorContainer) {
+        errorContainer.innerHTML = `<div class="success-message">${message}</div>`;
+        errorContainer.style.display = 'block';
+        
+        setTimeout(() => {
+            errorContainer.style.display = 'none';
+        }, 3000);
     }
-}; 
+}
+
+// Make functions globally available
+window.openUploadModal = function() {
+    if (uploadModal) {
+        uploadModal.style.display = 'block';
+    }
+};
+
+window.closeModal = function() {
+    if (uploadModal) {
+        uploadModal.style.display = 'none';
+    }
+};
+
+// Check Google Drive connection status
+function checkGoogleDriveConnection() {
+    const token = localStorage.getItem('gdrive_token');
+    const folder = localStorage.getItem('gdrive_folder');
+    return !!(token && folder);
+}
+
+// Add Google Drive connection status to the page
+function updateGoogleDriveStatus() {
+    const isConnected = checkGoogleDriveConnection();
+    const statusElement = document.createElement('div');
+    statusElement.className = 'google-drive-status';
+    statusElement.innerHTML = `
+        <div class="status-indicator ${isConnected ? 'connected' : 'disconnected'}">
+            <i class="fas ${isConnected ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
+            <span>Google Drive: ${isConnected ? 'Connected' : 'Not Connected'}</span>
+        </div>
+    `;
+    
+    // Add to the header
+    const header = document.querySelector('.content-header');
+    if (header && !document.querySelector('.google-drive-status')) {
+        header.appendChild(statusElement);
+    }
+}
+
+// Initialize Google Drive status
+document.addEventListener('DOMContentLoaded', () => {
+    updateGoogleDriveStatus();
+}); 

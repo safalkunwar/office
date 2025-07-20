@@ -1,7 +1,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getDatabase, ref, onValue, push, set, remove, get, update, query, orderByChild } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
 import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
-import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject, uploadBytesResumable, listAll } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -47,11 +47,51 @@ const documentStudent = document.getElementById('documentStudent');
 const missingDocumentsAlert = document.getElementById('missingDocumentsAlert');
 const missingDocumentsList = document.getElementById('missingDocumentsList');
 
+// Attendance System Variables
+let attendanceData = {}; // { studentId: { 'YYYY-MM-DD': 'present'|'absent' } }
+let studentsCache = [];
+
+// Attendance UI Elements
+const attendanceDateInput = document.getElementById('attendanceDate');
+const attendanceMarkingTable = document.getElementById('attendanceMarkingTable');
+const markAllPresentBtn = document.getElementById('markAllPresentBtn');
+const saveAttendanceBtn = document.getElementById('saveAttendanceBtn');
+const attendanceSaveStatus = document.getElementById('attendanceSaveStatus');
+const lowAttendanceList = document.getElementById('lowAttendanceList');
+const lowAttendanceThreshold = 75;
+
 // Theme Management
 const themeToggle = document.querySelector('.theme-toggle');
 const themeIcon = themeToggle.querySelector('i');
 const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
 const navMenu = document.querySelector('.navbar-right ul');
+
+// Set default date to today
+if (attendanceDateInput) {
+  const today = new Date().toISOString().slice(0, 10);
+  attendanceDateInput.value = today;
+  attendanceDateInput.max = today;
+}
+
+// Fetch and display attendance when students are loaded or date changes
+if (attendanceDateInput) {
+  attendanceDateInput.addEventListener('change', () => {
+    renderAttendanceMarkingTable();
+  });
+}
+if (markAllPresentBtn) {
+  markAllPresentBtn.addEventListener('click', () => {
+    const date = attendanceDateInput.value;
+    studentsCache.forEach(s => {
+      if (!attendanceData[s.id]) attendanceData[s.id] = {};
+      attendanceData[s.id][date] = 'present';
+    });
+    renderAttendanceMarkingTable();
+  });
+}
+if (saveAttendanceBtn) {
+  saveAttendanceBtn.addEventListener('click', saveAttendanceForDate);
+}
 
 // Check for saved theme preference
 const savedTheme = localStorage.getItem('theme');
@@ -197,79 +237,79 @@ createStudentForm.addEventListener('submit', async (e) => {
 // Upload Document Form Submission
 uploadDocumentForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-    
     const fileInput = document.getElementById('documentFile');
     const file = fileInput.files[0];
-    
     if (!file) {
         showError('Please select a file to upload.');
         return;
     }
-
     if (file.size > 10 * 1024 * 1024) { // 10MB limit
         showError('File size must be less than 10MB.');
         return;
     }
-
     try {
         const submitBtn = uploadDocumentForm.querySelector('button[type="submit"]');
         const originalText = submitBtn.textContent;
         submitBtn.textContent = 'Uploading...';
         submitBtn.disabled = true;
-
         const studentId = document.getElementById('documentStudent').value;
         const documentType = document.getElementById('documentType').value;
         const documentName = document.getElementById('documentName').value;
         const expiryDate = document.getElementById('documentExpiry').value;
         const notes = document.getElementById('documentNotes').value;
-
-        // Upload file to student's folder in Firebase Storage
+        // Use uploadBytesResumable for progress
         const fileRef = storageRef(storage, `students/${studentId}/documents/${Date.now()}_${file.name}`);
-        await uploadBytes(fileRef, file);
-        const downloadURL = await getDownloadURL(fileRef);
-
-        // Save document metadata to Realtime Database
-        const documentData = {
-            name: documentName,
-            type: documentType,
-            fileUrl: downloadURL,
-            fileName: file.name,
-            fileSize: file.size,
-            expiryDate: expiryDate || null,
-            notes: notes,
-            status: 'pending',
-            uploadedAt: new Date().toISOString(),
-            verifiedAt: null,
-            verifiedBy: null
-        };
-
-        const documentsRef = ref(database, `students/${studentId}/documents`);
-        const newDocumentRef = push(documentsRef);
-        await set(newDocumentRef, documentData);
-
-        // Update student's missing documents list
-        const studentRef = ref(database, `students/${studentId}`);
-        const studentSnapshot = await get(studentRef);
-        if (studentSnapshot.exists()) {
-            const student = studentSnapshot.val();
-            const missingDocs = student.missingDocuments || [];
-            const updatedMissingDocs = missingDocs.filter(doc => doc !== documentType);
-            
-            await update(studentRef, {
-                missingDocuments: updatedMissingDocs,
-                updatedAt: new Date().toISOString()
-            });
-        }
-        
-        showSuccess('Document uploaded successfully!');
-        closeUploadDocumentModal();
-        
-        submitBtn.textContent = originalText;
-        submitBtn.disabled = false;
+        const uploadTask = uploadBytesResumable(fileRef, file);
+        uploadTask.on('state_changed',
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                submitBtn.textContent = `Uploading... ${progress.toFixed(0)}%`;
+            },
+            (error) => {
+                showError('Upload failed: ' + error.message);
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            },
+            async () => {
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                // Save document metadata to Realtime Database
+                const documentData = {
+                    name: documentName,
+                    type: documentType,
+                    fileUrl: downloadURL,
+                    fileName: file.name,
+                    fileSize: file.size,
+                    expiryDate: expiryDate || null,
+                    notes: notes,
+                    status: 'pending',
+                    uploadedAt: new Date().toISOString(),
+                    verifiedAt: null,
+                    verifiedBy: null
+                };
+                const documentsRef = ref(database, `students/${studentId}/documents`);
+                const newDocumentRef = push(documentsRef);
+                await set(newDocumentRef, documentData);
+                // Update student's missing documents list
+                const studentRef = ref(database, `students/${studentId}`);
+                const studentSnapshot = await get(studentRef);
+                if (studentSnapshot.exists()) {
+                    const student = studentSnapshot.val();
+                    const missingDocs = student.missingDocuments || [];
+                    const updatedMissingDocs = missingDocs.filter(doc => doc !== documentType);
+                    await update(studentRef, {
+                        missingDocuments: updatedMissingDocs,
+                        updatedAt: new Date().toISOString()
+                    });
+                }
+                showSuccess('Document uploaded successfully!');
+                closeUploadDocumentModal();
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        );
     } catch (error) {
         showError('Failed to upload document. Please try again.');
         console.error('Error uploading document:', error);
-        
         const submitBtn = uploadDocumentForm.querySelector('button[type="submit"]');
         submitBtn.textContent = 'Upload Document';
         submitBtn.disabled = false;
@@ -301,14 +341,14 @@ function loadStudents() {
     const studentsRef = ref(database, 'students');
     onValue(studentsRef, (snapshot) => {
         studentsList.innerHTML = '';
+        studentsCache = [];
         
         if (snapshot.exists()) {
             const students = [];
             snapshot.forEach((childSnapshot) => {
-                students.push({
-                    id: childSnapshot.key,
-                    ...childSnapshot.val()
-                });
+                const student = { id: childSnapshot.key, ...childSnapshot.val() };
+                students.push(student);
+                studentsCache.push(student);
             });
             
             // Sort by creation date (newest first)
@@ -565,12 +605,10 @@ function displayStudentInfo(student) {
 function displayStudentDocuments(documents, student) {
     const documentsStats = document.getElementById('documentsStats');
     const studentDocumentsList = document.getElementById('studentDocumentsList');
-    
     const documentsArray = Object.entries(documents).map(([id, doc]) => ({ id, ...doc }));
     const completedCount = documentsArray.filter(doc => doc.status === 'verified').length;
     const pendingCount = documentsArray.filter(doc => doc.status === 'pending').length;
     const missingCount = student.missingDocuments ? student.missingDocuments.length : 0;
-    
     documentsStats.innerHTML = `
         <div class="stat-card">
             <div class="stat-icon">
@@ -600,15 +638,11 @@ function displayStudentDocuments(documents, student) {
             </div>
         </div>
     `;
-    
     studentDocumentsList.innerHTML = '';
-    
-    // Show required documents first
     Object.entries(REQUIRED_DOCUMENTS).forEach(([docType, docInfo]) => {
         const existingDoc = documentsArray.find(doc => doc.type === docType);
         const documentItem = document.createElement('div');
         documentItem.className = `document-item ${existingDoc ? 'has-document' : 'missing-document'}`;
-        
         if (existingDoc) {
             documentItem.innerHTML = `
                 <div class="document-info">
@@ -620,6 +654,7 @@ function displayStudentDocuments(documents, student) {
                         <p class="document-type">${docInfo.name}</p>
                         <p class="document-date">Uploaded: ${new Date(existingDoc.uploadedAt).toLocaleDateString()}</p>
                         ${existingDoc.expiryDate ? `<p class="document-expiry">Expires: ${new Date(existingDoc.expiryDate).toLocaleDateString()}</p>` : ''}
+                        <div class="document-preview" id="preview-${existingDoc.id}"></div>
                     </div>
                 </div>
                 <div class="document-status">
@@ -637,6 +672,30 @@ function displayStudentDocuments(documents, student) {
                     </button>
                 </div>
             `;
+            // Render preview or link using getDownloadURL
+            (async () => {
+                try {
+                    let url = existingDoc.fileUrl;
+                    // If not a direct download URL, get it from storage
+                    if (!url.startsWith('https://firebasestorage.googleapis.com/')) {
+                        const fileRef = storageRef(storage, url);
+                        url = await getDownloadURL(fileRef);
+                    }
+                    const previewDiv = documentItem.querySelector(`#preview-${existingDoc.id}`);
+                    if (existingDoc.fileName && /\.(jpe?g|png)$/i.test(existingDoc.fileName)) {
+                        // Image preview
+                        previewDiv.innerHTML = `<img src="${url}" alt="${existingDoc.name}" style="max-width:120px;max-height:120px;margin-top:8px;border-radius:4px;box-shadow:0 1px 4px #0002;">`;
+                    } else if (existingDoc.fileName && /\.pdf$/i.test(existingDoc.fileName)) {
+                        // PDF link
+                        previewDiv.innerHTML = `<a href="${url}" target="_blank" class="btn btn-sm btn-outline-primary" style="margin-top:8px;">View PDF</a>`;
+                    } else {
+                        // Other file type
+                        previewDiv.innerHTML = `<a href="${url}" target="_blank" class="btn btn-sm btn-outline-secondary" style="margin-top:8px;">Download</a>`;
+                    }
+                } catch (err) {
+                    // If preview fails, show nothing
+                }
+            })();
         } else {
             documentItem.innerHTML = `
                 <div class="document-info">
@@ -659,7 +718,6 @@ function displayStudentDocuments(documents, student) {
                 </div>
             `;
         }
-        
         studentDocumentsList.appendChild(documentItem);
     });
 }
@@ -704,8 +762,21 @@ window.uploadDocumentForStudent = function(studentId, documentType = null) {
     }
 };
 
-window.viewDocument = function(fileUrl) {
-    window.open(fileUrl, '_blank');
+// 2. Refactor viewDocument to always use getDownloadURL for CORS-safe access
+window.viewDocument = async function(fileUrl) {
+    try {
+        // If fileUrl is already a Firebase Storage download URL, open it directly
+        if (fileUrl.startsWith('https://firebasestorage.googleapis.com/')) {
+            window.open(fileUrl, '_blank');
+            return;
+        }
+        // Otherwise, treat fileUrl as a storage path and get the download URL
+        const fileRef = storageRef(storage, fileUrl);
+        const downloadURL = await getDownloadURL(fileRef);
+        window.open(downloadURL, '_blank');
+    } catch (error) {
+        showError('Failed to open document: ' + error.message);
+    }
 };
 
 window.verifyDocument = async function(studentId, documentId) {
@@ -890,4 +961,181 @@ function renderStudentsOverviewTable() {
   });
   html += '</tbody></table>';
   tableDiv.innerHTML = html;
+} 
+
+// --- Image Upload and Delete Functionality for Authenticated User ---
+function setupUserImageUpload() {
+    const fileInput = document.getElementById('documentFile');
+    const uploadBtn = document.querySelector('#uploadDocumentForm button[type="submit"]');
+    const fileListContainer = document.createElement('ul');
+    fileListContainer.id = 'userFileList';
+    fileListContainer.style.marginTop = '1rem';
+    fileInput.parentNode.appendChild(fileListContainer);
+
+    let currentUser = null;
+
+    function renderFileList(userId) {
+        fileListContainer.innerHTML = '<li>Loading...</li>';
+        const userDocsRef = storageRef(storage, `students/${userId}/documents/`);
+        listAll(userDocsRef).then(async (res) => {
+            if (res.items.length === 0) {
+                fileListContainer.innerHTML = '<li>No files uploaded yet.</li>';
+                return;
+            }
+            fileListContainer.innerHTML = '';
+            for (const itemRef of res.items) {
+                const url = await getDownloadURL(itemRef);
+                const li = document.createElement('li');
+                li.style.display = 'flex';
+                li.style.alignItems = 'center';
+                li.style.gap = '8px';
+                const a = document.createElement('a');
+                a.href = url;
+                a.textContent = itemRef.name;
+                a.target = '_blank';
+                li.appendChild(a);
+                // Delete button
+                const delBtn = document.createElement('button');
+                delBtn.textContent = 'Delete';
+                delBtn.className = 'btn btn-sm btn-danger';
+                delBtn.onclick = async () => {
+                    if (confirm('Delete this file?')) {
+                        await deleteObject(itemRef);
+                        renderFileList(userId);
+                    }
+                };
+                li.appendChild(delBtn);
+                fileListContainer.appendChild(li);
+            }
+        }).catch(err => {
+            fileListContainer.innerHTML = `<li>Error loading files: ${err.message}</li>`;
+        });
+    }
+
+    onAuthStateChanged(auth, user => {
+        if (user) {
+            currentUser = user;
+            renderFileList(user.uid);
+        } else {
+            currentUser = null;
+            fileListContainer.innerHTML = '<li>Please log in to view your files.</li>';
+        }
+    });
+
+    // Intercept the upload form submit for image upload
+    uploadDocumentForm.addEventListener('submit', async (e) => {
+        if (!currentUser) return;
+        const file = fileInput.files[0];
+        if (!file) return;
+        const userId = currentUser.uid;
+        const filePath = `students/${userId}/documents/${Date.now()}_${file.name}`;
+        const fileRef = storageRef(storage, filePath);
+        const uploadTask = uploadBytesResumable(fileRef, file);
+        uploadBtn.disabled = true;
+        uploadBtn.textContent = 'Uploading...';
+        uploadTask.on('state_changed',
+            snapshot => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                uploadBtn.textContent = `Uploading... ${progress.toFixed(0)}%`;
+            },
+            error => {
+                alert('Upload failed: ' + error.message);
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Upload Document';
+            },
+            async () => {
+                uploadBtn.disabled = false;
+                uploadBtn.textContent = 'Upload Document';
+                renderFileList(userId);
+            }
+        );
+    });
+}
+
+// Call this after DOMContentLoaded
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setupUserImageUpload);
+} else {
+    setupUserImageUpload();
+} 
+
+function renderAttendanceMarkingTable() {
+  if (!attendanceMarkingTable) return;
+  const date = attendanceDateInput.value;
+  let html = `<table class="table table-bordered" style="width:100%;min-width:400px;">
+    <thead><tr><th>Name</th><th>Email</th><th>Attendance</th></tr></thead><tbody>`;
+  studentsCache.forEach(s => {
+    const status = (attendanceData[s.id] && attendanceData[s.id][date]) || '';
+    html += `<tr>
+      <td>${s.name}</td>
+      <td>${s.email}</td>
+      <td>
+        <select data-student-id="${s.id}" class="attendance-select" style="padding:0.3rem 0.5rem;">
+          <option value="">--</option>
+          <option value="present" ${status==='present'?'selected':''}>Present</option>
+          <option value="absent" ${status==='absent'?'selected':''}>Absent</option>
+        </select>
+      </td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  attendanceMarkingTable.innerHTML = html;
+  // Add event listeners
+  document.querySelectorAll('.attendance-select').forEach(sel => {
+    sel.addEventListener('change', function() {
+      const studentId = this.getAttribute('data-student-id');
+      if (!attendanceData[studentId]) attendanceData[studentId] = {};
+      attendanceData[studentId][date] = this.value;
+    });
+  });
+}
+
+async function saveAttendanceForDate() {
+  const date = attendanceDateInput.value;
+  if (!date) return;
+  attendanceSaveStatus.textContent = 'Saving...';
+  try {
+    const updates = {};
+    studentsCache.forEach(s => {
+      if (!attendanceData[s.id]) attendanceData[s.id] = {};
+      const status = attendanceData[s.id][date] || '';
+      updates[`students/${s.id}/attendance/${date}`] = status;
+    });
+    await update(ref(database), updates);
+    attendanceSaveStatus.textContent = 'Attendance saved!';
+    setTimeout(() => attendanceSaveStatus.textContent = '', 2000);
+  } catch (e) {
+    attendanceSaveStatus.textContent = 'Error saving attendance.';
+  }
+}
+
+function renderLowAttendanceList() {
+  if (!lowAttendanceList) return;
+  // Calculate attendance % for each student
+  const lowList = studentsCache.map(s => {
+    const att = s.attendance || {};
+    const totalDays = Object.keys(att).length;
+    const presentDays = Object.values(att).filter(v => v === 'present').length;
+    const percent = totalDays > 0 ? Math.round((presentDays / totalDays) * 100) : 0;
+    return {
+      id: s.id,
+      name: s.name,
+      email: s.email,
+      percent,
+      totalDays,
+      presentDays
+    };
+  }).filter(s => s.percent < lowAttendanceThreshold).sort((a, b) => a.percent - b.percent);
+  let html = `<table class="table table-bordered" style="width:100%;min-width:400px;">
+    <thead><tr><th>Name</th><th>Email</th><th>Attendance %</th><th>Status</th></tr></thead><tbody>`;
+  lowList.forEach(s => {
+    html += `<tr>
+      <td>${s.name}</td>
+      <td>${s.email}</td>
+      <td>${s.percent}%</td>
+      <td><span class="badge badge-warning">⚠️ Low Attendance</span></td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  lowAttendanceList.innerHTML = html;
 } 

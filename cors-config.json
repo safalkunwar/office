@@ -1,0 +1,14 @@
+[
+  {
+    "origin": [
+      "http://localhost:3000",        
+      "http://localhost",               
+      "http://127.0.0.1",             
+      "https://fir-a7a69.web.app",     
+      "https://fir-a7a69.firebaseapp.com" 
+    ],
+    "method": ["GET", "PUT", "POST", "DELETE", "HEAD", "OPTIONS"],
+    "responseHeader": ["Content-Type", "Firebase-Auth", "X-Firebase-Storage-Version"],
+    "maxAgeSeconds": 3600
+  }
+]

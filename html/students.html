@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
     <!-- Top Navigation Bar -->
@@ -65,11 +66,99 @@
                         <option value="inactive">Inactive</option>
                         <option value="completed">Completed</option>
                     </select>
+                    <select id="categoryFilter" aria-label="Filter by category">
+                        <option value="all">All Categories</option>
+                        <option value="morning">Morning</option>
+                        <option value="day">Day</option>
+                        <option value="custom">Custom</option>
+                    </select>
                     <button class="btn btn-primary" onclick="openCreateStudentModal()">
                         <i class="fas fa-plus"></i> Add Student
                     </button>
                 </div>
             </div>
+
+            <!-- Attendance Section (Tabs) -->
+            <div class="attendance-section card" id="attendanceSection" style="margin-bottom:2rem;">
+              <div class="card-header d-flex justify-content-between align-items-center" style="display:flex;justify-content:space-between;align-items:center;cursor:pointer;">
+                <h2 style="font-size:1.2rem;margin:0;"><i class="fas fa-calendar-check"></i> Student Attendance</h2>
+              </div>
+              <div class="card-body" id="attendanceBody">
+                <div class="attendance-tabs" style="margin-bottom:1.2rem;display:flex;gap:1.2rem;">
+                  <button class="tab-btn active" id="tabMarkToday" onclick="showAttendanceTab('mark')">Mark Today’s Attendance</button>
+                  <button class="tab-btn" id="tabHistory" onclick="showAttendanceTab('history')">Attendance History</button>
+                </div>
+                <div id="attendanceTabMark" style="display:block;">
+                  <!-- Mark Today's Attendance UI goes here (existing attendance UI) -->
+                  <div style="margin-bottom:1rem;">
+                    <label for="attendanceDate" style="font-weight:500;">Date:</label>
+                    <input type="date" id="attendanceDate" style="padding:0.3rem 0.7rem;">
+                    <label for="attendanceCategoryFilter" style="font-weight:500;margin-left:1.5rem;">Category:</label>
+                    <select id="attendanceCategoryFilter" style="padding:0.3rem 0.7rem;">
+                      <option value="all">All Categories</option>
+                      <option value="morning">Morning</option>
+                      <option value="day">Day</option>
+                      <option value="custom">Custom</option>
+                    </select>
+                  </div>
+                  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+                    <button class="btn btn-secondary" id="markAllPresentBtn"><i class="fas fa-user-check"></i> Mark All Present</button>
+                    <button class="btn btn-secondary" id="markSelectedPresentBtn"><i class="fas fa-check-double"></i> Mark Selected Present</button>
+                    <button class="btn btn-secondary" id="markSelectedAbsentBtn"><i class="fas fa-user-times"></i> Mark Selected Absent</button>
+                    <button class="btn btn-primary" id="saveAttendanceBtn"><i class="fas fa-save"></i> Save Attendance</button>
+                    <span id="attendanceSaveStatus" style="margin-left:1rem;font-weight:500;color:#2563eb;"></span>
+                  </div>
+                  <div id="attendanceMarkingTable"></div>
+                  <div style="margin-top:2rem;">
+                    <canvas id="lowAttendanceChart" height="120"></canvas>
+                  </div>
+                </div>
+                <div id="attendanceTabHistory" style="display:none;">
+                  <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1rem;">
+                    <label for="historyDate" style="font-weight:500;">Select Date:</label>
+                    <input type="date" id="historyDate" max="9999-12-31" style="padding:0.3rem 0.7rem;">
+                    <button class="btn btn-primary" id="loadAttendanceHistoryBtn"><i class="fas fa-search"></i> Load</button>
+                  </div>
+                  <div id="attendanceHistoryAnalytics" style="margin-bottom:1.2rem;"></div>
+                  <div id="attendanceHistoryTableContainer"></div>
+                </div>
+              </div>
+            </div>
+            <script>
+            function showAttendanceTab(tab) {
+              document.getElementById('attendanceTabMark').style.display = tab === 'mark' ? 'block' : 'none';
+              document.getElementById('attendanceTabHistory').style.display = tab === 'history' ? 'block' : 'none';
+              document.getElementById('tabMarkToday').classList.toggle('active', tab === 'mark');
+              document.getElementById('tabHistory').classList.toggle('active', tab === 'history');
+            }
+            </script>
+            <!-- Attendance History Modal -->
+            <div class="modal" id="attendanceHistoryModal">
+              <div class="modal-content" style="max-width:600px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <h2 id="attendanceHistoryTitle" style="margin:0;font-size:1.2rem;"><i class="fas fa-user"></i> Attendance History</h2>
+                  <button class="btn btn-sm btn-danger" onclick="closeAttendanceHistoryModal()"><i class="fas fa-times"></i></button>
+                </div>
+                <div id="attendanceHistoryStats" style="margin:1rem 0;"></div>
+                <div style="max-width:500px;margin:auto;">
+                  <canvas id="attendanceHistoryChart"></canvas>
+                </div>
+                <div id="attendanceHistoryTable" style="margin-top:1.5rem;max-height:300px;overflow-y:auto;"></div>
+              </div>
+            </div>
+            <script>
+            function toggleAttendanceSection() {
+              const body = document.getElementById('attendanceBody');
+              const btn = document.getElementById('attendanceToggleBtn');
+              const expanded = btn.getAttribute('aria-expanded') === 'true';
+              body.style.display = expanded ? 'none' : '';
+              btn.setAttribute('aria-expanded', expanded ? 'false' : 'true');
+              btn.innerHTML = expanded ? '<i class="fas fa-chevron-down"></i>' : '<i class="fas fa-chevron-up"></i>';
+            }
+            function closeAttendanceHistoryModal() {
+              document.getElementById('attendanceHistoryModal').style.display = 'none';
+            }
+            </script>
 
             <!-- Students List -->
             <div class="table-container">
@@ -129,6 +218,14 @@
                     </select>
                 </div>
                 <div class="form-group">
+                    <label for="studentCategory">Category</label>
+                    <select id="studentCategory" required>
+                        <option value="morning">Morning</option>
+                        <option value="day">Day</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div class="form-group">
                     <label for="startDate">Start Date</label>
                     <input type="date" id="startDate" required>
                 </div>
@@ -139,6 +236,112 @@
             </form>
         </div>
     </div>
+
+    <!-- Edit Student Modal -->
+    <div class="modal" id="editStudentModal">
+        <div class="modal-content">
+            <h2>Edit Student</h2>
+            <form id="editStudentForm">
+                <input type="hidden" id="editStudentId">
+                <div class="form-group">
+                    <label for="editStudentName">Full Name</label>
+                    <input type="text" id="editStudentName" required>
+                </div>
+                <div class="form-group">
+                    <label for="editStudentEmail">Email</label>
+                    <input type="email" id="editStudentEmail" required>
+                </div>
+                <div class="form-group">
+                    <label for="editStudentPhone">Phone Number</label>
+                    <input type="tel" id="editStudentPhone" required>
+                </div>
+                <div class="form-group">
+                    <label for="editStudentCourse">Course</label>
+                    <select id="editStudentCourse" required>
+                        <option value="">Select Course</option>
+                        <option value="IELTS">IELTS</option>
+                        <option value="PTE">PTE</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editStudentCategory">Category</label>
+                    <select id="editStudentCategory" required>
+                        <option value="morning">Morning</option>
+                        <option value="day">Day</option>
+                        <option value="custom">Custom</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="editStartDate">Start Date</label>
+                    <input type="date" id="editStartDate" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-secondary" onclick="closeEditStudentModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+    function closeEditStudentModal() {
+      document.getElementById('editStudentModal').style.display = 'none';
+      document.getElementById('editStudentForm').reset();
+    }
+    </script>
+
+    <!-- Student View Modal -->
+    <div class="modal" id="viewStudentModal" style="display:none;">
+      <div class="modal-content" style="max-width:420px;padding:2rem 2.5rem;box-shadow:0 8px 32px #0002;border-radius:18px;">
+        <button class="btn btn-sm btn-danger" style="float:right;" onclick="closeViewStudentModal()"><i class="fas fa-times"></i></button>
+        <div id="viewStudentAvatar" style="display:flex;justify-content:center;margin-bottom:1.2rem;"></div>
+        <h2 id="viewStudentName" style="text-align:center;margin-bottom:0.2rem;"></h2>
+        <div id="viewStudentCategory" style="text-align:center;margin-bottom:1rem;"></div>
+        <div style="display:flex;flex-direction:column;gap:0.7rem;">
+          <div><i class="fas fa-envelope"></i> <span id="viewStudentEmail"></span></div>
+          <div><i class="fas fa-phone"></i> <span id="viewStudentPhone"></span></div>
+          <div><i class="fas fa-book"></i> <span id="viewStudentCourse"></span></div>
+          <div><i class="fas fa-calendar-day"></i> <span id="viewStudentStartDate"></span></div>
+          <div><i class="fas fa-user-tag"></i> <span id="viewStudentStatus"></span></div>
+        </div>
+      </div>
+    </div>
+    <script>
+    function closeViewStudentModal() {
+      document.getElementById('viewStudentModal').style.display = 'none';
+    }
+    </script>
+
+    <!-- Edit Attendance Record Modal -->
+    <div class="modal" id="editAttendanceRecordModal" style="display:none;">
+      <div class="modal-content" style="max-width:400px;">
+        <h3 style="margin-bottom:1rem;"><i class="fas fa-edit"></i> Edit Attendance Record</h3>
+        <form id="editAttendanceRecordForm">
+          <input type="hidden" id="editAttendanceStudentId">
+          <input type="hidden" id="editAttendanceDate">
+          <div class="form-group">
+            <label for="editAttendanceStatus">Status</label>
+            <select id="editAttendanceStatus" required>
+              <option value="present">Present</option>
+              <option value="absent">Absent</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="editAttendanceNote">Note</label>
+            <input type="text" id="editAttendanceNote" placeholder="Optional note">
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" onclick="closeEditAttendanceRecordModal()">Cancel</button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <script>
+    function closeEditAttendanceRecordModal() {
+      document.getElementById('editAttendanceRecordModal').style.display = 'none';
+      document.getElementById('editAttendanceRecordForm').reset();
+    }
+    </script>
 
     <script type="module" src="../js/students.js"></script>
 </body>

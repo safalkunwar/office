@@ -74,6 +74,11 @@
             </div>
         </header>
 
+        <!-- Exam Notifications Section -->
+        <div class="exam-notifications-container" id="examNotificationsContainer">
+            <!-- Exam notifications will be loaded here -->
+        </div>
+
         <div class="container">
             <div class="dashboard-grid">
                 <!-- Quick Stats -->
@@ -183,7 +188,8 @@
                             <h3><i class="fas fa-university"></i> University Applications</h3>
                             <canvas id="universityApplicationsChart" data-db-collection="applications"></canvas>
                         </div>
-                        <div class="analytics-card" data-chart="visa-success">
+                        <div class="analytics-card" data-c
+                        hart="visa-success">
                             <h3><i class="fas fa-passport"></i> Visa Success Rate</h3>
                             <canvas id="visaSuccessChart" data-db-collection="visas"></canvas>
                         </div>
@@ -242,13 +248,6 @@
                             <h3>Schedule Exam</h3>
                             <p>Create new exam schedule</p>
                         </a>
-                        <a href="#" class="action-card" onclick="openCreateExamModal()">
-                            <div class="action-icon">
-                                <i class="fas fa-file-alt"></i>
-                            </div>
-                            <h3>Quick Exam</h3>
-                            <p>Create exam instantly</p>
-                        </a>
                         <a href="./html/applications.html" class="action-card">
                             <div class="action-icon">
                                 <i class="fas fa-file-upload"></i>
@@ -262,13 +261,6 @@
                             </div>
                             <h3>Manage Universities</h3>
                             <p>Add/edit universities</p>
-                        </a>
-                        <a href="#" class="action-card" onclick="openCreateUniversityModal()">
-                            <div class="action-icon">
-                                <i class="fas fa-plus-circle"></i>
-                            </div>
-                            <h3>Quick University</h3>
-                            <p>Add university instantly</p>
                         </a>
                         <a href="./html/messages.html" class="action-card">
                             <div class="action-icon">
@@ -338,45 +330,6 @@
             </div>
         </div>
     </main>
-
-    <!-- Create Exam Modal -->
-    <div class="modal" id="createExamModal">
-        <div class="modal-content">
-            <h2>Create New Exam</h2>
-            <form id="createExamForm">
-                <div class="form-group">
-                    <label for="examName">Exam Name</label>
-                    <input type="text" id="examName" required placeholder="e.g., IELTS Practice Test 1">
-                </div>
-                <div class="form-group">
-                    <label for="examType">Exam Type</label>
-                    <select id="examType" required>
-                        <option value="">Select Exam Type</option>
-                        <option value="IELTS">IELTS</option>
-                        <option value="PTE">PTE</option>
-                        <option value="TOEFL">TOEFL</option>
-                        <option value="Practice">Practice Test</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="examDate">Date & Time</label>
-                    <input type="datetime-local" id="examDate" required>
-                </div>
-                <div class="form-group">
-                    <label for="examDuration">Duration (minutes)</label>
-                    <input type="number" id="examDuration" required min="30" max="300" placeholder="e.g., 180">
-                </div>
-                <div class="form-group">
-                    <label for="examDescription">Description</label>
-                    <textarea id="examDescription" rows="3" placeholder="Brief description of the exam..."></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="button" class="btn btn-secondary" onclick="closeCreateExamModal()">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create Exam</button>
-                </div>
-            </form>
-        </div>
-    </div>
 
     <!-- Create University Modal -->
     <div class="modal" id="createUniversityModal">

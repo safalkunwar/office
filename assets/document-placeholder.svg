@@ -1,0 +1,10 @@
+<svg width="300" height="200" viewBox="0 0 300 200" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="200" fill="#f8f9fa"/>
+  <rect x="50" y="40" width="200" height="120" fill="#e9ecef" stroke="#6c757d" stroke-width="2"/>
+  <rect x="70" y="60" width="160" height="8" fill="#6c757d"/>
+  <rect x="70" y="80" width="120" height="8" fill="#6c757d"/>
+  <rect x="70" y="100" width="140" height="8" fill="#6c757d"/>
+  <rect x="70" y="120" width="100" height="8" fill="#6c757d"/>
+  <circle cx="250" cy="100" r="20" fill="#28a745"/>
+  <text x="250" y="105" text-anchor="middle" fill="white" font-size="12" font-weight="bold">PDF</text>
+</svg> 

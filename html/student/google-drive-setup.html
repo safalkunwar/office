@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive Setup - Student Portal</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/student.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h2>Student Portal</h2>
+            </div>
+            <ul>
+                <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
+                <li><a href="documents.html"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="messages.html"><i class="fas fa-envelope"></i> Messages</a></li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header class="content-header">
+                <h1>Google Drive Setup</h1>
+                <a href="documents.html" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Documents
+                </a>
+            </header>
+
+            <div class="setup-container">
+                <!-- Google API Credentials Section -->
+                <div class="setup-section">
+                    <h2><i class="fab fa-google"></i> Google API Credentials</h2>
+                    <p>To use Google Drive for document uploads, you need to provide your Google API credentials.</p>
+                    
+                    <div class="form-group">
+                        <label for="googleClientId">Google Client ID</label>
+                        <input type="text" id="googleClientId" placeholder="Enter your Google Client ID">
+                        <small class="form-text">Get this from Google Cloud Console</small>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="googleApiKey">Google API Key</label>
+                        <input type="text" id="googleApiKey" placeholder="Enter your Google API Key">
+                        <small class="form-text">Get this from Google Cloud Console</small>
+                    </div>
+                    
+                    <button id="saveGoogleApiCredentialsBtn" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Save Credentials
+                    </button>
+                    
+                    <div id="googleApiCredentialsStatus" class="status-message"></div>
+                </div>
+
+                <!-- Google Drive Connection Section -->
+                <div class="setup-section">
+                    <h2><i class="fas fa-cloud"></i> Connect Google Drive</h2>
+                    <p>Connect your Google Drive account to upload and manage documents.</p>
+                    
+                    <div id="emailInputSection" class="connection-section">
+                        <div class="form-group">
+                            <label for="userEmail">Gmail Address</label>
+                            <input type="email" id="userEmail" placeholder="Enter your Gmail address">
+                        </div>
+                        <button onclick="initiateGoogleDriveAuth()" class="btn btn-primary">
+                            <i class="fab fa-google"></i> Connect Google Drive
+                        </button>
+                    </div>
+
+                    <div id="oauthProgressSection" class="connection-section" style="display: none;">
+                        <h3>Setting up Google Drive...</h3>
+                        <div class="progress-steps">
+                            <div id="step1" class="step">
+                                <i class="fas fa-user"></i>
+                                <span>Authenticating</span>
+                            </div>
+                            <div id="step2" class="step">
+                                <i class="fas fa-key"></i>
+                                <span>Getting Access</span>
+                            </div>
+                            <div id="step3" class="step">
+                                <i class="fas fa-folder"></i>
+                                <span>Creating Folder</span>
+                            </div>
+                            <div id="step4" class="step">
+                                <i class="fas fa-check"></i>
+                                <span>Complete</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="connectedStatusSection" class="connection-section" style="display: none;">
+                        <div class="success-message">
+                            <i class="fas fa-check-circle"></i>
+                            <h3>Google Drive Connected!</h3>
+                            <p>Connected to: <span id="connectedEmail"></span></p>
+                            <p>Your documents will be stored in the "MediaUploads" folder in your Google Drive.</p>
+                        </div>
+                        <button onclick="disconnectGoogleDrive()" class="btn btn-danger">
+                            <i class="fas fa-unlink"></i> Disconnect
+                        </button>
+                    </div>
+
+                    <div id="errorSection" class="connection-section" style="display: none;">
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            <h3>Connection Failed</h3>
+                            <p id="errorMessage"></p>
+                        </div>
+                        <button onclick="retryGoogleDriveAuth()" class="btn btn-secondary">
+                            <i class="fas fa-redo"></i> Try Again
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Instructions Section -->
+                <div class="setup-section">
+                    <h2><i class="fas fa-info-circle"></i> How to Get Google API Credentials</h2>
+                    <div class="instructions">
+                        <ol>
+                            <li>Go to <a href="https://console.cloud.google.com/" target="_blank">Google Cloud Console</a></li>
+                            <li>Create a new project or select an existing one</li>
+                            <li>Enable the Google Drive API</li>
+                            <li>Go to "Credentials" and create an OAuth 2.0 Client ID</li>
+                            <li>Add your domain to the authorized origins</li>
+                            <li>Copy the Client ID and API Key to the fields above</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Google Drive API Scripts -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+    
+    <script type="module" src="../../js/google-drive.js"></script>
+    <script>
+        // Check if already connected
+        document.addEventListener('DOMContentLoaded', function() {
+            const token = localStorage.getItem('gdrive_token');
+            const folder = localStorage.getItem('gdrive_folder');
+            
+            if (token && folder) {
+                document.getElementById('emailInputSection').style.display = 'none';
+                document.getElementById('connectedStatusSection').style.display = 'block';
+                document.getElementById('connectedEmail').textContent = localStorage.getItem('gdrive_email') || 'Connected Account';
+            }
+        });
+    </script>
+</body>
+</html> 

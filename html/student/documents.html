@@ -27,15 +27,20 @@
         <main class="content">
             <header class="content-header">
                 <h1>My Documents</h1>
-                <button class="btn btn-primary" onclick="openUploadModal()">
-                    <i class="fas fa-upload"></i> Upload Document
-                </button>
+                <div class="header-actions">
+                    <a href="google-drive-setup.html" class="btn btn-secondary">
+                        <i class="fas fa-cog"></i> Google Drive Setup
+                    </a>
+                    <button class="btn btn-primary" onclick="openUploadModal()">
+                        <i class="fas fa-upload"></i> Upload Document
+                    </button>
+                </div>
             </header>
 
             <!-- Student Information -->
             <div class="student-info">
                 <div class="student-profile">
-                    <img id="studentAvatar" src="../../assets/default-avatar.png" alt="Student Avatar">
+                    <img id="studentAvatar" src="../../assets/default-avatar.svg" alt="Student Avatar">
                     <div class="student-details">
                         <h2 id="studentName">Loading...</h2>
                         <p id="studentId">Student ID: Loading...</p>
@@ -150,6 +155,31 @@
         </div>
     </div>
 
+    <!-- Error Message Container -->
+    <div id="errorContainer" class="error-container" style="display: none;"></div>
+
+    <!-- Google Drive API Scripts -->
+    <script src="https://apis.google.com/js/api.js"></script>
+    <script src="https://accounts.google.com/gsi/client"></script>
+    
     <script type="module" src="../../js/student/documents.js"></script>
+    <script>
+        // Make modal functions globally available
+        window.openUploadModal = function() {
+            document.getElementById('uploadModal').style.display = 'block';
+        };
+        
+        window.closeModal = function() {
+            document.getElementById('uploadModal').style.display = 'none';
+        };
+        
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('uploadModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        };
+    </script>
 </body>
 </html> 

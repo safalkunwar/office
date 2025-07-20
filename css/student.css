@@ -198,159 +198,161 @@
     resize: vertical;
 }
 
+.form-group select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
 .form-text {
-    display: block;
-    margin-top: 0.25rem;
     font-size: 0.875rem;
-    color: var(--text-muted);
+    color: #6c757d;
+    margin-top: 0.25rem;
 }
 
 .form-actions {
     display: flex;
-    justify-content: flex-end;
     gap: 1rem;
+    justify-content: flex-end;
     margin-top: 2rem;
 }
 
-/* Student Information */
 .student-info {
     background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .student-profile {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 1.5rem;
 }
 
 .student-profile img {
-    width: 100px;
-    height: 100px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     object-fit: cover;
     border: 3px solid var(--primary-color);
 }
 
 .student-details h2 {
-    margin: 0;
+    margin: 0 0 0.5rem 0;
     color: var(--primary-color);
-    font-size: 1.5em;
 }
 
 .student-details p {
-    margin: 5px 0;
-    color: #666;
+    margin: 0.25rem 0;
+    color: var(--text-muted);
 }
 
-/* Document Requirements */
 .document-requirements {
     background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-bottom: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .document-requirements h2 {
-    margin-bottom: 20px;
+    margin-top: 0;
     color: var(--primary-color);
 }
 
 .requirements-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
 }
 
 .requirement-card {
     background: #f8f9fa;
     border-radius: 8px;
-    padding: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    transition: transform 0.3s ease;
+    padding: 1.5rem;
+    text-align: center;
     cursor: pointer;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
 }
 
 .requirement-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    background: #e9ecef;
+    transform: translateY(-2px);
 }
 
 .requirement-card i {
-    font-size: 2em;
+    font-size: 2.5rem;
     color: var(--primary-color);
+    margin-bottom: 1rem;
 }
 
 .requirement-card h3 {
-    margin: 0;
-    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
 }
 
 .requirement-card p {
-    margin: 0;
-    color: #666;
-    font-size: 0.9em;
+    margin: 0 0 1rem 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
 }
 
 .requirement-status {
-    margin-top: auto;
+    margin-top: 1rem;
 }
 
 .status-badge {
     display: inline-block;
-    padding: 5px 10px;
+    padding: 0.25rem 0.75rem;
     border-radius: 20px;
-    font-size: 0.8em;
+    font-size: 0.8rem;
     font-weight: 500;
 }
 
 .status-badge.pending {
-    background-color: #fff3cd;
+    background: #fff3cd;
     color: #856404;
 }
 
 .status-badge.completed {
-    background-color: #d4edda;
+    background: #d4edda;
     color: #155724;
 }
 
 .status-badge.missing {
-    background-color: #f8d7da;
+    background: #f8d7da;
     color: #721c24;
 }
 
-/* Uploaded Documents */
 .uploaded-documents {
     background: white;
-    border-radius: 12px;
-    padding: 20px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    padding: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
 .uploaded-documents h2 {
-    margin-bottom: 20px;
+    margin-top: 0;
     color: var(--primary-color);
 }
 
 .documents-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 20px;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-top: 1.5rem;
 }
 
 .document-card {
     background: #f8f9fa;
     border-radius: 8px;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+    padding: 1.5rem;
+    border: 1px solid #e9ecef;
 }
 
 .document-card img {
@@ -358,78 +360,331 @@
     height: 150px;
     object-fit: cover;
     border-radius: 4px;
+    margin-bottom: 1rem;
 }
 
 .document-info {
-    flex: 1;
+    margin-bottom: 1rem;
 }
 
 .document-info h4 {
-    margin: 0;
-    color: #2c3e50;
+    margin: 0 0 0.5rem 0;
+    color: var(--text-color);
 }
 
 .document-info p {
-    margin: 5px 0;
-    color: #666;
-    font-size: 0.9em;
+    margin: 0.25rem 0;
+    color: var(--text-muted);
+    font-size: 0.9rem;
 }
 
 .document-actions {
     display: flex;
-    gap: 10px;
+    gap: 0.5rem;
 }
 
 .document-actions button {
     flex: 1;
-    padding: 8px;
+    padding: 0.5rem;
     border: none;
     border-radius: 4px;
     cursor: pointer;
-    font-size: 0.9em;
-    transition: background-color 0.3s;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease;
 }
 
 .document-actions .btn-view {
-    background-color: var(--primary-color);
+    background: var(--primary-color);
     color: white;
 }
 
 .document-actions .btn-delete {
-    background-color: #dc3545;
+    background: #dc3545;
     color: white;
 }
 
 .document-actions button:hover {
-    opacity: 0.9;
+    opacity: 0.8;
 }
 
-/* Responsive Design */
+/* Error and Success Message Styles */
+.error-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 2000;
+    max-width: 400px;
+}
+
+.error-message {
+    background: #f8d7da;
+    color: #721c24;
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid #f5c6cb;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.success-message {
+    background: #d4edda;
+    color: #155724;
+    padding: 1rem;
+    border-radius: 4px;
+    border: 1px solid #c3e6cb;
+    margin-bottom: 0.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.no-documents {
+    text-align: center;
+    color: var(--text-muted);
+    font-style: italic;
+    padding: 2rem;
+}
+
+/* Google Drive Status Styles */
+.google-drive-status {
+    margin-left: auto;
+    margin-right: 1rem;
+}
+
+.status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.status-indicator.connected {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-indicator.disconnected {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.status-indicator i {
+    font-size: 1rem;
+}
+
+.content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.header-actions {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+/* Google Drive Setup Styles */
+.setup-container {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.setup-section {
+    background: white;
+    border-radius: 8px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.setup-section h2 {
+    margin-top: 0;
+    color: var(--primary-color);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.setup-section p {
+    color: var(--text-muted);
+    margin-bottom: 1.5rem;
+}
+
+.connection-section {
+    margin-top: 1.5rem;
+}
+
+.progress-steps {
+    display: flex;
+    justify-content: space-between;
+    margin: 2rem 0;
+    position: relative;
+}
+
+.progress-steps::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: #e9ecef;
+    z-index: 1;
+}
+
+.step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    position: relative;
+    z-index: 2;
+    background: white;
+    padding: 0.5rem;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    justify-content: center;
+    border: 2px solid #e9ecef;
+    transition: all 0.3s ease;
+}
+
+.step.active {
+    border-color: var(--primary-color);
+    background: var(--primary-color);
+    color: white;
+}
+
+.step.completed {
+    border-color: #28a745;
+    background: #28a745;
+    color: white;
+}
+
+.step i {
+    font-size: 1.2rem;
+}
+
+.step span {
+    font-size: 0.8rem;
+    text-align: center;
+    margin-top: 0.25rem;
+}
+
+.status-message {
+    margin-top: 1rem;
+    padding: 1rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.status-message.success {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.status-message.error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.instructions {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+}
+
+.instructions ol {
+    margin: 0;
+    padding-left: 1.5rem;
+}
+
+.instructions li {
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+.instructions a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.instructions a:hover {
+    text-decoration: underline;
+}
+
 @media (max-width: 768px) {
     .document-status {
         grid-template-columns: 1fr;
     }
-
+    
     .documents-list {
         grid-template-columns: 1fr;
     }
-
+    
     .modal-content {
         width: 95%;
         margin: 1rem auto;
         padding: 1.5rem;
     }
-
+    
     .student-profile {
         flex-direction: column;
         text-align: center;
     }
-
+    
     .requirements-grid {
         grid-template-columns: 1fr;
     }
-
+    
     .documents-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .google-drive-status {
+        margin-left: 0;
+        margin-right: 0;
+        margin-top: 1rem;
+    }
+    
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    
+    .header-actions {
+        flex-direction: column;
+        width: 100%;
+        gap: 0.5rem;
+    }
+    
+    .header-actions .btn {
+        width: 100%;
+    }
+    
+    .progress-steps {
+        flex-direction: column;
+        gap: 1rem;
+    }
+    
+    .progress-steps::before {
+        display: none;
+    }
+    
+    .step {
+        width: auto;
+        height: auto;
+        border-radius: 8px;
+        padding: 1rem;
+        flex-direction: row;
+        gap: 0.5rem;
     }
 } 

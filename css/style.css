@@ -1005,7 +1005,15 @@ input[type="file"] + small {
     border-radius: 10px;
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
 }
+.students-stats-bar{
+    display: flex;
+    width: 80%;
+    
 
+}
+.stat-card{
+    padding: 10px;
+}
 .report-filters {
     display: flex;
     gap: 1rem;
@@ -1966,5 +1974,109 @@ body.dark-mode .message-preview-subject {
 
 body.dark-mode .message-preview-content {
     color: #bdc3c7;
+}
+  
+/* Modern Table Styles */
+.modern-table {
+  background: #fff;
+  border-radius: 14px;
+  box-shadow: 0 2px 12px #0001;
+  overflow: hidden;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+.modern-table th, .modern-table td {
+  padding: 0.85rem 1.1rem;
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 1.04rem;
+}
+.modern-table tr {
+  transition: background 0.18s;
+}
+.modern-table tr:hover {
+  background: #f3f6fa;
+}
+
+/* Modal Content Enhancements */
+.modal-content {
+  background: #fff;
+  border-radius: 18px;
+  box-shadow: 0 8px 32px #0002;
+  padding: 2rem 2.5rem;
+  position: relative;
+  animation: modalPop 0.25s cubic-bezier(.4,2,.6,1) 1;
+}
+@keyframes modalPop {
+  0% { transform: scale(0.95); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Badges */
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.7em;
+  border-radius: 12px;
+  font-size: 0.98em;
+  font-weight: 600;
+  background: #e0e7ef;
+  color: #2563eb;
+  margin-right: 0.2em;
+}
+.badge-info { background: #e0f2fe; color: #2563eb; }
+.badge-primary { background: #dbeafe; color: #1d4ed8; }
+.badge-secondary { background: #f3f4f6; color: #334155; }
+.badge-warning { background: #fef9c3; color: #b45309; }
+.badge-danger { background: #fee2e2; color: #b91c1c; }
+.badge-success { background: #dcfce7; color: #15803d; }
+
+/* Status Badges */
+.status-badge {
+  padding: 0.22em 0.8em;
+  border-radius: 10px;
+  font-size: 0.97em;
+  font-weight: 600;
+  text-transform: capitalize;
+  background: #e0e7ef;
+  color: #334155;
+}
+.status-badge.active { background: #dcfce7; color: #15803d; }
+.status-badge.inactive { background: #f3f4f6; color: #64748b; }
+.status-badge.completed { background: #dbeafe; color: #1d4ed8; }
+
+/* Avatar Circle */
+.avatar-circle {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: #e0e7ef;
+  color: #2563eb;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: 0 1px 4px #0001;
+}
+
+/* Modal Close Button */
+.modal-content .btn-danger {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  background: #fee2e2;
+  color: #b91c1c;
+  border: none;
+  cursor: pointer;
+  transition: background 0.18s;
+}
+.modal-content .btn-danger:hover {
+  background: #fecaca;
 }
   
