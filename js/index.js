@@ -3,6 +3,7 @@ import { getDatabase, ref, get, onValue, push, set, remove, update, query, order
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
 import { firebaseConfig } from './config.js';
 import Chart from 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/+esm';
+import { getStorage, ref as storageRef, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-storage.js";
 
 // Initialize Firebase
 let app, db, auth;
@@ -2136,3 +2137,149 @@ function setupModalCloseHandlers() {
         }
     });
 }
+
+// ... existing code ...
+// Employee & Instructor Management Logic
+let employees = [
+  { id: '1', name: 'John Doe', role: 'ielts', contact: '9876543210', email: 'john@consultancy.com', designation: 'Senior IELTS Instructor', branch: 'Main', status: 'active' },
+  { id: '2', name: 'Jane Smith', role: 'pte', contact: '9876543211', email: 'jane@consultancy.com', designation: 'PTE Instructor', branch: 'Branch A', status: 'active' },
+  { id: '3', name: 'Alice Admin', role: 'admin', contact: '9876543212', email: 'alice@consultancy.com', designation: 'Admin Manager', branch: 'Main', status: 'inactive' }
+];
+
+const employeeList = document.getElementById('employeeList');
+const employeeRoleFilter = document.getElementById('employeeRoleFilter');
+const employeeSearchInput = document.getElementById('employeeSearchInput');
+const employeeModal = document.getElementById('employeeModal');
+const employeeForm = document.getElementById('employeeForm');
+const employeeModalTitle = document.getElementById('employeeModalTitle');
+const toast = document.getElementById('toast');
+
+function displayEmployees() {
+  let filtered = employees.filter(e => {
+    const matchesRole = employeeRoleFilter.value === 'all' || e.role === employeeRoleFilter.value;
+    const matchesSearch = e.name.toLowerCase().includes(employeeSearchInput.value.toLowerCase()) || e.role.toLowerCase().includes(employeeSearchInput.value.toLowerCase());
+    return matchesRole && matchesSearch;
+  });
+  employeeList.innerHTML = filtered.map(e => `
+    <tr>
+      <td>${e.name}</td>
+      <td>${roleLabel(e.role)}</td>
+      <td>${e.contact}</td>
+      <td>${e.email || '-'}</td>
+      <td>${e.designation || '-'}</td>
+      <td>${e.branch || '-'}</td>
+      <td><span class="badge ${e.status === 'active' ? 'badge-success' : 'badge-danger'}">${capitalize(e.status)}</span></td>
+      <td>
+        <button class="btn btn-sm btn-info" onclick="viewEmployee('${e.id}')"><i class="fas fa-eye"></i></button>
+        <button class="btn btn-sm btn-primary" onclick="editEmployee('${e.id}')"><i class="fas fa-edit"></i></button>
+        <button class="btn btn-sm btn-warning" onclick="toggleEmployeeStatus('${e.id}')">${e.status === 'active' ? 'Disable' : 'Enable'}</button>
+      </td>
+    </tr>
+  `).join('');
+}
+function roleLabel(role) {
+  if (role === 'ielts') return 'IELTS Instructor';
+  if (role === 'pte') return 'PTE Instructor';
+  if (role === 'admin') return 'Admin Staff';
+  return role;
+}
+function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+employeeRoleFilter?.addEventListener('change', displayEmployees);
+employeeSearchInput?.addEventListener('input', displayEmployees);
+
+window.openEmployeeModal = function() {
+  employeeModalTitle.textContent = 'Add Employee/Instructor';
+  employeeForm.reset();
+  document.getElementById('employeeId').value = '';
+  employeeModal.style.display = 'flex';
+};
+window.closeEmployeeModal = function() {
+  employeeModal.style.display = 'none';
+};
+
+window.editEmployee = function(id) {
+  const e = employees.find(emp => emp.id === id);
+  if (!e) return;
+  employeeModalTitle.textContent = 'Edit Employee/Instructor';
+  document.getElementById('employeeId').value = e.id;
+  document.getElementById('employeeName').value = e.name;
+  document.getElementById('employeeRole').value = e.role;
+  document.getElementById('employeeContact').value = e.contact;
+  document.getElementById('employeeEmail').value = e.email;
+  document.getElementById('employeeDesignation').value = e.designation;
+  document.getElementById('employeeBranch').value = e.branch;
+  document.getElementById('employeeStatus').value = e.status;
+  employeeModal.style.display = 'flex';
+};
+
+window.viewEmployee = function(id) {
+  const e = employees.find(emp => emp.id === id);
+  if (!e) return;
+  let details = `
+    <h3>${e.name}</h3>
+    <p><b>Role:</b> ${roleLabel(e.role)}</p>
+    <p><b>Contact:</b> ${e.contact}</p>
+    <p><b>Email:</b> ${e.email || '-'}</p>
+    <p><b>Designation:</b> ${e.designation || '-'}</p>
+    <p><b>Branch:</b> ${e.branch || '-'}</p>
+    <p><b>Status:</b> <span class="badge ${e.status === 'active' ? 'badge-success' : 'badge-danger'}">${capitalize(e.status)}</span></p>
+  `;
+  showToast(details, true);
+};
+
+window.toggleEmployeeStatus = function(id) {
+  const e = employees.find(emp => emp.id === id);
+  if (!e) return;
+  e.status = e.status === 'active' ? 'inactive' : 'active';
+  displayEmployees();
+  showToast(`Status updated to ${capitalize(e.status)}`);
+};
+
+employeeForm?.addEventListener('submit', function(e) {
+  e.preventDefault();
+  const id = document.getElementById('employeeId').value || Date.now().toString();
+  const name = document.getElementById('employeeName').value;
+  const role = document.getElementById('employeeRole').value;
+  const contact = document.getElementById('employeeContact').value;
+  const email = document.getElementById('employeeEmail').value;
+  const designation = document.getElementById('employeeDesignation').value;
+  const branch = document.getElementById('employeeBranch').value;
+  const status = document.getElementById('employeeStatus').value;
+  const existingIndex = employees.findIndex(emp => emp.id === id);
+  if (existingIndex > -1) {
+    employees[existingIndex] = { id, name, role, contact, email, designation, branch, status };
+    showToast('Employee/Instructor updated successfully!');
+  } else {
+    employees.push({ id, name, role, contact, email, designation, branch, status });
+    showToast('Employee/Instructor added successfully!');
+  }
+  closeEmployeeModal();
+  displayEmployees();
+});
+
+window.exportEmployees = function() {
+  let csv = 'Name,Role,Contact,Email,Designation,Branch,Status\n';
+  employees.forEach(e => {
+    csv += `${e.name},${roleLabel(e.role)},${e.contact},${e.email || ''},${e.designation || ''},${e.branch || ''},${capitalize(e.status)}\n`;
+  });
+  const blob = new Blob([csv], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'employees.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Exported to CSV!');
+};
+
+function showToast(msg, html = false) {
+  toast.innerHTML = msg;
+  toast.style.display = 'block';
+  toast.classList.add('show');
+  if (!html) toast.textContent = msg;
+  setTimeout(() => { toast.style.display = 'none'; toast.classList.remove('show'); }, 3000);
+}
+
+displayEmployees();
+// ... existing code ...

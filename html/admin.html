@@ -27,6 +27,8 @@
                 <li><a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
                 <li><a href="security.html"><i class="fas fa-shield-alt"></i> Security</a></li>
                 <li><a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+                <li><a href="instructors.html"><i class="fas fa-chalkboard-teacher"></i> Instructors</a></li>
+                <li><a href="employees.html"><i class="fas fa-user-tie"></i> Employees</a></li>
             </ul>
         </div>
     </nav>
@@ -70,6 +72,21 @@
                         <div>
                             <h3>Active Applications</h3>
                             <p id="activeApplications">0</p>
+                        </div>
+                    </div>
+                    <div class="stat-card highlight-card">
+                        <i class="fas fa-chalkboard-teacher"></i>
+                        <div>
+                            <h3>Total Instructors</h3>
+                            <p id="totalInstructors">0</p>
+                            <a href="instructors.html" class="btn btn-sm btn-primary" style="margin-top:8px;">Manage Instructors</a>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <i class="fas fa-user-tie"></i>
+                        <div>
+                            <h3>Total Employees</h3>
+                            <p id="totalEmployees">0</p>
                         </div>
                     </div>
                 </section>
@@ -152,6 +169,13 @@
                 <section class="upcoming-tasks">
                     <h2>Upcoming Tasks</h2>
                     <div id="tasksList" class="tasks-list">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </section>
+                <!-- Recent Instructors -->
+                <section class="recent-instructors">
+                    <h2>Recent Instructors</h2>
+                    <div id="recentInstructorsList" class="activities-list">
                         <!-- Populated by JavaScript -->
                     </div>
                 </section>

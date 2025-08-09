@@ -36,6 +36,11 @@
                     </button>
                 </div>
             </header>
+            <div class="notice" style="margin: 0 0 16px;">
+                <small>
+                    Tip: Make sure Google Drive is connected before uploading. Use the "Google Drive Setup" button if needed.
+                </small>
+            </div>
 
             <!-- Student Information -->
             <div class="student-info">
@@ -148,9 +153,10 @@
                     <textarea id="documentNotes" rows="3"></textarea>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Upload</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-cloud-upload-alt"></i> Upload</button>
                     <button type="button" class="btn" onclick="closeModal()">Cancel</button>
                 </div>
+                <small class="form-text">Files are uploaded securely to your Google Drive in the "MediaUploads" folder.</small>
             </form>
         </div>
     </div>

@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instructor Management - Admin Dashboard</title>
+    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <nav class="admin-navbar">
+        <div class="navbar-left">
+            <div class="logo">
+                <h2>Admin Panel</h2>
+            </div>
+        </div>
+        <div class="navbar-right">
+            <ul>
+                <li><a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a></li>
+                <li><a href="students.html"><i class="fas fa-users"></i> Students</a></li>
+                <li><a href="exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
+                <li><a href="applications.html"><i class="fas fa-university"></i> Applications</a></li>
+                <li><a href="universities.html"><i class="fas fa-graduation-cap"></i> Universities</a></li>
+                <li><a href="instructors.html" class="active"><i class="fas fa-chalkboard-teacher"></i> Instructors</a></li>
+                <li><a href="employees.html"><i class="fas fa-user-tie"></i> Employees</a></li>
+                <li><a href="documents.html"><i class="fas fa-folder"></i> Documents</a></li>
+                <li><a href="messages.html"><i class="fas fa-envelope"></i> Messages</a></li>
+                <li><a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
+                <li><a href="security.html"><i class="fas fa-shield-alt"></i> Security</a></li>
+                <li><a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
+            </ul>
+        </div>
+    </nav>
+    <main class="content">
+        <header>
+            <h1>Instructor Management</h1>
+            <div class="user-info">
+                <span id="userName">Admin</span>
+                <a href="login.html" class="logout">Logout</a>
+            </div>
+        </header>
+        <div class="container">
+            <div class="filters-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="searchInstructorInput" placeholder="Search instructors...">
+                </div>
+                <div class="filter-options">
+                    <select id="departmentFilter">
+                        <option value="all">All Departments</option>
+                        <option value="Computer Science">ILETS</option>
+                        <option value="Mathematics">TOEFL</option>
+                        <option value="Physics">PTE</option>
+                        <option value="Chemistry">DOULOUNGIO</option>
+                        <option value="Biology">GRE</option>
+                    </select>
+                    <select id="statusFilter">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="inactive">Inactive</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="openCreateInstructorModal()">
+                        <i class="fas fa-plus"></i> Add Instructor
+                    </button>
+                    <button class="btn btn-secondary" id="exportInstructorsBtn">
+                        <i class="fas fa-file-csv"></i> Export CSV
+                    </button>
+                </div>
+            </div>
+            <!-- Bulk Actions Toolbar -->
+            <div class="bulk-actions-toolbar" style="margin-bottom:10px;">
+                <button class="btn btn-danger btn-sm" onclick="bulkDeleteInstructors()"><i class="fas fa-trash"></i> Delete Selected</button>
+                <button class="btn btn-success btn-sm" onclick="bulkChangeStatus('active')"><i class="fas fa-check"></i> Set Active</button>
+                <button class="btn btn-warning btn-sm" onclick="bulkChangeStatus('inactive')"><i class="fas fa-ban"></i> Set Inactive</button>
+            </div>
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Department</th>
+                            <th>Status</th>
+                            <th>Photo</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="instructorsList">
+                        <!-- Instructors will be loaded here -->
+                    </tbody>
+                </table>
+                <div id="instructorPagination"></div>
+            </div>
+            <!-- Modal for Add/Edit Instructor -->
+            <div id="createInstructorModal" class="modal">
+                <div class="modal-content">
+                    <span class="close" onclick="closeCreateInstructorModal()">&times;</span>
+                    <h2 id="modalTitle">Add Instructor</h2>
+                    <form id="createInstructorForm">
+                        <input type="hidden" id="instructorId">
+                        <div class="form-group">
+                            <label for="instructorName">Name</label>
+                            <input type="text" id="instructorName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="instructorEmail">Email</label>
+                            <input type="email" id="instructorEmail" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="instructorDepartment">Department</label>
+                            <select id="instructorDepartment" required>
+                                <option value="Computer Science">Computer Science</option>
+                                <option value="Mathematics">Mathematics</option>
+                                <option value="Physics">Physics</option>
+                                <option value="Chemistry">Chemistry</option>
+                                <option value="Biology">Biology</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="instructorStatus">Status</label>
+                            <select id="instructorStatus" required>
+                                <option value="active">Active</option>
+                                <option value="inactive">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="instructorPhoto">Profile Photo</label>
+                            <input type="file" id="instructorPhoto" accept="image/*">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script type="module" src="../../js/admin/instructors.js"></script>
+</body>
+</html> 

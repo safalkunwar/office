@@ -8,10 +8,34 @@
     <link rel="stylesheet" href="./css/style.css">
     <link rel="stylesheet" href="./css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+    .scrollable-navbar ul {
+        display: flex;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: thin;
+        scrollbar-color: #888 #f1f1f1;
+    }
+    .scrollable-navbar ul li {
+        flex: 0 0 auto;
+        margin-right: 10px;
+    }
+    .scrollable-navbar ul::-webkit-scrollbar {
+        height: 6px;
+    }
+    .scrollable-navbar ul::-webkit-scrollbar-thumb {
+        background: #888;
+        border-radius: 3px;
+    }
+    .scrollable-navbar ul::-webkit-scrollbar-track {
+        background: #f1f1f1;
+    }
+    </style>
 </head>
 <body>
     <!-- Top Navigation Bar -->
-    <nav class="admin-navbar" role="navigation" aria-label="Main navigation">
+    <nav class="admin-navbar scrollable-navbar" role="navigation" aria-label="Main navigation">
         <div class="navbar-left">
             <div class="logo">
                 <h2><i class="fas fa-chart-line"></i> Admin Panel</h2>
@@ -36,6 +60,7 @@
                 <li><a href="./html/security.html"><i class="fas fa-shield-alt"></i> Security</a></li>
                 <li><a href="./html/reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
                 <li><a href="./html/recent-activities.html"><i class="fas fa-history"></i> Activities</a></li>
+                <li><a href="./html/visitors.html" id="visitorsNav"><i class="fas fa-user-friends"></i> Visitors</a></li>
             </ul>
         </div>
     </nav>
@@ -180,7 +205,7 @@
                         </div>
                     </div>
                     <div class="analytics-grid">
-                        <div class="analytics-card" data-chart="application-status">
+                        <div class="analytixcs-card" data-chart="application-status">
                             <h3><i class="fas fa-pie-chart"></i> Application Status Distribution</h3>
                             <canvas id="applicationStatusChart" data-db-collection="students"></canvas>
                         </div>
@@ -188,8 +213,7 @@
                             <h3><i class="fas fa-university"></i> University Applications</h3>
                             <canvas id="universityApplicationsChart" data-db-collection="applications"></canvas>
                         </div>
-                        <div class="analytics-card" data-c
-                        hart="visa-success">
+                        <div class="analytics-card" data-chart="visa-success">
                             <h3><i class="fas fa-passport"></i> Visa Success Rate</h3>
                             <canvas id="visaSuccessChart" data-db-collection="visas"></canvas>
                         </div>
@@ -262,6 +286,21 @@
                             <h3>Manage Universities</h3>
                             <p>Add/edit universities</p>
                         </a>
+                        <!-- Manage Instructors Quick Action -->
+                        <a href="./html/instructors.html" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-chalkboard-teacher"></i>
+                            </div>
+                            <h3>Manage Instructors</h3>
+                            <p>Add/edit IELTS & PTE instructors</p>
+                        </a>
+                        <a href="./html/instructors.html#add" class="action-card">
+                            <div class="action-icon">
+                                <i class="fas fa-user-plus"></i>
+                            </div>
+                            <h3>Quick Add Instructor</h3>
+                            <p>Register a new instructor</p>
+                        </a>
                         <a href="./html/messages.html" class="action-card">
                             <div class="action-icon">
                                 <i class="fas fa-comment-dots"></i>
@@ -327,6 +366,57 @@
                         </div>
                     </div>
                 </section>
+                <!-- Add/Edit Employee Modal -->
+                <div class="modal" id="employeeModal">
+                    <div class="modal-content">
+                        <span class="close" onclick="closeEmployeeModal()">&times;</span>
+                        <h2 id="employeeModalTitle">Add Employee/Instructor</h2>
+                        <form id="employeeForm">
+                            <input type="hidden" id="employeeId">
+                            <div class="form-group">
+                                <label for="employeeName">Full Name</label>
+                                <input type="text" id="employeeName" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="employeeRole">Role</label>
+                                <select id="employeeRole" required>
+                                    <option value="ielts">IELTS Instructor</option>
+                                    <option value="pte">PTE Instructor</option>
+                                    <option value="admin">Admin Staff</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="employeeContact">Contact Info</label>
+                                <input type="text" id="employeeContact" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="employeeEmail">Email</label>
+                                <input type="email" id="employeeEmail">
+                            </div>
+                            <div class="form-group">
+                                <label for="employeeDesignation">Designation</label>
+                                <input type="text" id="employeeDesignation">
+                            </div>
+                            <div class="form-group">
+                                <label for="employeeBranch">Assigned Branch</label>
+                                <input type="text" id="employeeBranch">
+                            </div>
+                            <div class="form-group">
+                                <label for="employeeStatus">Status</label>
+                                <select id="employeeStatus" required>
+                                    <option value="active">Active</option>
+                                    <option value="inactive">Inactive</option>
+                                </select>
+                            </div>
+                            <div class="form-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeEmployeeModal()">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Save</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                <!-- Toast Notification -->
+                <div id="toast" class="toast" style="display:none;"></div>
             </div>
         </div>
     </main>

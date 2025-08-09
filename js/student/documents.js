@@ -1,5 +1,5 @@
 import { auth, db } from '../../config/firebase.js';
-import { ref, onValue, push, remove, update } from 'firebase/database';
+import { ref, onValue, push, remove, update, get, query, orderByChild, equalTo } from 'firebase/database';
 import { onAuthStateChanged } from 'firebase/auth';
 import { uploadFileToDrive } from '../google-drive.js';
 
@@ -22,24 +22,44 @@ const requiredDocuments = [
     'recommendation'
 ];
 
+let currentStudentRecordId = null;
+
 // Initialize the page
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
-        loadStudentInfo(user.uid);
-        loadDocuments(user.uid);
-        setupEventListeners(user.uid);
+        try {
+            currentStudentRecordId = await resolveStudentRecordIdByEmail(user.email);
+        } catch (_) {
+            currentStudentRecordId = user.uid;
+        }
+        loadStudentInfo(currentStudentRecordId);
+        loadDocuments(currentStudentRecordId);
+        setupEventListeners(currentStudentRecordId);
     } else {
         // For demo purposes, use a mock user if not authenticated
         const mockUserId = 'demo-user-123';
+        currentStudentRecordId = mockUserId;
         loadStudentInfo(mockUserId);
         loadDocuments(mockUserId);
         setupEventListeners(mockUserId);
     }
 });
 
+async function resolveStudentRecordIdByEmail(email) {
+    if (!email) throw new Error('No email');
+    const studentsRef = ref(db, 'students');
+    const q = query(studentsRef, orderByChild('email'), equalTo(email));
+    const snap = await get(q);
+    if (snap.exists()) {
+        const firstKey = Object.keys(snap.val())[0];
+        return firstKey;
+    }
+    throw new Error('Student record not found by email');
+}
+
 // Load student information
-function loadStudentInfo(userId) {
-    if (userId === 'demo-user-123') {
+function loadStudentInfo(recordId) {
+    if (recordId === 'demo-user-123') {
         // Mock data for demo
         studentName.textContent = 'John Doe';
         studentId.textContent = 'Student ID: STU001';
@@ -48,14 +68,14 @@ function loadStudentInfo(userId) {
         return;
     }
 
-    const studentRef = ref(db, `students/${userId}`);
+    const studentRef = ref(db, `students/${recordId}`);
     onValue(studentRef, (snapshot) => {
         const studentData = snapshot.val();
         if (studentData) {
-            studentName.textContent = `${studentData.firstName} ${studentData.lastName}`;
-            studentId.textContent = `Student ID: ${studentData.studentId}`;
-            studentEmail.textContent = `Email: ${studentData.email}`;
-            
+            const displayName = `${studentData.firstName || ''} ${studentData.lastName || ''}`.trim() || (studentData.name || 'Student');
+            studentName.textContent = displayName;
+            studentId.textContent = `Student ID: ${studentData.studentId || recordId}`;
+            studentEmail.textContent = `Email: ${studentData.email || ''}`;
             if (studentData.avatar) {
                 studentAvatar.src = studentData.avatar;
             } else {
@@ -69,8 +89,8 @@ function loadStudentInfo(userId) {
 }
 
 // Load documents
-function loadDocuments(userId) {
-    if (userId === 'demo-user-123') {
+function loadDocuments(recordId) {
+    if (recordId === 'demo-user-123') {
         // Mock documents for demo
         const mockDocuments = {
             marksheet: {
@@ -89,11 +109,25 @@ function loadDocuments(userId) {
         return;
     }
 
-    const documentsRef = ref(db, `documents/${userId}`);
-    onValue(documentsRef, (snapshot) => {
-        const documents = snapshot.val() || {};
-        updateDocumentStatus(documents);
-        renderDocuments(documents);
+    // Prefer admin path (list of documents)
+    const adminDocsRef = ref(db, `students/${recordId}/documents`);
+    onValue(adminDocsRef, (snapshot) => {
+        if (snapshot.exists()) {
+            const docsById = snapshot.val() || {};
+            updateDocumentStatus(docsById);
+            renderDocuments(docsById);
+        } else {
+            // Fallback to legacy path grouped by type
+            const legacyRef = ref(db, `documents/${recordId}`);
+            onValue(legacyRef, (snap2) => {
+                const documents = snap2.val() || {};
+                updateDocumentStatus(documents);
+                renderDocuments(documents);
+            }, (error) => {
+                console.error('Error loading documents (legacy):', error);
+                showError('Failed to load documents');
+            });
+        }
     }, (error) => {
         console.error('Error loading documents:', error);
         showError('Failed to load documents');
@@ -102,33 +136,79 @@ function loadDocuments(userId) {
 
 // Update document status indicators
 function updateDocumentStatus(documents) {
+    // Normalize: either docs keyed by type OR keyed by id with a .type
+    const presentTypes = new Set();
+    Object.entries(documents || {}).forEach(([key, value]) => {
+        if (value && typeof value === 'object') {
+            if (value.type) presentTypes.add(value.type);
+            else presentTypes.add(key);
+        }
+    });
+
+    let completedCount = 0;
     requiredDocuments.forEach(type => {
         const card = document.querySelector(`.requirement-card[data-type="${type}"]`);
+        const hasDoc = presentTypes.has(type);
         if (card) {
             const statusBadge = card.querySelector('.status-badge');
-            
-            if (documents[type]) {
+            if (hasDoc) {
                 statusBadge.className = 'status-badge completed';
                 statusBadge.textContent = 'Completed';
+                completedCount++;
             } else {
                 statusBadge.className = 'status-badge missing';
                 statusBadge.textContent = 'Missing';
             }
         }
     });
+
+    // Show overall completion summary
+    let summaryEl = document.getElementById('docCompletionSummary');
+    if (!summaryEl) {
+        summaryEl = document.createElement('div');
+        summaryEl.id = 'docCompletionSummary';
+        summaryEl.style.margin = '8px 0 16px';
+        const container = document.querySelector('.document-requirements');
+        if (container) container.insertAdjacentElement('afterend', summaryEl);
+    }
+    const total = requiredDocuments.length;
+    const isAllComplete = completedCount === total;
+    summaryEl.innerHTML = `<span class="status-badge ${isAllComplete ? 'completed' : 'missing'}">${completedCount}/${total} ${isAllComplete ? 'Completed' : 'Incomplete'}</span>`;
 }
 
 // Render documents in the grid
 function renderDocuments(documents) {
     documentsGrid.innerHTML = '';
-    
-    if (Object.keys(documents).length === 0) {
+
+    // Normalize to an array of docs
+    const docsArray = [];
+    Object.entries(documents || {}).forEach(([key, doc]) => {
+        if (doc && typeof doc === 'object') {
+            const norm = {
+                id: key,
+                name: doc.name || doc.filename || 'Document',
+                type: doc.type || key,
+                url: doc.fileUrl || doc.url || null,
+                size: doc.fileSize || doc.size || 0,
+                timestamp: doc.uploadedAt ? Date.parse(doc.uploadedAt) : (doc.timestamp || Date.now()),
+                previewUrl: doc.previewUrl || null,
+                driveId: doc.driveId || null,
+                fileName: doc.fileName || doc.name || 'file'
+            };
+            docsArray.push(norm);
+        }
+    });
+
+    if (docsArray.length === 0) {
         documentsGrid.innerHTML = '<p class="no-documents">No documents uploaded yet.</p>';
         return;
     }
-    
-    Object.entries(documents).forEach(([type, doc]) => {
-        const documentCard = createDocumentCard(type, doc);
+
+    // Sort newest first
+    docsArray.sort((a, b) => b.timestamp - a.timestamp);
+
+    docsArray.forEach(doc => {
+        const documentCard = createDocumentCard(doc.type, doc);
         documentsGrid.appendChild(documentCard);
     });
 }
@@ -194,7 +274,7 @@ function createDocumentCard(type, doc) {
 }
 
 // Setup event listeners
-function setupEventListeners(userId) {
+function setupEventListeners(recordId) {
     // Upload form submission
     uploadForm.addEventListener('submit', async (e) => {
         e.preventDefault();
@@ -214,19 +294,27 @@ function setupEventListeners(userId) {
             return;
         }
         
+        const submitBtn = uploadForm.querySelector('button[type="submit"]');
+        const originalBtnHtml = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+        
         try {
-            if (userId === 'demo-user-123') {
+            if (recordId === 'demo-user-123') {
                 // Mock upload for demo
                 await mockUploadDocument(file, type, notes);
             } else {
-                await uploadDocumentToGoogleDrive(userId, file, type, notes);
+                await uploadDocumentToGoogleDrive(recordId, file, type, notes);
             }
             closeModal();
             uploadForm.reset();
             showSuccess('Document uploaded successfully');
         } catch (error) {
             console.error('Upload error:', error);
-            showError('Failed to upload document. Please try again.');
+            showError(error?.message || 'Failed to upload document. Please try again.');
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = originalBtnHtml;
         }
     });
     
@@ -274,38 +362,55 @@ async function mockUploadDocument(file, type, notes) {
 }
 
 // Upload document to Google Drive
-async function uploadDocumentToGoogleDrive(userId, file, type, notes) {
+async function uploadDocumentToGoogleDrive(recordId, file, type, notes) {
     try {
-        // Check if Google Drive is connected
         const token = localStorage.getItem('gdrive_token');
         const folder = localStorage.getItem('gdrive_folder');
-        
         if (!token || !folder) {
-            throw new Error('Google Drive not connected. Please connect your Google Drive first.');
+            console.warn('Google Drive not connected in localStorage; proceeding to authenticate during upload.');
         }
-        
-        // Upload to Google Drive
+
         const driveResponse = await uploadFileToDrive(file);
-        
-        if (!driveResponse.id) {
+        if (!driveResponse?.id) {
             throw new Error('Failed to upload file to Google Drive');
         }
-        
-        const documentData = {
+
+        const driveId = driveResponse.id;
+        const fileUrl = `https://drive.google.com/file/d/${driveId}/view`;
+        const previewUrl = file.type.startsWith('image/') ? `https://drive.google.com/uc?id=${driveId}` : null;
+
+        // Save to admin-visible path
+        const adminDocData = {
             name: file.name,
-            type: type,
-            url: `https://drive.google.com/file/d/${driveResponse.id}/view`,
+            type,
+            fileUrl,
+            fileName: file.name,
+            fileSize: file.size,
+            expiryDate: null,
+            notes: notes || '',
+            status: 'pending',
+            uploadedAt: new Date().toISOString(),
+            verifiedAt: null,
+            verifiedBy: null,
+            driveId
+        };
+        const adminDocsRef = ref(db, `students/${recordId}/documents`);
+        await push(adminDocsRef, adminDocData);
+
+        // Also keep legacy path updated for existing UI
+        const legacyData = {
+            name: file.name,
+            type,
+            url: fileUrl,
             size: file.size,
             timestamp: Date.now(),
             notes: notes || '',
-            previewUrl: file.type.startsWith('image/') ? `https://drive.google.com/uc?id=${driveResponse.id}` : null,
-            driveId: driveResponse.id
+            previewUrl,
+            driveId
         };
-        
-        // Save to Firebase Database
-        const documentsRef = ref(db, `documents/${userId}/${type}`);
-        await push(documentsRef, documentData);
-        
+        const legacyRef = ref(db, `documents/${recordId}/${type}`);
+        await push(legacyRef, legacyData);
+
     } catch (error) {
         console.error('Upload error:', error);
         throw new Error(error.message || 'Failed to upload document');

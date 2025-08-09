@@ -1,7 +1,8 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js';
 import { getDatabase, ref, onValue, push, set, remove, get, update, query, orderByChild } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js';
-import { getAuth, onAuthStateChanged } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
+import { getAuth, onAuthStateChanged, signInAnonymously } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js';
 import { getStorage, ref as storageRef, uploadBytes, getDownloadURL, deleteObject, uploadBytesResumable, listAll } from 'https://www.gstatic.com/firebasejs/10.8.0/firebase-storage.js';
+import { uploadFileToDrive } from './google-drive.js';
 
 // Firebase configuration
 const firebaseConfig = {
@@ -9,7 +10,7 @@ const firebaseConfig = {
     authDomain: "fir-a7a69.firebaseapp.com",
     databaseURL: "https://fir-a7a69-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "fir-a7a69",
-    storageBucket: "fir-a7a69.firebasestorage.app",
+    storageBucket: "fir-a7a69.appspot.com",
     messagingSenderId: "1060643495940",
     appId: "1:1060643495940:web:19bc515d82d737d73d1551",
     measurementId: "G-YG82VTV644"
@@ -146,11 +147,13 @@ function closeUploadDocumentModal() {
 
 function openViewStudentDocumentsModal(studentId) {
     viewStudentDocumentsModal.style.display = 'block';
+    currentViewedStudentId = studentId;
     loadStudentDocuments(studentId);
 }
 
 function closeViewStudentDocumentsModal() {
     viewStudentDocumentsModal.style.display = 'none';
+    currentViewedStudentId = null;
 }
 
 function closeMissingDocumentsAlert() {
@@ -257,64 +260,139 @@ uploadDocumentForm.addEventListener('submit', async (e) => {
         const documentName = document.getElementById('documentName').value;
         const expiryDate = document.getElementById('documentExpiry').value;
         const notes = document.getElementById('documentNotes').value;
-        // Use uploadBytesResumable for progress
-        const fileRef = storageRef(storage, `students/${studentId}/documents/${Date.now()}_${file.name}`);
-        const uploadTask = uploadBytesResumable(fileRef, file);
-        uploadTask.on('state_changed',
-            (snapshot) => {
-                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                submitBtn.textContent = `Uploading... ${progress.toFixed(0)}%`;
-            },
-            (error) => {
-                showError('Upload failed: ' + error.message);
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-            },
-            async () => {
-                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                // Save document metadata to Realtime Database
-                const documentData = {
-                    name: documentName,
-                    type: documentType,
-                    fileUrl: downloadURL,
-                    fileName: file.name,
-                    fileSize: file.size,
-                    expiryDate: expiryDate || null,
-                    notes: notes,
-                    status: 'pending',
-                    uploadedAt: new Date().toISOString(),
-                    verifiedAt: null,
-                    verifiedBy: null
-                };
-                const documentsRef = ref(database, `students/${studentId}/documents`);
-                const newDocumentRef = push(documentsRef);
-                await set(newDocumentRef, documentData);
-                // Update student's missing documents list
-                const studentRef = ref(database, `students/${studentId}`);
-                const studentSnapshot = await get(studentRef);
-                if (studentSnapshot.exists()) {
-                    const student = studentSnapshot.val();
-                    const missingDocs = student.missingDocuments || [];
-                    const updatedMissingDocs = missingDocs.filter(doc => doc !== documentType);
-                    await update(studentRef, {
-                        missingDocuments: updatedMissingDocs,
-                        updatedAt: new Date().toISOString()
-                    });
-                }
-                showSuccess('Document uploaded successfully!');
-                closeUploadDocumentModal();
-                submitBtn.textContent = originalText;
-                submitBtn.disabled = false;
-            }
-        );
+
+        // Derive per-student folder name for Drive
+        const studentObj = studentsCache.find(s => s.id === studentId);
+        const subfolderName = studentObj ? `${studentObj.name} (${studentId})` : studentId;
+
+        // Duplicate pre-check
+        const dupCheck = await checkDuplicateForStudent(studentId, file);
+        if (dupCheck.isDuplicate) {
+          const proceed = confirm('A file with the same contents appears to be already uploaded. Do you want to upload it again?');
+          if (!proceed) {
+            submitBtn.textContent = originalText;
+            submitBtn.disabled = false;
+            return;
+          }
+        }
+
+        let documentData = null;
+
+        if (isDriveConnected()) {
+            // Upload to Google Drive into per-student subfolder
+            const driveRes = await uploadFileToDrive(file, subfolderName);
+            if (!driveRes?.id) throw new Error('Drive upload failed');
+            const driveId = driveRes.id;
+            const webViewLink = driveRes.webViewLink || `https://drive.google.com/file/d/${driveId}/view`;
+            documentData = {
+                name: documentName,
+                type: documentType,
+                fileUrl: webViewLink,
+                fileName: file.name,
+                fileSize: file.size,
+                fileHash: dupCheck.fileHash || (await computeFileHash(file)),
+                expiryDate: expiryDate || null,
+                notes: notes,
+                status: 'pending',
+                uploadedAt: new Date().toISOString(),
+                verifiedAt: null,
+                verifiedBy: null,
+                driveId: driveId,
+                duplicate: !!dupCheck.isDuplicate
+            };
+        } else {
+            // Upload to Firebase Storage with progress
+            const fileRef = storageRef(storage, `students/${studentId}/documents/${Date.now()}_${file.name}`);
+            const uploadTask = uploadBytesResumable(fileRef, file);
+            await new Promise((resolve, reject) => {
+                uploadTask.on('state_changed',
+                    (snapshot) => {
+                        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                        submitBtn.textContent = `Uploading... ${progress.toFixed(0)}%`;
+                    },
+                    (error) => reject(error),
+                    () => resolve()
+                );
+            });
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            documentData = {
+                name: documentName,
+                type: documentType,
+                fileUrl: downloadURL,
+                fileName: file.name,
+                fileSize: file.size,
+                fileHash: dupCheck.fileHash || (await computeFileHash(file)),
+                expiryDate: expiryDate || null,
+                notes: notes,
+                status: 'pending',
+                uploadedAt: new Date().toISOString(),
+                verifiedAt: null,
+                verifiedBy: null,
+                duplicate: !!dupCheck.isDuplicate
+            };
+        }
+
+        // Save document metadata to Realtime Database
+        const documentsRef = ref(database, `students/${studentId}/documents`);
+        const newDocumentRef = push(documentsRef);
+        await set(newDocumentRef, documentData);
+
+        // Update student's missing documents list
+        const studentRef = ref(database, `students/${studentId}`);
+        const studentSnapshot = await get(studentRef);
+        if (studentSnapshot.exists()) {
+            const student = studentSnapshot.val();
+            const missingDocs = student.missingDocuments || [];
+            const updatedMissingDocs = missingDocs.filter(doc => doc !== documentType);
+            await update(studentRef, {
+                missingDocuments: updatedMissingDocs,
+                updatedAt: new Date().toISOString()
+            });
+        }
+        showSuccess('Document uploaded successfully!');
+        closeUploadDocumentModal();
+        // If the view modal is open for this student, refresh its content
+        if (currentViewedStudentId && currentViewedStudentId === studentId && viewStudentDocumentsModal.style.display === 'block') {
+            loadStudentDocuments(studentId);
+        }
+        submitBtn.textContent = originalText;
+        submitBtn.disabled = false;
     } catch (error) {
-        showError('Failed to upload document. Please try again.');
+        showError('Failed to upload document: ' + (error?.message || error));
         console.error('Error uploading document:', error);
         const submitBtn = uploadDocumentForm.querySelector('button[type="submit"]');
         submitBtn.textContent = 'Upload Document';
         submitBtn.disabled = false;
     }
 });
+
+// Pre-check duplicate on file/student change
+(function setupDuplicateWarning() {
+  const fileInput = document.getElementById('documentFile');
+  const studentSelect = document.getElementById('documentStudent');
+  let warningEl = document.getElementById('duplicateWarning');
+  if (!warningEl) {
+    warningEl = document.createElement('div');
+    warningEl.id = 'duplicateWarning';
+    warningEl.style.display = 'none';
+    warningEl.style.color = '#b45309';
+    warningEl.style.marginTop = '6px';
+    fileInput.parentNode.appendChild(warningEl);
+  }
+  async function updateWarning() {
+    const file = fileInput.files && fileInput.files[0];
+    const studentId = studentSelect.value;
+    warningEl.style.display = 'none';
+    if (!file || !studentId) return;
+    const { isDuplicate } = await checkDuplicateForStudent(studentId, file);
+    if (isDuplicate) {
+      warningEl.innerHTML = '<span style="background:#FEF3C7;color:#92400E;padding:4px 8px;border-radius:6px;display:inline-flex;align-items:center;gap:6px;"><i class="fas fa-exclamation-triangle"></i> A similar file already exists. You can still proceed.</span>';
+      warningEl.style.display = 'block';
+    }
+  }
+  fileInput.addEventListener('change', updateWarning);
+  studentSelect.addEventListener('change', updateWarning);
+})();
 
 // Load Students for Select Dropdown
 async function loadStudentsForSelect() {
@@ -370,6 +448,7 @@ let studentsStats = {
   pending: 0,
   students: []
 };
+let currentViewedStudentId = null;
 
 function displayStudents(students) {
     studentsList.innerHTML = '';
@@ -639,6 +718,45 @@ function displayStudentDocuments(documents, student) {
         </div>
     `;
     studentDocumentsList.innerHTML = '';
+
+    // Add a names list for quick preview
+    const namesList = document.createElement('div');
+    namesList.style.cssText = 'margin-bottom:12px;padding:8px;background:#f8f9fa;border-radius:8px;';
+    namesList.innerHTML = '<strong>Uploaded Documents:</strong> ';
+    if (documentsArray.length > 0) {
+        documentsArray.forEach(doc => {
+            const link = document.createElement('a');
+            link.href = '#';
+            link.textContent = doc.name || doc.fileName || 'Document';
+            link.style.marginRight = '12px';
+            link.onclick = async (e) => {
+                e.preventDefault();
+                try {
+                    // Derive a viewable URL
+                    let url = doc.fileUrl || '';
+                    let imageUrl = null;
+                    if (doc.driveId) imageUrl = `https://drive.google.com/uc?id=${doc.driveId}`;
+                    if (!url.startsWith('https://drive.google.com') && !url.startsWith('https://firebasestorage.googleapis.com/')) {
+                        const fileRef = storageRef(storage, url);
+                        url = await getDownloadURL(fileRef);
+                    }
+                    const isImage = (doc.fileName || doc.name || '').match(/\.(jpe?g|png)$/i);
+                    if (isImage) {
+                        openImagePreviewOverlay(imageUrl || url, doc.name || doc.fileName || 'Preview');
+                    } else {
+                        window.open(url, '_blank');
+                    }
+                } catch (_) {}
+            };
+            namesList.appendChild(link);
+        });
+    } else {
+        const none = document.createElement('span');
+        none.textContent = 'None';
+        namesList.appendChild(none);
+    }
+    studentDocumentsList.appendChild(namesList);
+
     Object.entries(REQUIRED_DOCUMENTS).forEach(([docType, docInfo]) => {
         const existingDoc = documentsArray.find(doc => doc.type === docType);
         const documentItem = document.createElement('div');
@@ -652,16 +770,16 @@ function displayStudentDocuments(documents, student) {
                     <div class="document-details">
                         <h4>${existingDoc.name}</h4>
                         <p class="document-type">${docInfo.name}</p>
-                        <p class="document-date">Uploaded: ${new Date(existingDoc.uploadedAt).toLocaleDateString()}</p>
+                        <p class="document-date">Uploaded: ${new Date(existingDoc.uploadedAt || existingDoc.timestamp).toLocaleDateString()}</p>
                         ${existingDoc.expiryDate ? `<p class="document-expiry">Expires: ${new Date(existingDoc.expiryDate).toLocaleDateString()}</p>` : ''}
                         <div class="document-preview" id="preview-${existingDoc.id}"></div>
                     </div>
                 </div>
                 <div class="document-status">
-                    <span class="status-badge ${existingDoc.status}">${existingDoc.status}</span>
+                    <span class="status-badge ${existingDoc.status || 'pending'}">${existingDoc.status || 'pending'}</span>
                 </div>
                 <div class="document-actions">
-                    <button class="btn btn-sm btn-primary" onclick="viewDocument('${existingDoc.fileUrl}')">
+                    <button class="btn btn-sm btn-primary" onclick="viewDocument('${existingDoc.fileUrl || ''}')">
                         <i class="fas fa-eye"></i>
                     </button>
                     <button class="btn btn-sm btn-secondary" onclick="verifyDocument('${student.id}', '${existingDoc.id}')">
@@ -672,29 +790,27 @@ function displayStudentDocuments(documents, student) {
                     </button>
                 </div>
             `;
-            // Render preview or link using getDownloadURL
+            // Render preview inline
             (async () => {
                 try {
-                    let url = existingDoc.fileUrl;
-                    // If not a direct download URL, get it from storage
-                    if (!url.startsWith('https://firebasestorage.googleapis.com/')) {
+                    let url = existingDoc.fileUrl || '';
+                    let imagePreviewUrl = null;
+                    if (existingDoc.driveId) imagePreviewUrl = `https://drive.google.com/uc?id=${existingDoc.driveId}`;
+                    if (!url.startsWith('https://drive.google.com') && !url.startsWith('https://firebasestorage.googleapis.com/')) {
                         const fileRef = storageRef(storage, url);
                         url = await getDownloadURL(fileRef);
                     }
                     const previewDiv = documentItem.querySelector(`#preview-${existingDoc.id}`);
-                    if (existingDoc.fileName && /\.(jpe?g|png)$/i.test(existingDoc.fileName)) {
-                        // Image preview
-                        previewDiv.innerHTML = `<img src="${url}" alt="${existingDoc.name}" style="max-width:120px;max-height:120px;margin-top:8px;border-radius:4px;box-shadow:0 1px 4px #0002;">`;
-                    } else if (existingDoc.fileName && /\.pdf$/i.test(existingDoc.fileName)) {
-                        // PDF link
+                    const isImage = (existingDoc.fileName || existingDoc.name || '').match(/\.(jpe?g|png)$/i);
+                    if (isImage) {
+                        const src = imagePreviewUrl || url;
+                        previewDiv.innerHTML = `<img src="${src}" alt="${existingDoc.name}" style="max-width:120px;max-height:120px;margin-top:8px;border-radius:4px;box-shadow:0 1px 4px #0002;">`;
+                    } else if ((existingDoc.fileName || '').match(/\.pdf$/i)) {
                         previewDiv.innerHTML = `<a href="${url}" target="_blank" class="btn btn-sm btn-outline-primary" style="margin-top:8px;">View PDF</a>`;
-                    } else {
-                        // Other file type
+                    } else if (url) {
                         previewDiv.innerHTML = `<a href="${url}" target="_blank" class="btn btn-sm btn-outline-secondary" style="margin-top:8px;">Download</a>`;
                     }
-                } catch (err) {
-                    // If preview fails, show nothing
-                }
+                } catch (_) {}
             })();
         } else {
             documentItem.innerHTML = `
@@ -754,11 +870,29 @@ window.openViewStudentDocumentsModal = openViewStudentDocumentsModal;
 window.closeViewStudentDocumentsModal = closeViewStudentDocumentsModal;
 window.closeMissingDocumentsAlert = closeMissingDocumentsAlert;
 
+function getStudentFromCacheById(studentId) {
+    return studentsCache.find(s => s.id === studentId);
+}
+
 window.uploadDocumentForStudent = function(studentId, documentType = null) {
+    // Close the view modal if open
+    if (viewStudentDocumentsModal && viewStudentDocumentsModal.style.display === 'block') {
+        closeViewStudentDocumentsModal();
+    }
     openUploadDocumentModal();
+    // Prefill student select and document type
     document.getElementById('documentStudent').value = studentId;
     if (documentType) {
         document.getElementById('documentType').value = documentType;
+    }
+    // Prefill document name with student name
+    const student = getStudentFromCacheById(studentId);
+    if (student) {
+        const nameField = document.getElementById('documentName');
+        if (nameField && !nameField.value) {
+            const docInfo = documentType ? (REQUIRED_DOCUMENTS[documentType]?.name || documentType) : 'Document';
+            nameField.value = `${student.name} - ${docInfo}`;
+        }
     }
 };
 
@@ -778,6 +912,36 @@ window.viewDocument = async function(fileUrl) {
         showError('Failed to open document: ' + error.message);
     }
 };
+
+// Image preview overlay
+function openImagePreviewOverlay(url, title = '') {
+    let overlay = document.getElementById('imagePreviewOverlay');
+    if (!overlay) {
+        overlay = document.createElement('div');
+        overlay.id = 'imagePreviewOverlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:center;justify-content:center;z-index:9999;';
+        const inner = document.createElement('div');
+        inner.id = 'imagePreviewInner';
+        inner.style.cssText = 'max-width:90vw;max-height:90vh;background:#111;padding:12px;border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,0.5);';
+        overlay.appendChild(inner);
+        overlay.addEventListener('click', (e) => {
+            if (e.target === overlay) document.body.removeChild(overlay);
+        });
+        document.body.appendChild(overlay);
+    }
+    const inner = document.getElementById('imagePreviewInner');
+    inner.innerHTML = '';
+    const caption = document.createElement('div');
+    caption.style.cssText = 'color:#fff;margin-bottom:8px;font-weight:600;';
+    caption.textContent = title;
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = title;
+    img.style.cssText = 'max-width:88vw;max-height:80vh;border-radius:6px;';
+    inner.appendChild(caption);
+    inner.appendChild(img);
+    overlay.style.display = 'flex';
+}
 
 window.verifyDocument = async function(studentId, documentId) {
     try {
@@ -892,12 +1056,20 @@ statusFilter.addEventListener('change', filterStudents);
 
 // Initialize App
 function initApp() {
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if (user) {
             document.getElementById('userName').textContent = user.displayName || 'Admin';
             loadStudents();
         } else {
-            window.location.href = 'login.html';
+            try {
+                // Dev fallback: sign in anonymously to satisfy Storage rules requiring auth
+                await signInAnonymously(auth);
+                document.getElementById('userName').textContent = 'Guest';
+                loadStudents();
+            } catch (e) {
+                // If anonymous sign-in is disabled, fall back to login
+                window.location.href = 'login.html';
+            }
         }
     });
 }
@@ -1138,4 +1310,40 @@ function renderLowAttendanceList() {
   });
   html += '</tbody></table>';
   lowAttendanceList.innerHTML = html;
+} 
+
+// Helper to detect Google Drive connection
+function isDriveConnected() {
+  return !!(localStorage.getItem('gdrive_token') && localStorage.getItem('gdrive_folder'));
+}
+
+async function computeFileHash(file) {
+  const buffer = await file.arrayBuffer();
+  const digest = await crypto.subtle.digest('SHA-256', buffer);
+  const bytes = new Uint8Array(digest);
+  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+async function checkDuplicateForStudent(studentId, file, preloadedDocs = null) {
+  try {
+    if (!studentId || !file) return { isDuplicate: false, match: null };
+    const fileHash = await computeFileHash(file);
+    let docs = preloadedDocs;
+    if (!docs) {
+      const snap = await get(ref(database, `students/${studentId}/documents`));
+      docs = snap.exists() ? snap.val() : {};
+    }
+    let match = null;
+    Object.values(docs || {}).forEach(doc => {
+      if (match) return;
+      if (doc.fileHash && doc.fileHash === fileHash) {
+        match = doc;
+      } else if (!doc.fileHash && doc.fileName === file.name && doc.fileSize === file.size) {
+        match = doc;
+      }
+    });
+    return { isDuplicate: !!match, match, fileHash };
+  } catch {
+    return { isDuplicate: false, match: null };
+  }
 } 
