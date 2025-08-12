@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Attendance</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header"><div class="header-wrap">
+  <div class="brand"><div class="logo"></div> <span data-i18n="brand">Student Portal</span></div>
+  <nav class="site-nav">
+    <a href="index.html">📊 <span data-i18n="nav.dash">Dashboard</span></a>
+    <a href="courses.html">📘 <span data-i18n="nav.courses">Courses</span></a>
+    <a href="assignments.html">📝 <span data-i18n="nav.assign">Assignments</span></a>
+    <a href="attendance.html">🗓️ <span data-i18n="nav.attend">Attendance</span></a>
+    <a href="visa.html">🛂 <span data-i18n="nav.visa">Visa</span></a>
+    <a href="messages.html">✉️ <span data-i18n="nav.msg">Messages</span></a>
+    <a href="resources.html">📚 <span data-i18n="nav.res">Resources</span></a>
+    <a href="profile.html">👤 <span data-i18n="nav.profile">Profile</span></a>
+  </nav>
+  <div class="controls"><button id="langToggle" class="btn">EN/NE</button></div>
+</div></header>
+
+<main>
+  <section class="card panel">
+    <div class="head"><h2 data-i18n="nav.attend">Attendance</h2></div>
+    <table class="table" aria-label="Attendance table">
+      <thead>
+        <tr><th data-i18n="table.date">Date</th><th data-i18n="table.in">In</th><th data-i18n="table.out">Out</th><th data-i18n="table.remarks">Remarks</th></tr>
+      </thead>
+      <tbody id="attBody"></tbody>
+  </table>
+  <div class="filters">
+    <label>Month <select class="select" id="month"><option>All</option><option>August</option></select></label>
+    <label>Subject <select class="select" id="subject"><option>All</option><option>IELTS</option><option>PTE</option></select></label>
+  </div>
+
+    </table>
+  </section>
+</main>
+
+<footer class="site-footer">© 2025 Student Portal • contact@example.com</footer>
+<script src="lang.js"></script>
+<script>
+  const rows = [
+    { date:'2025-08-01', in:'09:00', out:'15:30', remarks:'On time', subject:'IELTS', month:'August' },
+    { date:'2025-08-02', in:'09:10', out:'15:30', remarks:'Late', subject:'PTE', month:'August' }
+  ];
+  const tb = document.getElementById('attBody');
+  function render(r){ tb.innerHTML = r.map(x=>`<tr><td>${x.date}</td><td>${x.in}</td><td>${x.out}</td><td>${x.remarks}</td></tr>`).join(''); }
+  render(rows);
+  document.getElementById('month').addEventListener('change', filter);
+  document.getElementById('subject').addEventListener('change', filter);
+  function filter(){
+    const m = document.getElementById('month').value;
+    const s = document.getElementById('subject').value;
+    const f = rows.filter(x=> (m==='All'||x.month===m) && (s==='All'||x.subject===s));
+    render(f);
+  }
+</script>
+
+
+</body>
+</html>
+

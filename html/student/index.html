@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Portal — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="site-header" role="banner">
+    <div class="header-wrap">
+      <div class="brand"><div class="logo" aria-hidden="true"></div> <span data-i18n="brand">Student Portal</span></div>
+      <nav class="site-nav" role="navigation" aria-label="Main navigation">
+        <a href="index.html">📊 <span data-i18n="nav.dash">Dashboard</span></a>
+        <a href="courses.html">📘 <span data-i18n="nav.courses">Courses</span></a>
+        <a href="assignments.html">📝 <span data-i18n="nav.assign">Assignments</span></a>
+        <a href="attendance.html">🗓️ <span data-i18n="nav.attend">Attendance</span></a>
+        <a href="visa.html">🛂 <span data-i18n="nav.visa">Visa</span></a>
+        <a href="../documents.html">📂 Documents</a>
+        <a href="../messages.html">✉️ <span data-i18n="nav.msg">Messages</span></a>
+        <a href="resources.html">📚 <span data-i18n="nav.res">Resources</span></a>
+        <a href="profile.html">👤 <span data-i18n="nav.profile">Profile</span></a>
+        <a href="profile.html" class="avatar-link" title="Profile"><img class="avatar" src="https://i.pravatar.cc/80?img=3" alt="Profile" /></a>
+        <a href="#" class="btn" title="Cart">🛒</a>
+
+      </nav>
+      <div class="controls">
+        <button id="langToggle" class="btn" aria-label="Toggle Language">EN/NE</button>
+      </div>
+    </div>
+  </header>
+
+  <main role="main">
+    <div class="hero" aria-hidden="true">
+      <div class="ring"></div><div class="ring" style="inset:25%"></div><div class="ring" style="inset:35%"></div>
+      <div class="orbit"><div class="dot"></div></div>
+    </div>
+
+    <section class="grid cards" aria-labelledby="kpi-title">
+      <h2 id="kpi-title" class="sr-only">Key metrics</h2>
+      <article class="card" aria-label="Attendance"><div class="muted" data-i18n="kpi.attendance">Attendance</div><div class="value" id="ovAttendance">--%</div></article>
+      <article class="card" aria-label="Assignments"><div class="muted" data-i18n="kpi.assignments">Assignments</div><div class="value" id="ovAssignments">--/--</div></article>
+      <article class="card" aria-label="Documents"><div class="muted" data-i18n="kpi.documents">Documents</div><div class="value" id="ovDocuments">--/--</div></article>
+      <article class="card" aria-label="Next deadline"><div class="muted" data-i18n="kpi.next">Next Deadline</div><div class="value" id="ovUpcoming">--</div></article>
+    </section>
+
+    <section class="grid cols-2" style="margin-top:12px">
+      <article class="card panel">
+        <div class="head"><h3 data-i18n="ann">Announcements</h3></div>
+        <div id="announcementsList" class="list" role="list"></div>
+      </article>
+      <article class="card panel">
+        <div class="head"><h3>Documents Overview</h3><a href="documents.html" class="btn">Open</a></div>
+      <article class="card panel anim">
+        <div class="head"><h3>Documents</h3><a href="../documents.html" class="btn">Manage</a></div>
+        <div class="count-badges" id="docCounts"></div>
+      </article>
+
+        <div class="doc-grid" id="docsOverview"></div>
+      </article>
+    </section>
+
+    <section class="card panel" style="margin-top:12px">
+      <div class="head"><h3>Quick Links</h3></div>
+      <div class="quick-links">
+        <a class="card link-card" href="google-drive-setup.html"><div class="icon">☁️</div><div>Google Drive Setup</div></a>
+        <a class="card link-card" href="profile.html"><div class="icon">👤</div><div>Profile</div></a>
+        <a class="card link-card" href="../documents.html"><div class="icon">📂</div><div>Documents</div></a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="site-footer" role="contentinfo">© 2025 Student Portal • contact@example.com</footer>
+
+  <script src="lang.js"></script>
+  <script>
+    const $ = (sel)=>document.querySelector(sel);
+    const list = (id, items, r)=> $(id).innerHTML = items.map(r).join('');
+
+    const announcements = [
+      { title: 'Welcome to the new portal', createdAt: Date.now()-86400000 },
+      { title: 'Mock Test Friday', createdAt: Date.now()-3600000 }
+    ];
+    // Dynamic overview counts and nearest deadline (demo -> replace with fetch)
+    const provided = docs.filter(d=>d.status==='Provided').length;
+    const missing = docs.length - provided;
+    const counts = document.getElementById('docCounts');
+    counts.innerHTML = `
+      <span class="count-badge provided"><span>Provided</span> <span class="num">${provided}</span></span>
+      <span class="count-badge missing"><span>Missing</span> <span class="num">${missing}</span></span>`;
+
+    const suggestions = [
+      'Practice Reading for 20 mins',
+      'Schedule a speaking mock',
+      'Review visa documents checklist'
+    ];
+    list('#announcementsList', announcements, a=>`<div class="item"><div><strong>${a.title}</strong><div class="meta">${new Date(a.createdAt).toLocaleString()}</div></div></div>`);
+    list('#suggestions', suggestions, s=>`<div class="item"><div>${s}</div></div>`);
+
+    // Demo KPI values
+    $('#ovAttendance').textContent = '92%';
+    $('#ovAssignments').textContent = '1/3';
+    const docs=[{name:'Passport',status:'Provided',img:'https://picsum.photos/seed/passport/400/240',date:'2025-08-01'},{name:'Bank Statement',status:'Missing',img:'https://picsum.photos/seed/bank/400/240'},{name:'Offer Letter',status:'Provided',img:'https://picsum.photos/seed/offer/400/240',date:'2025-07-28'}];
+    const docsO = document.getElementById('docsOverview');
+    docsO.innerHTML = docs.map(d=>`<article class="card anim doc-card"><img src="${d.img}" alt=""><div class="head"><strong>${d.name}</strong><span class="badge ${d.status==='Provided'?'success':'warning'}">${d.status}</span></div><div class="muted">${d.date || ''}</div></article>`).join('');
+
+    $('#ovDocuments').textContent = '1/2';
+    $('#ovUpcoming').textContent = 'Essay Writing';
+  </script>
+</body>
+</html>
+

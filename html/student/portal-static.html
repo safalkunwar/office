@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Portal (Static)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <style>
+    :root{--primary:#1E293B;--accent:#FFD700;--bg:#F8FAFC;--ink:#0F172A}
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;font-family:Inter,system-ui,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#f8fafc,#fff);color:var(--ink)}
+    .topbar{position:sticky;top:0;z-index:10;backdrop-filter:blur(12px);background:rgba(255,255,255,.75);border-bottom:1px solid #eee}
+    .wrap{max-width:1100px;margin:0 auto;padding:10px 16px}
+    .nav{display:flex;justify-content:space-between;align-items:center;gap:.8rem}
+    .brand{display:flex;align-items:center;gap:.6rem;font-weight:600}
+    .brand .logo{width:28px;height:28px;border-radius:6px;background:var(--primary)}
+    .links{display:flex;gap:.35rem;flex-wrap:wrap}
+    .links a{padding:.35rem .6rem;border-radius:10px;text-decoration:none;color:var(--ink);border:1px solid #eee;background:linear-gradient(180deg,#fff,#fafafa)}
+    .links a:hover{box-shadow:0 10px 24px rgba(0,0,0,.08);transform:translateY(-1px)}
+    main.wrap{padding:16px}
+    .grid{display:grid;gap:12px}
+    .cards{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    .card{background:#fff;border:1px solid #eee;border-radius:14px;padding:14px;box-shadow:0 8px 24px rgba(0,0,0,.06)}
+    .muted{color:#64748b}
+    .value{font-size:24px;font-weight:800}
+    .panel .head{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+    .list{display:grid;gap:8px}
+    .item{display:flex;align-items:center;justify-content:space-between;padding:10px;border:1px solid #eee;border-radius:10px}
+    .meta{color:#64748b;display:flex;gap:.6rem;flex-wrap:wrap}
+    .badge{padding:.15rem .5rem;border-radius:999px;font-size:.75rem;font-weight:600}
+    .success{background:#e6f9f0;color:#047857}.pending{background:#eef2ff;color:#3730a3}.warning{background:#fff7e6;color:#b45309}
+    .resources{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+    footer{margin:24px 0;color:#94a3b8;font-size:.9rem;text-align:center}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap nav">
+      <div class="brand"><div class="logo"></div> <span>Student Portal</span></div>
+      <nav class="links">
+        <a href="#overview">📊 Overview</a>
+        <a href="#assignments">📘 Assignments</a>
+        <a href="#attendance">🗓️ Attendance</a>
+        <a href="#tasks">🧩 Tasks</a>
+        <a href="#documents">📂 Documents</a>
+        <a href="#messages">✉️ Messages</a>
+        <a href="#resources">📚 Resources</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="wrap">
+    <!-- Overview Cards -->
+    <section id="overview" class="grid cards">
+      <div class="card"><div class="muted">Attendance</div><div class="value" id="ovAttendance">--%</div></div>
+      <div class="card"><div class="muted">Assignments</div><div class="value" id="ovAssignments">--/--</div></div>
+      <div class="card"><div class="muted">Documents</div><div class="value" id="ovDocuments">--/--</div></div>
+      <div class="card"><div class="muted">Next Deadline</div><div class="value" id="ovUpcoming">--</div></div>
+    </section>
+
+    <!-- Announcements -->
+    <section class="grid" style="margin-top:12px">
+      <div class="card panel">
+        <div class="head"><h3>Announcements</h3></div>
+        <div id="announcementsList" class="list"></div>
+      </div>
+    </section>
+
+    <!-- Assignments -->
+    <section id="assignments" class="card panel" style="margin-top:12px">
+      <div class="head"><h3>Assignments</h3></div>
+      <div id="assignmentsList" class="list"></div>
+    </section>
+
+    <!-- Attendance -->
+    <section id="attendance" class="card panel" style="margin-top:12px">
+      <div class="head"><h3>Attendance</h3></div>
+      <div id="attendanceTable" class="list"></div>
+    </section>
+
+    <!-- Tasks -->
+    <section id="tasks" class="card panel" style="margin-top:12px">
+      <div class="head"><h3>Tasks</h3></div>
+      <div id="tasksList" class="list"></div>
+    </section>
+
+    <!-- Documents -->
+    <section id="documents" class="card panel" style="margin-top:12px">
+      <div class="head"><h3>Documents</h3></div>
+      <div id="documentsList" class="list"></div>
+    </section>
+
+    <!-- Messages (UI placeholder) -->
+    <section id="messages" class="card panel" style="margin-top:12px">
+      <div class="head"><h3>Messages</h3></div>
+      <div class="muted">Lightweight static preview. For realtime chat, use full portal.</div>
+    </section>
+
+    <!-- Resources -->
+    <section id="resources" class="card panel" style="margin-top:12px">
+      <div class="head"><h3>Resources</h3></div>
+      <div id="resourcesList" class="grid resources"></div>
+    </section>
+
+    <footer>Static preview • Works as a simple HTML page on any host. Hook it to data later.</footer>
+  </main>
+
+  <script>
+    // Minimal demo data so this page works anywhere
+    const $ = (id)=>document.getElementById(id);
+    const announcements = [
+      { title: 'Welcome to the Portal', createdAt: Date.now()-86400000 },
+      { title: 'Mock Test this Friday', createdAt: Date.now()-3600000 }
+    ];
+    const assignments = [
+      { title: 'Essay Writing', subject:'IELTS', teacher:'Ms. Smith', dueDate: Date.now()+86400000*3, status:'pending' },
+      { title: 'Reading Module 2', subject:'PTE', teacher:'Mr. Lee', dueDate: Date.now()+86400000*5, status:'submitted' }
+    ];
+    const tasks = [
+      { title: 'Practice Listening', status:'in-progress', dueDate: Date.now()+86400000 },
+      { title: 'Upload Passport', status:'pending' }
+    ];
+    const documents = [
+      { type:'Passport', status:'verified', uploadedAt: Date.now()-86400000*2 },
+      { type:'Bank Statement', status:'pending', uploadedAt: Date.now()-86400000 }
+    ];
+    const resources = [
+      { title: 'IELTS Reading Tips', url: 'https://example.com' },
+      { title: 'PTE Speaking Guide', url: 'https://example.com' }
+    ];
+
+    // Render helpers
+    function renderList(el, items, render){ el.innerHTML = items.map(render).join(''); }
+    function fmtDate(t){ try{return new Date(t).toLocaleString()}catch(_){return ''} }
+
+    // Populate
+    renderList($('announcementsList'), announcements, a=>`<div class="item"><div><strong>${a.title}</strong><div class="meta"><span>${fmtDate(a.createdAt)}</span></div></div></div>`);
+    renderList($('assignmentsList'), assignments, a=>`<div class="item"><div><strong>${a.title}</strong><div class="meta"><span>${a.subject}</span><span>By ${a.teacher}</span><span>Due ${new Date(a.dueDate).toLocaleDateString()}</span></div></div><div><span class="badge ${a.status==='submitted'?'pending':a.status==='graded'?'success':'warning'}">${a.status}</span></div></div>`);
+    renderList($('tasksList'), tasks, t=>`<div class="item"><div><strong>${t.title}</strong><div class="meta"><span>${t.dueDate?new Date(t.dueDate).toLocaleDateString():''}</span></div></div><div><span class="badge ${t.status==='completed'?'success':t.status==='in-progress'?'pending':'warning'}">${t.status||'pending'}</span></div></div>`);
+    renderList($('documentsList'), documents, d=>`<div class="item"><div><strong>${d.type}</strong><div class="meta"><span>${d.uploadedAt?new Date(d.uploadedAt).toLocaleDateString():''}</span></div></div><div><span class="badge ${d.status==='verified'?'success':d.status==='pending'?'pending':'warning'}">${d.status}</span></div></div>`);
+    renderList($('resourcesList'), resources, r=>`<div class="card"><h4 style="margin:0 0 6px">${r.title}</h4>${r.url?`<a href="${r.url}" target="_blank">Open</a>`:''}</div>`);
+
+    // Demo KPI values
+    $('ovAttendance').textContent = '92%';
+    $('ovAssignments').textContent = '1/2';
+    $('ovDocuments').textContent = '1/2';
+    $('ovUpcoming').textContent = assignments[0]?.title || '--';
+  </script>
+</body>
+</html>
+

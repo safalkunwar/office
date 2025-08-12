@@ -31,55 +31,96 @@ const messageRecipient = document.getElementById('messageRecipient');
 
 let currentUser = null;
 let currentUserRole = null;
+let currentCategory = null; // 'teacher', 'other', or other
+
+// Utility
+function getQueryParam(name){ const u = new URL(window.location.href); return u.searchParams.get(name); }
 
 // Initialize dashboard
 async function initDashboard() {
     try {
-        // Check authentication state
         auth.onAuthStateChanged(async (user) => {
-            if (!user) {
-                window.location.href = 'login.html';
-                return;
-            }
-
+            if (!user) { window.location.href = 'login.html'; return; }
             currentUser = user;
-            
-            // Get user data from database
+
+            // Fetch employee record
             const userRef = ref(db, `employees/${user.uid}`);
             const snapshot = await get(userRef);
-            
-            if (!snapshot.exists()) {
-                throw new Error('User data not found');
-            }
-
+            if (!snapshot.exists()) { throw new Error('User data not found'); }
             const userData = snapshot.val();
             currentUserRole = userData.role;
+            currentCategory = userData.category || getQueryParam('cat') || userData.role || 'employee';
 
             // Set employee name
-            employeeName.textContent = userData.name;
+            if (employeeName) employeeName.textContent = userData.name;
 
-            // Show/hide reports section based on role
-            if (reportsSection) {
-                reportsSection.style.display = currentUserRole === 'admin' ? 'block' : 'none';
-            }
+            // Show/hide reports section for admin
+            if (reportsSection) { reportsSection.style.display = currentUserRole === 'admin' ? 'block' : 'none'; }
 
-            // Load tasks
+            // Route UI based on category
+            applyCategoryRouting(currentCategory, userData);
+
+            // Load data
             loadTasks(user.uid);
-
-            // Load messages
             loadMessages(user.uid);
 
-            // Load employees for messaging (admin only)
-            if (currentUserRole === 'admin') {
-                loadEmployeesForMessaging();
-            }
+            // Admin messaging list
+            if (currentUserRole === 'admin') { loadEmployeesForMessaging(); }
 
-            // Set up real-time updates
+            // Real-time updates
             setupRealtimeUpdates(user.uid);
+
+            // Record status online
+            await update(ref(db, `employees/${user.uid}`), { status: 'online', lastLoginAt: Date.now() });
+            await push(ref(db, `employees/${user.uid}/performanceHistory`), { type: 'login', at: Date.now() });
+        });
+
+        // On unload, mark offline
+        window.addEventListener('beforeunload', async () => {
+            if (currentUser) {
+                await update(ref(db, `employees/${currentUser.uid}`), { status: 'offline', lastSeenAt: Date.now() });
+                await push(ref(db, `employees/${currentUser.uid}/performanceHistory`), { type: 'logout', at: Date.now() });
+            }
         });
     } catch (error) {
         console.error('Error initializing dashboard:', error);
         alert('Error loading dashboard. Please try again.');
+    }
+}
+
+function applyCategoryRouting(category, userData){
+    // Elements that might exist
+    const tasksLink = document.getElementById('tasksLink');
+    const messagesLink = document.getElementById('messagesLink');
+    const reportsLink = document.getElementById('reportsLink');
+
+    // Default show
+    if (tasksLink) tasksLink.style.display = '';
+    if (messagesLink) messagesLink.style.display = '';
+    if (reportsLink) reportsLink.style.display = currentUserRole === 'admin' ? '' : 'none';
+
+    if (category === 'teacher') {
+        // Teacher: emphasize students/documents and core tasks
+        const studentsSection = document.getElementById('studentsList') || document.createElement('div');
+        studentsSection.id = 'studentsList';
+        if (!document.getElementById('studentsList')) {
+            const container = document.querySelector('.dashboard-content');
+            if (container) {
+                const sec = document.createElement('section');
+                sec.innerHTML = `<div class="section-header"><h2>Students</h2></div>`;
+                sec.appendChild(studentsSection);
+                container.prepend(sec);
+            }
+        }
+        // Load students list already implemented below
+        loadStudents();
+    } else if (category === 'other') {
+        // Other employees: show only role-relevant sections; hide reports/messages by default
+        if (messagesLink) messagesLink.style.display = 'none';
+        // Filter task list by role tag if tasks have roleTag
+        // Additional per-role widgets could be inserted here based on userData.otherCategoryName
+    } else {
+        // Generic employee: show tasks/messages
     }
 }
 
@@ -88,39 +129,29 @@ async function loadTasks(userId) {
     try {
         const tasksRef = ref(db, 'tasks');
         const tasksQuery = query(tasksRef, orderByChild('assignedTo'), equalTo(userId));
-        
         onValue(tasksQuery, (snapshot) => {
-            taskList.innerHTML = '';
+            taskList && (taskList.innerHTML = '');
             const tasks = [];
-            
             snapshot.forEach((childSnapshot) => {
                 const task = childSnapshot.val();
                 task.id = childSnapshot.key;
                 tasks.push(task);
             });
-
-            // Filter tasks based on status and priority
-            const statusFilter = taskStatusFilter.value;
-            const priorityFilter = taskPriorityFilter.value;
-            
-            const filteredTasks = tasks.filter(task => {
-                const statusMatch = statusFilter === 'all' || task.status === statusFilter;
-                const priorityMatch = priorityFilter === 'all' || task.priority === priorityFilter;
-                return statusMatch && priorityMatch;
-            });
-
-            // Sort tasks by due date
-            filteredTasks.sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate));
-
-            // Display tasks
-            filteredTasks.forEach(task => {
-                const taskElement = createTaskElement(task);
-                taskList.appendChild(taskElement);
-            });
+            const statusFilter = taskStatusFilter?.value || 'all';
+            const priorityFilter = taskPriorityFilter?.value || 'all';
+            const filtered = tasks.filter(t => (statusFilter==='all'||t.status===statusFilter) && (priorityFilter==='all'||t.priority===priorityFilter));
+            filtered.sort((a,b)=> new Date(a.dueDate) - new Date(b.dueDate));
+            filtered.forEach(t => taskList && taskList.appendChild(createTaskElement(t)));
+            // Performance log: update counts
+            if (currentUser) {
+                update(ref(db, `employees/${currentUser.uid}/performanceSummary`), {
+                    totalTasks: filtered.length,
+                    completedTasks: filtered.filter(t=>t.status==='completed').length,
+                    updatedAt: Date.now()
+                });
+            }
         });
-    } catch (error) {
-        console.error('Error loading tasks:', error);
-    }
+    } catch (error) { console.error('Error loading tasks:', error); }
 }
 
 // Load messages
@@ -128,33 +159,23 @@ async function loadMessages(userId) {
     try {
         const messagesRef = ref(db, 'messages');
         const messagesQuery = query(messagesRef, orderByChild('timestamp'));
-        
         onValue(messagesQuery, (snapshot) => {
-            messageList.innerHTML = '';
+            messageList && (messageList.innerHTML = '');
             const messages = [];
-            
             snapshot.forEach((childSnapshot) => {
                 const message = childSnapshot.val();
                 message.id = childSnapshot.key;
-                
-                // Show messages where user is either sender or recipient
-                if (message.senderId === userId || message.recipientId === userId) {
-                    messages.push(message);
-                }
+                if (message.senderId === userId || message.recipientId === userId) { messages.push(message); }
             });
-
-            // Sort messages by timestamp
-            messages.sort((a, b) => b.timestamp - a.timestamp);
-
-            // Display messages
-            messages.forEach(message => {
-                const messageElement = createMessageElement(message);
-                messageList.appendChild(messageElement);
-            });
+            messages.sort((a,b)=> b.timestamp - a.timestamp);
+            messages.forEach(m => messageList && messageList.appendChild(createMessageElement(m)));
+            // Performance: unread count
+            if (currentUser) {
+                const unread = messages.filter(m=>!m.isRead && m.recipientId===currentUser.uid).length;
+                update(ref(db, `employees/${currentUser.uid}/performanceSummary`), { unreadMessages: unread, updatedAt: Date.now() });
+            }
         });
-    } catch (error) {
-        console.error('Error loading messages:', error);
-    }
+    } catch (error) { console.error('Error loading messages:', error); }
 }
 
 // Load employees for messaging (admin only)
@@ -219,6 +240,8 @@ async function sendMessage(content, recipientId = null) {
 
         await push(messageRef, newMessage);
         messageInput.value = '';
+        // Log performance event
+        await push(ref(db, `employees/${currentUser.uid}/performanceHistory`), { type: 'message_sent', at: Date.now() });
     } catch (error) {
         console.error('Error sending message:', error);
         alert('Error sending message. Please try again.');
@@ -938,15 +961,19 @@ async function initDashboard() {
 
             const userData = snapshot.val();
             currentUserRole = userData.role;
+            currentCategory = userData.category || getQueryParam('cat') || userData.role || 'employee';
 
             // Set employee name and show welcome notification
-            employeeName.textContent = userData.name;
+            if (employeeName) employeeName.textContent = userData.name;
             showLoginNotification(userData.name);
 
             // Show/hide reports section based on role
             if (reportsSection) {
                 reportsSection.style.display = currentUserRole === 'admin' ? 'block' : 'none';
             }
+
+            // Route UI based on category
+            applyCategoryRouting(currentCategory, userData);
 
             // Load appropriate content based on role
             if (currentUserRole === 'admin') {

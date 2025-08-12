@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - Student Portal</title>
+  <link rel="stylesheet" href="../../css/style.css">
+  <link rel="stylesheet" href="../../css/student.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <script type="module" src="../../js/ambient-3d.js"></script>
+</head>
+<body>
+  <nav class="student-navbar topbar premium-card" aria-label="Top navigation">
+    <div class="nav-left">
+      <a href="../index.html" class="logo-btn" title="Home"><img id="portalLogoImgSmall" class="student-logo" alt="Logo" /></a>
+      <h2><i class="fas fa-user-graduate"></i> Student Portal</h2>
+      <button class="menu-toggle" aria-label="Menu"><i class="fas fa-bars"></i></button>
+    </div>
+    <ul class="top-links">
+      <li><a href="../index.html"><span class="emoji-bounce">🏠</span> Dashboard</a></li>
+      <li><a href="profile.html" class="active"><span class="emoji-bounce">👤</span> Profile</a></li>
+      <li><a href="documents.html"><span class="emoji-bounce">📂</span> Documents</a></li>
+      <li><a href="google-drive-setup.html"><span class="emoji-bounce">☁️</span> Drive</a></li>
+    </ul>
+    <div class="nav-right">
+      <a href="../index.html#messages" class="btn btn-secondary" title="Messages"><i class="fas fa-comments"></i></a>
+    </div>
+  </nav>
+
+  <main class="student-container">
+    <section class="panel premium-card">
+      <div class="panel-header">
+        <h3><i class="fas fa-id-card"></i> Profile</h3>
+      </div>
+      <div class="list">
+        <div class="item">
+          <div>
+            <strong>Name</strong>
+            <div class="meta"><span id="profileName">Loading...</span></div>
+          </div>
+        </div>
+        <div class="item">
+          <div>
+            <strong>Email</strong>
+            <div class="meta"><span id="profileEmail">Loading...</span></div>
+          </div>
+        </div>
+        <div class="item">
+          <div>
+            <strong>Student ID</strong>
+            <div class="meta"><span id="profileId">Loading...</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel premium-card">
+      <div class="panel-header">
+        <h3><i class="fas fa-image"></i> Personalization</h3>
+      </div>
+      <div class="list">
+        <div class="item">
+          <div>
+            <strong>Avatar</strong>
+            <div class="meta"><span>Update your photo</span></div>
+          </div>
+          <div>
+            <input type="file" id="avatarFile" accept="image/*" />
+            <button id="saveAvatar" class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+          </div>
+        </div>
+        <div class="item">
+          <div>
+            <strong>Accent Color</strong>
+            <div class="meta"><span>Customize theme</span></div>
+          </div>
+          <div>
+            <input type="color" id="accentPicker" />
+            <button id="saveAccent" class="btn btn-primary"><i class="fas fa-palette"></i> Apply</button>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+    import { getStorage, ref as sref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-storage.js";
+    import { firebaseConfig } from '../../js/config.js';
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+
+    function $(id){return document.getElementById(id)}
+    function setAccent(color){document.documentElement.style.setProperty('--sp-accent', color);localStorage.setItem('accent', color)}
+
+    onAuthStateChanged(auth, (user)=>{
+      if(!user){ window.location.href='./login.html'; return; }
+      $('profileEmail').textContent = user.email || '';
+      $('profileId').textContent = user.uid;
+      $('profileName').textContent = user.displayName || 'Student';
+    });
+
+    $('saveAvatar').addEventListener('click', async ()=>{
+      const file = $('avatarFile').files[0]; if(!file) return alert('Select an image');
+      const p = sref(storage, `students/${auth.currentUser.uid}/profile/avatar_${Date.now()}_${file.name}`);
+      await uploadBytes(p, file); const url = await getDownloadURL(p);
+      localStorage.setItem('avatarUrl', url);
+      alert('Saved! You may need to refresh to see it everywhere.');
+    });
+
+    $('saveAccent').addEventListener('click', ()=>{
+      const val = $('accentPicker').value; if(val) setAccent(val);
+    });
+
+    document.querySelector('.menu-toggle')?.addEventListener('click',()=>{
+      document.querySelector('.topbar')?.classList.toggle('open');
+    });
+  </script>
+</body>
+</html>
+

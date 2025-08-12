@@ -26,6 +26,12 @@ function readAndPersistUserEmailIfPresent() {
 }
 
 function setSetupUiState(state, message) {
+  // Progress step highlighting
+  try {
+    const steps = [document.getElementById('step1'), document.getElementById('step2'), document.getElementById('step3'), document.getElementById('step4')];
+    steps.forEach((s,i)=> s && s.classList.toggle('active', (state==='progress' && i<=1) || state==='connected'));
+  } catch {}
+
   // Optional UI present on student/admin setup page
   const emailSection = document.getElementById('emailInputSection');
   const progressSection = document.getElementById('oauthProgressSection');
@@ -175,6 +181,16 @@ async function findOrCreateChildFolder(parentId, childName) {
 }
 
 export async function initiateGoogleDriveAuth() {
+  // Prefill credentials/email if present
+  try {
+    const client = document.getElementById('googleClientId');
+    const apiKey = document.getElementById('googleApiKey');
+    const email = document.getElementById('userEmail');
+    if (client && !client.value) client.value = localStorage.getItem('googleClientId') || '';
+    if (apiKey && !apiKey.value) apiKey.value = localStorage.getItem('googleApiKey') || '';
+    if (email && !email.value) email.value = localStorage.getItem('userEmail') || '';
+  } catch {}
+
   try {
     const email = readAndPersistUserEmailIfPresent();
     setSetupUiState('progress');
@@ -272,6 +288,23 @@ if (typeof window !== 'undefined') {
   window.retryGoogleDriveAuth = retryGoogleDriveAuth;
 }
 
+
+// Open Drive folder button wiring
+if (typeof document !== 'undefined') {
+  document.addEventListener('DOMContentLoaded', () => {
+    const btn = document.getElementById('openDriveFolderBtn');
+    if (btn) btn.addEventListener('click', async () => {
+      try {
+        const token = await ensureSignedIn();
+        const folderId = await findOrCreateUploadsFolder();
+        window.open(`https://drive.google.com/drive/folders/${folderId}`, '_blank');
+      } catch (e) {
+        alert('Unable to open Drive folder: ' + (e?.message || e));
+      }
+    });
+  });
+}
+
 // Initialize setup UI from stored connection
 if (typeof document !== 'undefined') {
   document.addEventListener('DOMContentLoaded', () => {
@@ -288,4 +321,4 @@ if (typeof document !== 'undefined') {
     const connected = localStorage.getItem('gdrive_connected') === '1' && localStorage.getItem('gdrive_folder');
     if (connected) setSetupUiState('connected');
   });
-} 
+}

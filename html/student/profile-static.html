@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Profile (Static)</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header"><div class="header-wrap">
+  <div class="brand"><div class="logo"></div> <span data-i18n="brand">Student Portal</span></div>
+  <nav class="site-nav">
+    <a href="index.html">📊 <span data-i18n="nav.dash">Dashboard</span></a>
+    <a href="courses.html">📘 <span data-i18n="nav.courses">Courses</span></a>
+    <a href="assignments.html">📝 <span data-i18n="nav.assign">Assignments</span></a>
+    <a href="attendance.html">🗓️ <span data-i18n="nav.attend">Attendance</span></a>
+    <a href="visa.html">🛂 <span data-i18n="nav.visa">Visa</span></a>
+    <a href="messages.html">✉️ <span data-i18n="nav.msg">Messages</span></a>
+    <a href="resources.html">📚 <span data-i18n="nav.res">Resources</span></a>
+    <a href="profile.html">👤 <span data-i18n="nav.profile">Profile</span></a>
+  </nav>
+  <div class="controls"><button id="langToggle" class="btn">EN/NE</button></div>
+</div></header>
+
+<main>
+  <section class="card panel">
+    <div class="head"><h2 data-i18n="profile">Profile</h2></div>
+    <div class="grid cols-2">
+      <article class="card">
+        <h3>Name</h3>
+        <p id="name">John Doe</p>
+      </article>
+      <article class="card">
+        <h3>Email</h3>
+        <p id="email">john@example.com</p>
+      </article>
+      <article class="card">
+        <h3>Contact</h3>
+        <p id="contact">+977-98xxxxxxx</p>
+      </article>
+      <article class="card">
+        <h3>Enrolled Courses</h3>
+        <p id="courses">IELTS, PTE</p>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">© 2025 Student Portal • contact@example.com</footer>
+<script src="lang.js"></script>
+</body>
+</html>
+

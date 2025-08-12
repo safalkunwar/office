@@ -76,8 +76,10 @@ loginForm.addEventListener('submit', async (e) => {
         // Store employee data in localStorage
         localStorage.setItem('employeeData', JSON.stringify(employeeData));
         
-        // Redirect to dashboard
-        window.location.href = '../employee/dashboard.html';
+        // Redirect to dashboard with category hint
+        const category = employeeData.category || employeeData.role || 'employee';
+        const otherName = employeeData.otherCategoryName ? `&other=${encodeURIComponent(employeeData.otherCategoryName)}` : '';
+        window.location.href = `../employee/dashboard.html?cat=${encodeURIComponent(category)}${otherName}`;
     } catch (error) {
         loginError.textContent = error.message;
     }
@@ -93,6 +95,8 @@ signupForm.addEventListener('submit', async (e) => {
     const email = document.getElementById('signupEmail').value;
     const password = document.getElementById('signupPassword').value;
     const phone = document.getElementById('signupPhone').value;
+    const category = (document.getElementById('signupCategory')?.value) || 'employee';
+    const otherCategoryName = (document.getElementById('signupOtherName')?.value || '').trim();
     
     try {
         // Check if email already exists
@@ -115,7 +119,9 @@ signupForm.addEventListener('submit', async (e) => {
             phone,
             status: 'pending',
             createdAt: Date.now(),
-            role: 'employee'
+            role: 'employee',
+            category: category,
+            otherCategoryName: category === 'other' ? otherCategoryName : ''
         };
         
         await set(ref(db, `employees/${user.uid}`), employeeData);

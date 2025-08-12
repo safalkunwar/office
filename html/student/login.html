@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Login</title>
+  <link rel="stylesheet" href="../../css/admin.css" />
+  <link rel="stylesheet" href="../../css/student.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+  <script type="module" src="../../js/ambient-3d.js"></script>
+
+</head>
+<body class="student-auth">
+  <main class="auth-container">
+    <section class="auth-card">
+      <div class="auth-header">
+        <i class="fas fa-user-graduate"></i>
+        <h1>Student Portal</h1>
+        <p>Sign in with your registered email</p>
+      </div>
+      <form id="studentLoginForm" class="auth-form">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required />
+        </div>
+        <button type="submit" class="btn btn-primary w-100"><i class="fas fa-sign-in"></i> Login</button>
+        <small class="auth-note">Having trouble? Contact support.</small>
+      </form>
+      <div id="authError" class="error-message" style="display:none;"></div>
+    </section>
+  </main>
+  <script type="module" src="../../js/student/auth.js"></script>
+</body>
+</html>
+

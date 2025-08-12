@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visa & Documentation</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="site-header"><div class="header-wrap">
+  <div class="brand"><div class="logo"></div> <span data-i18n="brand">Student Portal</span></div>
+  <nav class="site-nav">
+    <a href="index.html">📊 <span data-i18n="nav.dash">Dashboard</span></a>
+    <a href="courses.html">📘 <span data-i18n="nav.courses">Courses</span></a>
+    <a href="assignments.html">📝 <span data-i18n="nav.assign">Assignments</span></a>
+    <a href="attendance.html">🗓️ <span data-i18n="nav.attend">Attendance</span></a>
+    <a href="visa.html">🛂 <span data-i18n="nav.visa">Visa</span></a>
+    <a href="messages.html">✉️ <span data-i18n="nav.msg">Messages</span></a>
+    <a href="resources.html">📚 <span data-i18n="nav.res">Resources</span></a>
+    <a href="profile.html">👤 <span data-i18n="nav.profile">Profile</span></a>
+  </nav>
+  <div class="controls"><button id="langToggle" class="btn">EN/NE</button></div>
+</div></header>
+
+<main>
+  <section class="card panel">
+    <div class="head"><h2 data-i18n="visaTitle">Visa & Documentation</h2><button class="btn" data-i18n="upload">Upload</button></div>
+    <div class="list" id="docList"></div>
+  </section>
+</main>
+
+<footer class="site-footer">© 2025 Student Portal • contact@example.com</footer>
+<script src="lang.js"></script>
+<script>
+  const docs=[
+    { type:'Passport', status:'verified' },
+    { type:'Bank Statement', status:'pending' },
+    { type:'Offer Letter', status:'missing' }
+  ];
+  const el=document.getElementById('docList');
+  el.innerHTML = docs.map(d=>`<div class="item"><div><strong>${d.type}</strong><div class="meta"><span data-i18n="status">Status</span>: ${d.status}</div></div><div><span class="badge ${d.status==='verified'?'success':d.status==='pending'?'pending':'warning'}">${d.status}</span></div></div>`).join('');
+</script>
+</body>
+</html>
+

@@ -1,191 +1,114 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Documents - Student Portal</title>
-    <link rel="stylesheet" href="../../css/style.css">
-    <link rel="stylesheet" href="../../css/student.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>My Documents</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/html/student/style.css">
+  <script defer src="student/lang.js"></script>
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <nav class="sidebar">
-            <div class="logo">
-                <h2>Student Portal</h2>
-            </div>
-            <ul>
-                <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="profile.html"><i class="fas fa-user"></i> Profile</a></li>
-                <li><a href="documents.html" class="active"><i class="fas fa-folder"></i> Documents</a></li>
-                <li><a href="applications.html"><i class="fas fa-university"></i> Applications</a></li>
-                <li><a href="messages.html"><i class="fas fa-envelope"></i> Messages</a></li>
-            </ul>
-        </nav>
+<header class="site-header"><div class="header-wrap">
+  <div class="brand"><div class="logo"></div> <span data-i18n="brand">Student Portal</span></div>
+  <nav class="site-nav">
+    <a href="student/index.html">📊 <span data-i18n="nav.dash">Dashboard</span></a>
+    <a href="student/courses.html">📘 <span data-i18n="nav.courses">Courses</span></a>
+    <a href="student/assignments.html">📝 <span data-i18n="nav.assign">Assignments</span></a>
+    <a href="student/attendance.html">🗓️ <span data-i18n="nav.attend">Attendance</span></a>
+    <a href="student/visa.html">🛂 <span data-i18n="nav.visa">Visa</span></a>
+    <a href="messages.html">✉️ <span data-i18n="nav.msg">Messages</span></a>
+    <a href="student/resources.html">📚 <span data-i18n="nav.res">Resources</span></a>
+    <a href="student/profile.html">👤 <span data-i18n="nav.profile">Profile</span></a>
+  </nav>
+  <div class="controls"><button id="langToggle" class="btn">EN/NE</button></div>
+</div></header>
 
-        <main class="content">
-            <header class="content-header">
-                <h1>My Documents</h1>
-                <div class="header-actions">
-                    <a href="google-drive-setup.html" class="btn btn-secondary">
-                        <i class="fas fa-cog"></i> Google Drive Setup
-                    </a>
-                    <button class="btn btn-primary" onclick="openUploadModal()">
-                        <i class="fas fa-upload"></i> Upload Document
-                    </button>
-                </div>
-            </header>
-            <div class="notice" style="margin: 0 0 16px;">
-                <small>
-                    Tip: Make sure Google Drive is connected before uploading. Use the "Google Drive Setup" button if needed.
-                </small>
-            </div>
-
-            <!-- Student Information -->
-            <div class="student-info">
-                <div class="student-profile">
-                    <img id="studentAvatar" src="../../assets/default-avatar.svg" alt="Student Avatar">
-                    <div class="student-details">
-                        <h2 id="studentName">Loading...</h2>
-                        <p id="studentId">Student ID: Loading...</p>
-                        <p id="studentEmail">Email: Loading...</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Document Requirements -->
-            <div class="document-requirements">
-                <h2>Required Documents</h2>
-                <div class="requirements-grid">
-                    <div class="requirement-card" data-type="marksheet">
-                        <i class="fas fa-file-alt"></i>
-                        <h3>Academic Marksheets</h3>
-                        <p>Upload your academic transcripts and certificates</p>
-                        <div class="requirement-status">
-                            <span class="status-badge pending">Pending</span>
-                        </div>
-                    </div>
-                    <div class="requirement-card" data-type="financial">
-                        <i class="fas fa-money-bill-wave"></i>
-                        <h3>Financial Documents</h3>
-                        <p>Bank statements and sponsorship letters</p>
-                        <div class="requirement-status">
-                            <span class="status-badge pending">Pending</span>
-                        </div>
-                    </div>
-                    <div class="requirement-card" data-type="passport">
-                        <i class="fas fa-passport"></i>
-                        <h3>Passport</h3>
-                        <p>Valid passport copy</p>
-                        <div class="requirement-status">
-                            <span class="status-badge pending">Pending</span>
-                        </div>
-                    </div>
-                    <div class="requirement-card" data-type="ielts">
-                        <i class="fas fa-language"></i>
-                        <h3>IELTS/PTE Score</h3>
-                        <p>English proficiency test results</p>
-                        <div class="requirement-status">
-                            <span class="status-badge pending">Pending</span>
-                        </div>
-                    </div>
-                    <div class="requirement-card" data-type="recommendation">
-                        <i class="fas fa-envelope-open-text"></i>
-                        <h3>Recommendation Letters</h3>
-                        <p>Academic and professional references</p>
-                        <div class="requirement-status">
-                            <span class="status-badge pending">Pending</span>
-                        </div>
-                    </div>
-                    <div class="requirement-card" data-type="other">
-                        <i class="fas fa-file-upload"></i>
-                        <h3>Other Documents</h3>
-                        <p>Additional supporting documents</p>
-                        <div class="requirement-status">
-                            <span class="status-badge pending">Pending</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Uploaded Documents -->
-            <div class="uploaded-documents">
-                <h2>My Uploaded Documents</h2>
-                <div id="documentsGrid" class="documents-grid">
-                    <!-- Documents will be loaded here -->
-                </div>
-            </div>
-        </main>
+<main>
+  <section class="card panel">
+    <div class="head"><h2>My Documents</h2></div>
+    <div class="filters">
+      <div class="btn-group">
+        <button class="btn active" data-filter="all">All</button>
+        <button class="btn" data-filter="provided">Provided</button>
+        <button class="btn" data-filter="missing">Missing</button>
+      </div>
     </div>
+    <div class="doc-grid" id="docGrid"></div>
+  </section>
 
-    <!-- Upload Document Modal -->
-    <div id="uploadModal" class="modal">
-        <div class="modal-content">
-            <h2>Upload Document</h2>
-            <form id="uploadDocumentForm">
-                <div class="form-group">
-                    <label for="documentType">Document Type</label>
-                    <select id="documentType" required>
-                        <option value="">Select Document Type</option>
-                        <option value="marksheet">Academic Marksheets</option>
-                        <option value="financial">Financial Documents</option>
-                        <option value="passport">Passport</option>
-                        <option value="ielts">IELTS/PTE Score</option>
-                        <option value="recommendation">Recommendation Letters</option>
-                        <option value="other">Other Documents</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label for="documentFile">File</label>
-                    <input 
-                        type="file" 
-                        id="documentFile" 
-                        accept=".pdf,.jpg,.jpeg,.png" 
-                        required
-                    >
-                    <small class="form-text text-muted">
-                        Supported formats: PDF, JPG, PNG. Maximum size: 5MB
-                    </small>
-                </div>
-                <div class="form-group">
-                    <label for="documentNotes">Notes (Optional)</label>
-                    <textarea id="documentNotes" rows="3"></textarea>
-                </div>
-                <div class="form-actions">
-                    <button type="submit" class="btn btn-primary"><i class="fas fa-cloud-upload-alt"></i> Upload</button>
-                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
-                </div>
-                <small class="form-text">Files are uploaded securely to your Google Drive in the "MediaUploads" folder.</small>
-            </form>
-        </div>
-    </div>
+  <section class="card panel" style="margin-top:12px">
+    <div class="head"><h3>Assignments</h3></div>
+    <div class="doc-grid" id="assGrid"></div>
+  </section>
 
-    <!-- Error Message Container -->
-    <div id="errorContainer" class="error-container" style="display: none;"></div>
+  <section class="card panel" style="margin-top:12px">
+    <div class="head"><h3>Other Files</h3></div>
+    <div class="doc-grid" id="otherGrid"></div>
+  </section>
+</main>
 
-    <!-- Google Drive API Scripts -->
-    <script src="https://apis.google.com/js/api.js"></script>
-    <script src="https://accounts.google.com/gsi/client"></script>
-    
-    <script type="module" src="../../js/student/documents.js"></script>
-    <script>
-        // Make modal functions globally available
-        window.openUploadModal = function() {
-            document.getElementById('uploadModal').style.display = 'block';
-        };
-        
-        window.closeModal = function() {
-            document.getElementById('uploadModal').style.display = 'none';
-        };
-        
-        // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('uploadModal');
-            if (event.target === modal) {
-                closeModal();
-            }
-        };
-    </script>
+<footer class="site-footer">© 2025 Student Portal • contact@example.com</footer>
+<script>
+  async function loadData(){
+    try{
+      const res = await fetch('student-data.json', { cache: 'no-store' });
+      if(!res.ok) throw new Error('No data');
+      return await res.json();
+    }catch(e){
+      return {
+        documents:[
+          { name:'Passport', status:'Provided', date:'2025-08-01', img:'https://picsum.photos/seed/passport/400/240', url:'#' },
+          { name:'Bank Statement', status:'Missing', img:'https://picsum.photos/seed/bank/400/240' },
+          { name:'Offer Letter', status:'Provided', date:'2025-07-28', img:'https://picsum.photos/seed/offer/400/240', url:'#' },
+          { name:'SOP', status:'Missing', img:'https://picsum.photos/seed/sop/400/240' }
+        ],
+        assignments:[
+          { title:'Essay Writing', deadline:'2025-08-20', status:'pending' },
+          { title:'Reading Set 4', deadline:'2025-08-28', status:'graded' }
+        ],
+        otherFiles:[
+          { name:'Visa Form', status:'Provided', date:'2025-07-20', img:'https://picsum.photos/seed/visa/400/240' }
+        ]
+      }
+    }
+  }
+
+  const grid = id => document.getElementById(id);
+  function card(d){ return `
+    <article class="card anim doc-card">
+      ${d.img?`<img src="${d.img}" alt="">`:''}
+      <div class="head"><strong>${d.name||d.title}</strong>
+        ${d.status?`<span class="badge ${d.status==='Provided'?'success':'warning'}">${d.status}</span>`:''}
+      </div>
+      <div class="muted">${d.date||d.deadline||''}</div>
+      <div style="margin-top:8px;display:flex;gap:.35rem">
+        ${d.url?`<a class="btn" href="${d.url}">View</a>`:`<button class="btn" ${d.status==='Missing'?'':'disabled'}>Upload</button>`}
+      </div>
+    </article>`; }
+
+  loadData().then(data=>{
+    const { documents=[], assignments=[], otherFiles=[] } = data;
+    const docsGrid = grid('docGrid');
+    const assGrid = grid('assGrid');
+    const othGrid = grid('otherGrid');
+
+    function renderDocs(items){ docsGrid.innerHTML = items.map(card).join(''); }
+    renderDocs(documents);
+
+    // filters
+    document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{
+      document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const v=b.getAttribute('data-filter');
+      if(v==='all') return renderDocs(documents);
+      renderDocs(documents.filter(d=>d.status && d.status.toLowerCase()===v));
+    }));
+
+    assGrid.innerHTML = assignments.map(a=> card({ title:a.title, deadline:a.deadline, status:a.status, img:'https://picsum.photos/seed/ass/400/240'})).join('');
+    othGrid.innerHTML = otherFiles.map(card).join('');
+  });
+</script>
 </body>
-</html> 
+</html>
+
