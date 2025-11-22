@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Connectivity Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f8fafc;
+        }
+        .test-section {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .test-button:hover {
+            background: #1d4ed8;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #059669;
+        }
+        .status.error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+        }
+        .status.info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1d4ed8;
+        }
+        .log {
+            background: #1f2937;
+            color: #f9fafb;
+            padding: 15px;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>Firebase Connectivity Test</h1>
+    
+    <div class="test-section">
+        <h2>Test Firebase Connection</h2>
+        <button class="test-button" onclick="testFirebaseConnection()">Test Firebase</button>
+        <button class="test-button" onclick="testMessagingSystem()">Test Messaging System</button>
+        <button class="test-button" onclick="clearLog()">Clear Log</button>
+    </div>
+    
+    <div class="test-section">
+        <h2>Test Results</h2>
+        <div id="testResults"></div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Console Log</h2>
+        <div id="consoleLog" class="log"></div>
+    </div>
+
+    <script type="module">
+        // Override console.log to capture output
+        const originalLog = console.log;
+        const originalError = console.error;
+        const logElement = document.getElementById('consoleLog');
+        
+        function addToLog(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.style.color = type === 'error' ? '#ef4444' : type === 'warn' ? '#f59e0b' : '#10b981';
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logElement.appendChild(logEntry);
+            logElement.scrollTop = logElement.scrollHeight;
+        }
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            addToLog(args.join(' '));
+        };
+        
+        console.error = function(...args) {
+            originalError.apply(console, args);
+            addToLog(args.join(' '), 'error');
+        };
+        
+        console.warn = function(...args) {
+            addToLog(args.join(' '), 'warn');
+        };
+        
+        // Test Firebase connection
+        window.testFirebaseConnection = async function() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<div class="status info">Testing Firebase connection...</div>';
+            
+            try {
+                console.log('Starting Firebase connection test...');
+                
+                // Test Firebase App initialization
+                const { initializeApp, getApps } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-app.js');
+                const { firebaseConfig } = await import('../js/config.js');
+                
+                if (!firebaseConfig || !firebaseConfig.apiKey) {
+                    throw new Error('Firebase configuration is missing or incomplete');
+                }
+                
+                console.log('Firebase config loaded successfully');
+                console.log('Project ID:', firebaseConfig.projectId);
+                console.log('Database URL:', firebaseConfig.databaseURL);
+                
+                // Test Firebase services
+                const { getAuth } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js');
+                const { getDatabase } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js');
+                const { getFirestore } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-firestore.js');
+                const { getStorage } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-storage.js');
+                
+                console.log('Firebase services imported successfully');
+                
+                // Initialize Firebase
+                const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                const db = getDatabase(app);
+                const firestore = getFirestore(app);
+                const storage = getStorage(app);
+                
+                console.log('Firebase initialized successfully');
+                
+                // Test database connection
+                const { ref, set, remove } = await import('https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js');
+                const testRef = ref(db, 'test-connection');
+                await set(testRef, { timestamp: Date.now(), test: true });
+                console.log('Database connection test successful');
+                
+                // Clean up test data
+                await remove(testRef);
+                
+                resultsDiv.innerHTML = '<div class="status success">✅ Firebase connection test successful!</div>';
+                console.log('Firebase connection test completed successfully');
+                
+            } catch (error) {
+                console.error('Firebase connection test failed:', error);
+                resultsDiv.innerHTML = `<div class="status error">❌ Firebase connection test failed: ${error.message}</div>`;
+            }
+        };
+        
+        // Test messaging system
+        window.testMessagingSystem = async function() {
+            const resultsDiv = document.getElementById('testResults');
+            resultsDiv.innerHTML = '<div class="status info">Testing messaging system...</div>';
+            
+            try {
+                console.log('Starting messaging system test...');
+                
+                // Test messaging system imports
+                const { MessagingState, MESSAGE_TYPES, USER_ROLES, PLATFORMS } = await import('../js/messaging-system.js');
+                console.log('Messaging system imports successful');
+                
+                // Test MessagingState creation
+                const messagingState = new MessagingState();
+                console.log('MessagingState created successfully');
+                
+                // Test demo user setup
+                const demoUser = {
+                    uid: 'test-user',
+                    email: 'test@example.com',
+                    profile: {
+                        name: 'Test User',
+                        role: USER_ROLES.ADMIN
+                    }
+                };
+                
+                messagingState.setCurrentUser(demoUser);
+                console.log('Demo user set successfully');
+                
+                // Test event system
+                let eventReceived = false;
+                messagingState.on('userChanged', (user) => {
+                    console.log('User changed event received:', user);
+                    eventReceived = true;
+                });
+                
+                // Wait a bit for events to process
+                await new Promise(resolve => setTimeout(resolve, 100));
+                
+                if (eventReceived) {
+                    console.log('Event system working correctly');
+                }
+                
+                resultsDiv.innerHTML = '<div class="status success">✅ Messaging system test successful!</div>';
+                console.log('Messaging system test completed successfully');
+                
+            } catch (error) {
+                console.error('Messaging system test failed:', error);
+                resultsDiv.innerHTML = `<div class="status error">❌ Messaging system test failed: ${error.message}</div>`;
+            }
+        };
+        
+        // Clear log
+        window.clearLog = function() {
+            document.getElementById('consoleLog').innerHTML = '';
+        };
+        
+        // Auto-run Firebase test on page load
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('Firebase test page loaded');
+            setTimeout(() => {
+                testFirebaseConnection();
+            }, 1000);
+        });
+    </script>
+</body>
+</html> 
+

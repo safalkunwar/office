@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - Employee Portal</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/employee.css">
+    <link rel="stylesheet" href="../../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <employee-navbar></employee-navbar>
+    <script type="module" src="../../js/components/employee-navbar.js"></script>
+
+    <main class="content">
+        <header class="page-header">
+            <div class="header-content">
+                <h1>Attendance Marking</h1>
+                <p class="header-subtitle">Mark daily attendance for students</p>
+            </div>
+            <div class="header-actions">
+                <input type="date" id="attendanceDate" class="form-control" value="">
+            </div>
+        </header>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="studentSearch" placeholder="Search students...">
+                </div>
+                <div class="filters">
+                    <select id="courseFilter" class="form-control">
+                        <option value="">All Courses</option>
+                        <option value="IELTS">IELTS</option>
+                        <option value="PTE">PTE</option>
+                        <option value="SAT">SAT</option>
+                        <option value="TOEFL">TOEFL</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Student Name</th>
+                            <th>Course</th>
+                            <th>Status</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody">
+                        <!-- Loaded by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <div class="card-footer">
+                <button id="saveAttendanceBtn" class="btn btn-primary">Save Attendance</button>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { db, auth } from '../../js/firebase-init.js';
+        import { ref, get, set, push, update } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = '../../login.html';
+            }
+        });
+
+        // Set today's date
+        document.getElementById('attendanceDate').valueAsDate = new Date();
+
+        let allStudents = [];
+        let attendanceData = {};
+
+        async function loadStudents() {
+            const container = document.getElementById('attendanceTableBody');
+            container.innerHTML = '<tr><td colspan="4" class="text-center">Loading...</td></tr>';
+
+            const snapshot = await get(ref(db, 'students'));
+            allStudents = [];
+
+            if (snapshot.exists()) {
+                snapshot.forEach(child => {
+                    allStudents.push({ id: child.key, ...child.val() });
+                });
+                renderStudents(allStudents);
+            } else {
+                container.innerHTML = '<tr><td colspan="4" class="text-center">No students found.</td></tr>';
+            }
+        }
+
+        function renderStudents(students) {
+            const container = document.getElementById('attendanceTableBody');
+            container.innerHTML = students.map(student => `
+                <tr data-id="${student.id}">
+                    <td>${student.name}</td>
+                    <td>${student.course || 'N/A'}</td>
+                    <td>
+                        <select class="status-select form-control" data-student-id="${student.id}">
+                            <option value="present">Present</option>
+                            <option value="absent">Absent</option>
+                            <option value="late">Late</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input type="text" class="form-control remarks-input" data-student-id="${student.id}" placeholder="Optional remarks...">
+                    </td>
+                </tr>
+            `).join('');
+
+            // Store attendance data
+            students.forEach(student => {
+                attendanceData[student.id] = {
+                    status: 'present',
+                    remarks: ''
+                };
+            });
+
+            // Add event listeners
+            document.querySelectorAll('.status-select').forEach(select => {
+                select.addEventListener('change', (e) => {
+                    const studentId = e.target.dataset.studentId;
+                    attendanceData[studentId].status = e.target.value;
+                });
+            });
+
+            document.querySelectorAll('.remarks-input').forEach(input => {
+                input.addEventListener('input', (e) => {
+                    const studentId = e.target.dataset.studentId;
+                    attendanceData[studentId].remarks = e.target.value;
+                });
+            });
+        }
+
+        // Search functionality
+        document.getElementById('studentSearch').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allStudents.filter(s => s.name.toLowerCase().includes(term));
+            renderStudents(filtered);
+        });
+
+        // Course filter
+        document.getElementById('courseFilter').addEventListener('change', (e) => {
+            const course = e.target.value;
+            const filtered = course ? allStudents.filter(s => s.course === course) : allStudents;
+            renderStudents(filtered);
+        });
+
+        // Save attendance
+        document.getElementById('saveAttendanceBtn').addEventListener('click', async () => {
+            const date = document.getElementById('attendanceDate').value;
+            if (!date) {
+                alert('Please select a date');
+                return;
+            }
+
+            const btn = document.getElementById('saveAttendanceBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+
+            try {
+                const updates = {};
+                
+                Object.entries(attendanceData).forEach(([studentId, data]) => {
+                    const recordId = push(ref(db, `attendance/${studentId}`)).key;
+                    updates[`attendance/${studentId}/${recordId}`] = {
+                        date: date,
+                        status: data.status,
+                        remarks: data.remarks,
+                        markedBy: auth.currentUser.uid,
+                        timestamp: Date.now()
+                    };
+                });
+
+                await update(ref(db), updates);
+                alert('Attendance saved successfully!');
+                
+                // Reset
+                attendanceData = {};
+                loadStudents();
+            } catch (error) {
+                console.error(error);
+                alert('Error saving attendance: ' + error.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Save Attendance';
+            }
+        });
+
+        // Load students on page load
+        loadStudents();
+    </script>
+</body>
+</html>

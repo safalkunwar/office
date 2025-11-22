@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universities Database - Employee Portal</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/employee.css">
+    <link rel="stylesheet" href="../../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <employee-navbar></employee-navbar>
+    <script type="module" src="../../js/components/employee-navbar.js"></script>
+
+    <main class="content">
+        <header class="page-header">
+            <div class="header-content">
+                <h1>Universities Database</h1>
+                <p class="header-subtitle">Browse and recommend universities to students</p>
+            </div>
+            <div class="header-actions">
+                <button id="addUniversityBtn" class="btn btn-primary"><i class="fas fa-plus"></i> Add University</button>
+            </div>
+        </header>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="filters-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                    <div class="form-group">
+                        <label>Search</label>
+                        <input type="text" id="searchUniversity" class="form-control" placeholder="University name...">
+                    </div>
+                    <div class="form-group">
+                        <label>Country</label>
+                        <select id="countryFilter" class="form-control">
+                            <option value="">All Countries</option>
+                            <option value="USA">USA</option>
+                            <option value="UK">UK</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Germany">Germany</option>
+                            <option value="New Zealand">New Zealand</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Course Type</label>
+                        <select id="courseFilter" class="form-control">
+                            <option value="">All Courses</option>
+                            <option value="Computer Science">Computer Science</option>
+                            <option value="Business">Business</option>
+                            <option value="Engineering">Engineering</option>
+                            <option value="Medicine">Medicine</option>
+                            <option value="Arts">Arts</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Ranking</label>
+                        <select id="rankingFilter" class="form-control">
+                            <option value="">All Rankings</option>
+                            <option value="top50">Top 50</option>
+                            <option value="top100">Top 100</option>
+                            <option value="top200">Top 200</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Universities Grid -->
+        <div id="universitiesGrid" class="universities-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem;">
+            <!-- Loaded by JS -->
+        </div>
+    </main>
+
+    <!-- Add University Modal -->
+    <div id="addUniversityModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add University</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="addUniversityForm">
+                    <div class="form-group">
+                        <label>University Name</label>
+                        <input type="text" name="name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Country</label>
+                        <select name="country" class="form-control" required>
+                            <option value="USA">USA</option>
+                            <option value="UK">UK</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Germany">Germany</option>
+                            <option value="New Zealand">New Zealand</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>World Ranking</label>
+                        <input type="number" name="ranking" class="form-control" placeholder="e.g., 50">
+                    </div>
+                    <div class="form-group">
+                        <label>Courses Offered (comma-separated)</label>
+                        <input type="text" name="courses" class="form-control" placeholder="Computer Science, Business, Engineering">
+                    </div>
+                    <div class="form-group">
+                        <label>Commission (USD)</label>
+                        <input type="number" name="commission" class="form-control" placeholder="1500">
+                    </div>
+                    <div class="form-group">
+                        <label>Website</label>
+                        <input type="url" name="website" class="form-control" placeholder="https://...">
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Add University</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../../js/employee/universities.js"></script>
+</body>
+</html>

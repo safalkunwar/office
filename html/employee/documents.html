@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documents - Employee Portal</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/employee.css">
+    <link rel="stylesheet" href="../../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .documents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+        .document-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 1rem;
+            align-items: flex-start;
+            transition: all 0.3s;
+        }
+        .document-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .doc-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            background: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: var(--secondary-color);
+        }
+        .doc-info {
+            flex: 1;
+        }
+        .doc-info h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+        }
+        .doc-info p {
+            margin: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .doc-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        .status-badge.pending { background: #ffc107; color: #000; }
+        .status-badge.verified { background: #198754; color: white; }
+        .status-badge.rejected { background: #dc3545; color: white; }
+    </style>
+</head>
+<body>
+    <employee-navbar></employee-navbar>
+    <script type="module" src="../../js/components/employee-navbar.js"></script>
+
+    <main class="content">
+        <header class="page-header">
+            <div class="header-content">
+                <h1>Document Management</h1>
+                <p class="header-subtitle">Verify and manage student documents</p>
+            </div>
+        </header>
+
+        <div class="card">
+            <div class="card-header">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="studentSearch" placeholder="Search by Student ID or Name...">
+                </div>
+                <button id="searchBtn" class="btn btn-primary">Search</button>
+            </div>
+            <div class="card-body">
+                <div id="documentsContainer" class="documents-grid">
+                    <div class="text-center text-muted" style="grid-column: 1/-1; padding: 2rem;">
+                        <i class="fas fa-search fa-3x mb-3"></i>
+                        <p>Search for a student to view their documents</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { DocumentsUI } from '../../js/documents.js';
+        import { db } from '../../js/firebase-init.js';
+        import { ref, get } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-database.js";
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
+        import { auth } from '../../js/firebase-init.js';
+
+        onAuthStateChanged(auth, (user) => {
+            if (!user) {
+                window.location.href = '../../login.html';
+            }
+        });
+
+        const ui = new DocumentsUI();
+        const searchBtn = document.getElementById('searchBtn');
+        const searchInput = document.getElementById('studentSearch');
+
+        searchBtn.addEventListener('click', async () => {
+            const term = searchInput.value.trim();
+            if (!term) {
+                alert('Please enter a student ID or name');
+                return;
+            }
+
+            const container = document.getElementById('documentsContainer');
+            container.innerHTML = '<div class="loading" style="grid-column: 1/-1; text-align: center;"><i class="fas fa-spinner fa-spin"></i> Searching...</div>';
+
+            try {
+                // Search for student by ID or name
+                const snapshot = await get(ref(db, 'students'));
+                let studentId = term;
+                
+                if (snapshot.exists()) {
+                    snapshot.forEach(child => {
+                        const student = child.val();
+                        if (child.key === term || student.name.toLowerCase().includes(term.toLowerCase())) {
+                            studentId = child.key;
+                        }
+                    });
+                }
+
+                await ui.loadStudentDocuments(studentId, 'documentsContainer');
+            } catch (e) {
+                console.error(e);
+                container.innerHTML = '<div class="error" style="grid-column: 1/-1; text-align: center;">Student not found or error loading documents.</div>';
+            }
+        });
+
+        // Allow search on Enter key
+        searchInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                searchBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Dashboard</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/employee.css">
+    <link rel="stylesheet" href="../../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <employee-navbar></employee-navbar>
+    <script type="module" src="../../js/components/employee-navbar.js"></script>
+
+    <main class="content">
+        <header class="page-header">
+            <div class="header-content">
+                <h1>Dashboard</h1>
+                <p class="header-subtitle">Welcome back, <span id="employeeName">Employee</span></p>
+            </div>
+            <div class="header-actions">
+                <span class="date-display" id="currentDate"></span>
+            </div>
+        </header>
+
+        <!-- Quick Actions -->
+        <section class="quick-actions-grid">
+            <a href="leads.html" class="action-card">
+                <div class="action-icon"><i class="fas fa-user-plus"></i></div>
+                <span>Add New Lead</span>
+            </a>
+            <a href="daily-activities.html" class="action-card">
+                <div class="action-icon"><i class="fas fa-clipboard-list"></i></div>
+                <span>Log Activity</span>
+            </a>
+            <a href="daily-activities.html" class="action-card">
+                <div class="action-icon"><i class="fas fa-user-clock"></i></div>
+                <span>New Visitor</span>
+            </a>
+            <a href="attendance.html" class="action-card">
+                <div class="action-icon"><i class="fas fa-calendar-check"></i></div>
+                <span>Mark Attendance</span>
+            </a>
+        </section>
+
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon primary"><i class="fas fa-user-plus"></i></div>
+                <div class="stat-info">
+                    <h3>My Leads</h3>
+                    <p id="totalLeads">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon warning"><i class="fas fa-file-import"></i></div>
+                <div class="stat-info">
+                    <h3>Active Applications</h3>
+                    <p id="activeApplications">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon danger"><i class="fas fa-tasks"></i></div>
+                <div class="stat-info">
+                    <h3>Pending Tasks</h3>
+                    <p id="pendingTasks">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon success"><i class="fas fa-chart-line"></i></div>
+                <div class="stat-info">
+                    <h3>Conversion Rate</h3>
+                    <p id="conversionRate">0%</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="dashboard-grid">
+            <!-- Recent Leads -->
+            <section class="card">
+                <div class="card-header">
+                    <h3>Recent Leads</h3>
+                    <a href="leads.html" class="btn-link">View All</a>
+                </div>
+                <div id="recentLeadsList" class="activities-list">
+                    <!-- Loaded by JS -->
+                </div>
+            </section>
+
+            <!-- Tasks -->
+            <section class="card">
+                <div class="card-header">
+                    <h3>My Tasks</h3>
+                    <a href="tasks.html" class="btn-link">View All</a>
+                </div>
+                <div id="tasksList" class="tasks-list">
+                    <!-- Loaded by JS -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script type="module" src="../../js/employee/dashboard.js"></script>
+</body>
+</html>

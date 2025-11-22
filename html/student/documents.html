@@ -1,114 +1,145 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Documents</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="/html/student/style.css">
-  <script defer src="student/lang.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Documents - Student Portal</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/student.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-<header class="site-header"><div class="header-wrap">
-  <div class="brand"><div class="logo"></div> <span data-i18n="brand">Student Portal</span></div>
-  <nav class="site-nav">
-    <a href="student/index.html">📊 <span data-i18n="nav.dash">Dashboard</span></a>
-    <a href="student/courses.html">📘 <span data-i18n="nav.courses">Courses</span></a>
-    <a href="student/assignments.html">📝 <span data-i18n="nav.assign">Assignments</span></a>
-    <a href="student/attendance.html">🗓️ <span data-i18n="nav.attend">Attendance</span></a>
-    <a href="student/visa.html">🛂 <span data-i18n="nav.visa">Visa</span></a>
-    <a href="messages.html">✉️ <span data-i18n="nav.msg">Messages</span></a>
-    <a href="student/resources.html">📚 <span data-i18n="nav.res">Resources</span></a>
-    <a href="student/profile.html">👤 <span data-i18n="nav.profile">Profile</span></a>
-  </nav>
-  <div class="controls"><button id="langToggle" class="btn">EN/NE</button></div>
-</div></header>
+    <!-- Top Navigation Bar -->
+    <nav class="student-navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-graduation-cap"></i> Student Portal
+            </div>
+            <div class="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="documents.html" class="active"><i class="fas fa-folder"></i> Documents</a>
+                <a href="messages.html"><i class="fas fa-envelope"></i> Messages</a>
+                <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+            </div>
+        </div>
+    </nav>
 
-<main>
-  <section class="card panel">
-    <div class="head"><h2>My Documents</h2></div>
-    <div class="filters">
-      <div class="btn-group">
-        <button class="btn active" data-filter="all">All</button>
-        <button class="btn" data-filter="provided">Provided</button>
-        <button class="btn" data-filter="missing">Missing</button>
-      </div>
+    <main class="content" role="main">
+        <header class="page-header">
+            <div class="header-content">
+                <h1><i class="fas fa-folder-open"></i> My Documents</h1>
+                <p class="header-subtitle">Manage your application documents and requirements</p>
+            </div>
+            <div class="header-actions">
+                <button class="btn btn-primary" id="uploadBtn">
+                    <i class="fas fa-upload"></i> Upload Document
+                </button>
+            </div>
+        </header>
+
+        <!-- Documents Grid -->
+        <div class="documents-container" style="margin-top: 2rem;">
+            <div class="documents-list" id="myDocumentsList">
+                <!-- Documents will be loaded here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Upload Modal -->
+    <div class="modal" id="uploadDocumentModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-upload"></i> Upload Document</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <form id="studentUploadForm">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label for="docName">Document Name</label>
+                        <input type="text" id="docName" required placeholder="e.g. Passport Copy">
+                    </div>
+                    <div class="form-group">
+                        <label for="docType">Document Type</label>
+                        <select id="docType" required>
+                            <option value="passport">Passport</option>
+                            <option value="transcript">Academic Transcript</option>
+                            <option value="certificate">Language Certificate</option>
+                            <option value="cv">CV/Resume</option>
+                            <option value="financial">Financial Statement</option>
+                            <option value="other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="docFile">File</label>
+                        <input type="file" id="docFile" required accept=".pdf,.jpg,.png">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary modal-close">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
     </div>
-    <div class="doc-grid" id="docGrid"></div>
-  </section>
 
-  <section class="card panel" style="margin-top:12px">
-    <div class="head"><h3>Assignments</h3></div>
-    <div class="doc-grid" id="assGrid"></div>
-  </section>
+    <script type="module">
+        import { DocumentsUI } from '../../js/documents.js';
+        import { auth } from '../../js/firebase-init.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
 
-  <section class="card panel" style="margin-top:12px">
-    <div class="head"><h3>Other Files</h3></div>
-    <div class="doc-grid" id="otherGrid"></div>
-  </section>
-</main>
+        document.addEventListener('DOMContentLoaded', () => {
+            const ui = new DocumentsUI();
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    ui.loadStudentDocuments(user.uid, 'myDocumentsList');
+                } else {
+                    window.location.href = '../login.html';
+                }
+            });
 
-<footer class="site-footer">© 2025 Student Portal • contact@example.com</footer>
-<script>
-  async function loadData(){
-    try{
-      const res = await fetch('student-data.json', { cache: 'no-store' });
-      if(!res.ok) throw new Error('No data');
-      return await res.json();
-    }catch(e){
-      return {
-        documents:[
-          { name:'Passport', status:'Provided', date:'2025-08-01', img:'https://picsum.photos/seed/passport/400/240', url:'#' },
-          { name:'Bank Statement', status:'Missing', img:'https://picsum.photos/seed/bank/400/240' },
-          { name:'Offer Letter', status:'Provided', date:'2025-07-28', img:'https://picsum.photos/seed/offer/400/240', url:'#' },
-          { name:'SOP', status:'Missing', img:'https://picsum.photos/seed/sop/400/240' }
-        ],
-        assignments:[
-          { title:'Essay Writing', deadline:'2025-08-20', status:'pending' },
-          { title:'Reading Set 4', deadline:'2025-08-28', status:'graded' }
-        ],
-        otherFiles:[
-          { name:'Visa Form', status:'Provided', date:'2025-07-20', img:'https://picsum.photos/seed/visa/400/240' }
-        ]
-      }
-    }
-  }
+            // Upload Modal Logic
+            const modal = document.getElementById('uploadDocumentModal');
+            const btn = document.getElementById('uploadBtn');
+            const closeBtns = document.querySelectorAll('.modal-close');
 
-  const grid = id => document.getElementById(id);
-  function card(d){ return `
-    <article class="card anim doc-card">
-      ${d.img?`<img src="${d.img}" alt="">`:''}
-      <div class="head"><strong>${d.name||d.title}</strong>
-        ${d.status?`<span class="badge ${d.status==='Provided'?'success':'warning'}">${d.status}</span>`:''}
-      </div>
-      <div class="muted">${d.date||d.deadline||''}</div>
-      <div style="margin-top:8px;display:flex;gap:.35rem">
-        ${d.url?`<a class="btn" href="${d.url}">View</a>`:`<button class="btn" ${d.status==='Missing'?'':'disabled'}>Upload</button>`}
-      </div>
-    </article>`; }
+            if (btn) btn.onclick = () => modal.style.display = "block";
+            closeBtns.forEach(b => b.onclick = () => modal.style.display = "none");
 
-  loadData().then(data=>{
-    const { documents=[], assignments=[], otherFiles=[] } = data;
-    const docsGrid = grid('docGrid');
-    const assGrid = grid('assGrid');
-    const othGrid = grid('otherGrid');
+            // Form Submit
+            document.getElementById('studentUploadForm').addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const user = auth.currentUser;
+                if (!user) return;
 
-    function renderDocs(items){ docsGrid.innerHTML = items.map(card).join(''); }
-    renderDocs(documents);
+                const file = document.getElementById('docFile').files[0];
+                const metadata = {
+                    name: document.getElementById('docName').value,
+                    type: document.getElementById('docType').value
+                };
 
-    // filters
-    document.querySelectorAll('[data-filter]').forEach(b=>b.addEventListener('click',()=>{
-      document.querySelectorAll('[data-filter]').forEach(x=>x.classList.remove('active'));
-      b.classList.add('active');
-      const v=b.getAttribute('data-filter');
-      if(v==='all') return renderDocs(documents);
-      renderDocs(documents.filter(d=>d.status && d.status.toLowerCase()===v));
-    }));
+                try {
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    const originalText = submitBtn.innerHTML;
+                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+                    submitBtn.disabled = true;
 
-    assGrid.innerHTML = assignments.map(a=> card({ title:a.title, deadline:a.deadline, status:a.status, img:'https://picsum.photos/seed/ass/400/240'})).join('');
-    othGrid.innerHTML = otherFiles.map(card).join('');
-  });
-</script>
+                    await ui.system.uploadDocument(user.uid, file, metadata);
+                    
+                    modal.style.display = "none";
+                    e.target.reset();
+                    ui.loadStudentDocuments(user.uid, 'myDocumentsList');
+                    alert('Document uploaded successfully!');
+                } catch (error) {
+                    console.error(error);
+                    alert('Upload failed: ' + error.message);
+                } finally {
+                    const submitBtn = e.target.querySelector('button[type="submit"]');
+                    submitBtn.innerHTML = 'Upload';
+                    submitBtn.disabled = false;
+                }
+            });
+        });
+    </script>
 </body>
 </html>
-

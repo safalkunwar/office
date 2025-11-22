@@ -4,49 +4,86 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Task Management - Admin Dashboard</title>
-    <link rel="stylesheet" href="../../css/style.css">
+    <link rel="stylesheet" href="../../css/main.css">
     <link rel="stylesheet" href="../../css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Sidebar -->
-        <nav class="sidebar admin-sidebar">
-            <div class="logo">
-                <img id="companyLogo" src="../../assets/default-logo.png" alt="Company Logo">
-                <h2 id="companyName">Admin Panel</h2>
-            </div>
-            <ul>
-                <li><a href="../../index.html"><i class="fas fa-home"></i> Home</a></li>
-                <li><a href="dashboard.html"><i class="fas fa-gauge"></i> Dashboard</a></li>
-                <li><a href="employees.html"><i class="fas fa-users"></i> Employees</a></li>
-                <li><a href="tasks.html" class="active"><i class="fas fa-tasks"></i> Tasks</a></li>
-                <li><a href="notifications.html"><i class="fas fa-bell"></i> Notifications</a></li>
-                <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
-                <li><a href="#" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Logout</a></li>
-            </ul>
-        </nav>
+    <!-- Top Navigation Bar -->
+    <admin-navbar></admin-navbar><script type="module" src="../../js/components/navbar.js"></script>
 
-        <!-- Main Content -->
-        <main class="content">
-            <header class="content-header">
-                <h1>Task Management</h1>
-                <button class="btn btn-primary" onclick="openAddTaskModal()">
-                    <i class="fas fa-plus"></i> Add New Task
+    <main class="content" role="main">
+        <header>
+            <h1>Task Management</h1>
+            <div class="user-info">
+                <span id="userName">Admin</span>
+                <a href="login.html" class="logout" aria-label="Logout">Logout</a>
+            </div>
+        </header>
+
+        <div class="container">
+            <!-- Task Filters -->
+            <div class="filters-container">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search tasks..." aria-label="Search tasks">
+                </div>
+                <div class="filter-options">
+                    <select id="priorityFilter" aria-label="Filter by priority">
+                        <option value="all">All Priorities</option>
+                        <option value="High">High Priority</option>
+                        <option value="Medium">Medium Priority</option>
+                        <option value="Low">Low Priority</option>
+                    </select>
+                    <select id="statusFilter" aria-label="Filter by status">
+                        <option value="all">All Status</option>
+                        <option value="pending">Pending</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="completed">Completed</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="openCreateTaskModal()">
+                        <i class="fas fa-plus"></i> Add Task
+                    </button>
+                </div>
+            </div>
+
+            <!-- Tasks List -->
+            <div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task ID</th>
+                            <th>Title & Description</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tasksList">
+                        <!-- Tasks will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination">
+                <button class="btn btn-secondary" disabled>
+                    <i class="fas fa-chevron-left"></i> Previous
                 </button>
-            </header>
-
-            <div class="tasks-container">
-                <!-- Tasks will be loaded here -->
+                <span class="page-info">Page 1 of 5</span>
+                <button class="btn btn-secondary">
+                    Next <i class="fas fa-chevron-right"></i>
+                </button>
             </div>
-        </main>
-    </div>
+        </div>
+    </main>
 
-    <!-- Add Task Modal -->
-    <div id="addTaskModal" class="modal">
+    <!-- Create Task Modal -->
+    <div class="modal" id="createTaskModal">
         <div class="modal-content">
             <h2>Add New Task</h2>
-            <form id="addTaskForm">
+            <form id="createTaskForm">
                 <div class="form-group">
                     <label for="taskTitle">Task Title</label>
                     <input type="text" id="taskTitle" required>
@@ -56,32 +93,27 @@
                     <textarea id="taskDescription" rows="3" required></textarea>
                 </div>
                 <div class="form-group">
-                    <label for="assignedTo">Assign To</label>
-                    <select id="assignedTo" required>
-                        <option value="">Select Employee</option>
-                    </select>
-                </div>
-                <div class="form-group">
                     <label for="taskPriority">Priority</label>
                     <select id="taskPriority" required>
-                        <option value="Low">Low</option>
-                        <option value="Medium">Medium</option>
+                        <option value="">Select Priority</option>
                         <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label for="dueDate">Due Date</label>
-                    <input type="date" id="dueDate" required>
+                    <label for="taskDueDate">Due Date</label>
+                    <input type="date" id="taskDueDate" required>
                 </div>
                 <div class="form-actions">
-                    <button type="submit" class="btn btn-primary">Add Task</button>
-                    <button type="button" class="btn" onclick="closeModal()">Cancel</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeCreateTaskModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Task</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script type="module" src="../../js/admin/tasks.js"></script>
+    <script type="module" src="../../js/tasks.js"></script>
 </body>
 </html> 
+

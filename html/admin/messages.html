@@ -7,8 +7,8 @@
     <title>Unified Messaging System</title>
     
     <!-- CSS Imports -->
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/admin.css">
     <link rel="stylesheet" href="../css/messages.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
@@ -387,7 +387,7 @@
             <p class="page-subtitle">
                 Communicate seamlessly across internal chat, WhatsApp, Gmail, and Facebook platforms
             </p>
-            <a href="../index.html" class="back-to-dashboard">
+            <a href="dashboard.html" class="back-to-dashboard">
                 <i class="fas fa-arrow-left"></i>
                 Back to Dashboard
             </a>
@@ -401,6 +401,10 @@
             <div class="section-header">
                 <h2><i class="fas fa-comments"></i> Unified Messaging Hub</h2>
                 <div class="messaging-actions">
+                    <div class="connection-status" id="connectionStatus">
+                        <div class="status-dot"></div>
+                        <span id="connectionText">Connecting...</span>
+                    </div>
                     <button class="btn btn-secondary" id="toggleSidebarBtn">
                         <i class="fas fa-bars"></i>
                         Toggle Sidebar
@@ -685,90 +689,17 @@
     </div>
 
     <!-- JavaScript Imports -->
-    <script type="module" src="../js/messaging-system.js"></script>
-    <script type="module" src="../js/messaging-ui.js"></script>
+    <script type="module" src="../../js/messaging-system.js"></script>
+    <script type="module" src="../../js/messaging-ui.js"></script>
     
     <!-- Page-specific JavaScript -->
     <script type="module">
-        // Initialize messaging system for standalone page
-        import { MessagingUI } from '../js/messaging-ui.js';
+        import { MessagingUI } from '../../js/messaging-ui.js';
         
         document.addEventListener('DOMContentLoaded', () => {
-            // Initialize the messaging UI
             window.messagingUI = new MessagingUI();
-            
-            // Page-specific functionality
-            const toggleThemeBtn = document.getElementById('toggleThemeBtn');
-            const toggleSidebarBtn = document.getElementById('toggleSidebarBtn');
-            const sidebar = document.getElementById('messagingSidebar');
-            
-            // Theme toggle functionality
-            toggleThemeBtn.addEventListener('click', () => {
-                const currentTheme = document.documentElement.getAttribute('data-theme');
-                const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-                document.documentElement.setAttribute('data-theme', newTheme);
-                
-                // Update button icon
-                const icon = toggleThemeBtn.querySelector('i');
-                icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-                
-                // Store preference
-                localStorage.setItem('theme', newTheme);
-            });
-            
-            // Sidebar toggle for mobile
-            toggleSidebarBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('show');
-            });
-            
-            // Load saved theme
-            const savedTheme = localStorage.getItem('theme') || 'light';
-            document.documentElement.setAttribute('data-theme', savedTheme);
-            const icon = toggleThemeBtn.querySelector('i');
-            icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
-            
-            // Close sidebar when clicking outside on mobile
-            document.addEventListener('click', (e) => {
-                if (window.innerWidth <= 768) {
-                    if (!sidebar.contains(e.target) && !toggleSidebarBtn.contains(e.target)) {
-                        sidebar.classList.remove('show');
-                    }
-                }
-            });
-            
-            // Handle window resize
-            window.addEventListener('resize', () => {
-                if (window.innerWidth > 768) {
-                    sidebar.classList.remove('show');
-                }
-            });
-        });
-        
-        // Modal functionality
-        function showModal(modalId) {
-            document.getElementById(modalId).style.display = 'block';
-        }
-        
-        function hideModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-        
-        // Close modals when clicking outside
-        window.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal')) {
-                e.target.style.display = 'none';
-            }
-        });
-        
-        // Close modal buttons
-        document.addEventListener('click', (e) => {
-            if (e.target.classList.contains('modal-close')) {
-                const modal = e.target.closest('.modal');
-                if (modal) {
-                    modal.style.display = 'none';
-                }
-            }
         });
     </script>
 </body>
 </html> 
+

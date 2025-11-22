@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Visa Tracker - Employee Portal</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/employee.css">
+    <link rel="stylesheet" href="../../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .visa-pipeline {
+            display: flex;
+            gap: 1.5rem;
+            overflow-x: auto;
+            padding-bottom: 1rem;
+        }
+        .visa-stage {
+            min-width: 280px;
+            flex: 1;
+        }
+        .visa-stage-header {
+            background: var(--dark-gradient);
+            color: white;
+            padding: 1rem;
+            border-radius: 12px 12px 0 0;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .visa-stage-body {
+            background: rgba(0,0,0,0.02);
+            min-height: 400px;
+            padding: 1rem;
+            border-radius: 0 0 12px 12px;
+        }
+        .visa-card {
+            background: white;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .visa-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        .visa-card h4 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+        }
+        .visa-card p {
+            margin: 0.25rem 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+    <employee-navbar></employee-navbar>
+    <script type="module" src="../../js/components/employee-navbar.js"></script>
+
+    <main class="content">
+        <header class="page-header">
+            <div class="header-content">
+                <h1>Visa Tracker</h1>
+                <p class="header-subtitle">Track student visa application progress</p>
+            </div>
+            <div class="header-actions">
+                <button id="addVisaBtn" class="btn btn-primary"><i class="fas fa-plus"></i> Add Visa Application</button>
+            </div>
+        </header>
+
+        <!-- Visa Pipeline -->
+        <div class="visa-pipeline">
+            <div class="visa-stage">
+                <div class="visa-stage-header">
+                    <span>Document Preparation</span>
+                    <span class="badge" id="countPrep">0</span>
+                </div>
+                <div class="visa-stage-body" id="stagePrep" data-stage="preparation">
+                    <!-- Loaded by JS -->
+                </div>
+            </div>
+            <div class="visa-stage">
+                <div class="visa-stage-header">
+                    <span>Applied</span>
+                    <span class="badge" id="countApplied">0</span>
+                </div>
+                <div class="visa-stage-body" id="stageApplied" data-stage="applied">
+                    <!-- Loaded by JS -->
+                </div>
+            </div>
+            <div class="visa-stage">
+                <div class="visa-stage-header">
+                    <span>Interview Scheduled</span>
+                    <span class="badge" id="countInterview">0</span>
+                </div>
+                <div class="visa-stage-body" id="stageInterview" data-stage="interview">
+                    <!-- Loaded by JS -->
+                </div>
+            </div>
+            <div class="visa-stage">
+                <div class="visa-stage-header">
+                    <span>Decision Pending</span>
+                    <span class="badge" id="countDecision">0</span>
+                </div>
+                <div class="visa-stage-body" id="stageDecision" data-stage="decision">
+                    <!-- Loaded by JS -->
+                </div>
+            </div>
+            <div class="visa-stage">
+                <div class="visa-stage-header" style="background: var(--success-color);">
+                    <span>Granted</span>
+                    <span class="badge" id="countGranted">0</span>
+                </div>
+                <div class="visa-stage-body" id="stageGranted" data-stage="granted">
+                    <!-- Loaded by JS -->
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Visa Modal -->
+    <div id="addVisaModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add Visa Application</h3>
+                <span class="modal-close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="addVisaForm">
+                    <div class="form-group">
+                        <label>Student ID</label>
+                        <input type="text" name="studentId" class="form-control" required placeholder="Enter student ID">
+                    </div>
+                    <div class="form-group">
+                        <label>Student Name</label>
+                        <input type="text" name="studentName" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Country</label>
+                        <select name="country" class="form-control" required>
+                            <option value="USA">USA</option>
+                            <option value="UK">UK</option>
+                            <option value="Canada">Canada</option>
+                            <option value="Australia">Australia</option>
+                            <option value="Germany">Germany</option>
+                            <option value="New Zealand">New Zealand</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Visa Type</label>
+                        <select name="visaType" class="form-control" required>
+                            <option value="Student">Student Visa</option>
+                            <option value="Work">Work Visa</option>
+                            <option value="Dependent">Dependent Visa</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-block">Add Application</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="../../js/employee/visa-tracker.js"></script>
+</body>
+</html>

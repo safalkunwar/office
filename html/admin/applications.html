@@ -4,38 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Application Management - Admin Dashboard</title>
-    <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
     <!-- Top Navigation Bar -->
-    <nav class="admin-navbar" role="navigation" aria-label="Main navigation">
-        <div class="navbar-left">
-            <div class="logo">
-                <h2>Admin Panel</h2>
-            </div>
-        </div>
-        <div class="navbar-right">
-            <button class="theme-toggle" aria-label="Toggle dark mode">
-                <i class="fas fa-moon"></i>
-            </button>
-            <button class="mobile-menu-btn" aria-label="Toggle menu" aria-expanded="false">
-                <i class="fas fa-bars"></i>
-            </button>
-            <ul>
-                <li><a href="../index.html"><i class="fas fa-home"></i> Dashboard</a></li>
-                <li><a href="students.html"><i class="fas fa-users"></i> Students</a></li>
-                <li><a href="exams.html"><i class="fas fa-file-alt"></i> Exams</a></li>
-                <li><a href="applications.html" class="active" aria-current="page"><i class="fas fa-university"></i> Applications</a></li>
-                <li><a href="documents.html"><i class="fas fa-folder"></i> Documents</a></li>
-                <li><a href="messages.html"><i class="fas fa-envelope"></i> Messages</a></li>
-                <li><a href="tasks.html"><i class="fas fa-tasks"></i> Tasks</a></li>
-                <li><a href="security.html"><i class="fas fa-shield-alt"></i> Security</a></li>
-                <li><a href="reports.html"><i class="fas fa-chart-bar"></i> Reports</a></li>
-            </ul>
-        </div>
-    </nav>
+    <admin-navbar></admin-navbar><script type="module" src="../../js/components/navbar.js"></script>
 
     <main class="content" role="main">
         <header>
@@ -164,6 +139,7 @@
         </div>
     </div>
 
-    <script type="module" src="../js/applications.js"></script>
+    <script type="module" src="../../js/applications.js"></script>
 </body>
 </html> 
+

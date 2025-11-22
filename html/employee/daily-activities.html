@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Activities - Employee Portal</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/admin.css">
+    <link rel="stylesheet" href="../../css/employee.css">
+    <link rel="stylesheet" href="../../css/responsive.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .timeline-item {
+            display: flex;
+            gap: 1rem;
+            padding-bottom: 1.5rem;
+            border-left: 2px solid #e9ecef;
+            margin-left: 1rem;
+            padding-left: 1.5rem;
+            position: relative;
+        }
+        .timeline-item:last-child { border-left: none; }
+        .timeline-icon {
+            position: absolute;
+            left: -1rem;
+            width: 2rem;
+            height: 2rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+        }
+        .bg-info { background: var(--info-color); }
+        .bg-warning { background: var(--warning-color); }
+        .bg-primary { background: var(--primary-color); }
+        .bg-success { background: var(--success-color); }
+        .bg-secondary { background: var(--text-muted); }
+        
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.25rem;
+        }
+        .timeline-type { font-weight: 600; color: var(--primary-color); }
+        .timeline-time { font-size: 0.85rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <employee-navbar></employee-navbar>
+    <script type="module" src="../../js/components/employee-navbar.js"></script>
+
+    <main class="content">
+        <header class="page-header">
+            <div class="header-content">
+                <h1>Daily Activities</h1>
+                <p class="header-subtitle">Log your tasks and track visitors</p>
+            </div>
+        </header>
+
+        <div class="dashboard-grid">
+            <!-- Left Column: Forms -->
+            <div class="grid-column">
+                <section class="card mb-4">
+                    <div class="card-header">
+                        <h3><i class="fas fa-pen"></i> Log Activity</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="logActivityForm">
+                            <div class="form-group">
+                                <label>Activity Type</label>
+                                <select name="type" class="form-control" required>
+                                    <option value="Call">Call</option>
+                                    <option value="Meeting">Meeting</option>
+                                    <option value="Email">Email</option>
+                                    <option value="Follow-up">Follow-up</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Description</label>
+                                <textarea name="description" class="form-control" rows="3" required placeholder="Details about the activity..."></textarea>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Log Activity</button>
+                        </form>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-plus"></i> Quick Visitor Entry</h3>
+                    </div>
+                    <div class="card-body">
+                        <form id="quickVisitorForm">
+                            <div class="form-group">
+                                <label>Visitor Name</label>
+                                <input type="text" name="name" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Phone</label>
+                                <input type="tel" name="phone" class="form-control" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Purpose</label>
+                                <select name="purpose" class="form-control">
+                                    <option value="Inquiry">Inquiry</option>
+                                    <option value="Counseling">Counseling</option>
+                                    <option value="Document Submission">Document Submission</option>
+                                    <option value="Other">Other</option>
+                                </select>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-block">Add Visitor</button>
+                        </form>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Timeline -->
+            <section class="card">
+                <div class="card-header">
+                    <h3>Today's Timeline</h3>
+                </div>
+                <div class="card-body">
+                    <div id="activityTimeline" class="timeline">
+                        <!-- Loaded by JS -->
+                    </div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script type="module" src="../../js/employee/daily-activities.js"></script>
+</body>
+</html>

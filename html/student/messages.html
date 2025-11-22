@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Unified Messaging System - Internal Chat, WhatsApp, Gmail, and Facebook">
+    <title>Unified Messaging System</title>
+    
+    <!-- CSS Imports -->
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/student.css">
+    <link rel="stylesheet" href="../css/messages.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        /* Page-specific styles */
+        body {
+            background: var(--bg-color, #f8fafc);
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .page-header {
+            background: var(--card-bg, #fff);
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+            padding: 20px 0;
+            margin-bottom: 0;
+        }
+        
+        .page-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        .page-title {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-color, #1e293b);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .page-subtitle {
+            margin: 8px 0 0 0;
+            color: var(--text-secondary, #64748b);
+            font-size: 16px;
+        }
+        
+        .back-to-dashboard {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--primary-color, #2563eb);
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            margin-top: 16px;
+        }
+        
+        .back-to-dashboard:hover {
+            background: var(--primary-hover, #1d4ed8);
+            transform: translateY(-1px);
+        }
+        
+        .messaging-system-container {
+            margin: 24px 0;
+            background: var(--card-bg, #fff);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            border: 1px solid var(--border-color, #e2e8f0);
+        }
+        
+        .section-header {
+            padding: 24px 32px;
+            border-bottom: 1px solid var(--border-color, #e2e8f0);
+            background: var(--card-bg, #fff);
+        }
+        
+        .section-header h2 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-color, #1e293b);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .messaging-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+            margin-top: 16px;
+        }
+        
+        .btn {
+            padding: 10px 20px;
+            border: 1px solid var(--border-color, #e2e8f0);
+            border-radius: 8px;
+            background: var(--card-bg, #fff);
+            color: var(--text-color, #1e293b);
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            background: var(--bg-secondary, #f1f5f9);
+            transform: translateY(-1px);
+        }
+        
+        .btn-primary {
+            background: var(--primary-color, #2563eb);
+            color: white;
+            border-color: var(--primary-color, #2563eb);
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-hover, #1d4ed8);
+        }
+        
+        .btn-secondary {
+            background: var(--card-bg, #fff);
+            color: var(--text-color, #1e293b);
+            border-color: var(--border-color, #e2e8f0);
+        }
+        
+        .btn-secondary:hover {
+            background: var(--bg-secondary, #f1f5f9);
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .page-container {
+                padding: 0 16px;
+            }
+            
+            .page-title {
+                font-size: 24px;
+            }
+            
+            .page-subtitle {
+                font-size: 14px;
+            }
+            
+            .section-header {
+                padding: 20px 24px;
+            }
+            
+            .messaging-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .btn {
+                justify-content: center;
+            }
+        }
+        
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        
+        .modal-content {
+            background-color: var(--msg-bg, #fff);
+            margin: 5% auto;
+            padding: 0;
+            border-radius: var(--msg-radius, 12px);
+            width: 90%;
+            max-width: 500px;
+            box-shadow: var(--msg-shadow-lg, 0 10px 15px -3px rgba(0, 0, 0, 0.1));
+        }
+        
+        .modal-header {
+            padding: 20px 24px;
+            border-bottom: 1px solid var(--msg-border, #e2e8f0);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-header h3 {
+            margin: 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--msg-text, #1e293b);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--msg-text-secondary, #64748b);
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s ease;
+        }
+        
+        .modal-close:hover {
+            background: var(--msg-bg-tertiary, #f1f5f9);
+            color: var(--msg-text, #1e293b);
+        }
+        
+        .modal-body {
+            padding: 24px;
+        }
+        
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid var(--msg-border, #e2e8f0);
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--msg-text, #1e293b);
+            font-size: 14px;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid var(--msg-border, #e2e8f0);
+            border-radius: var(--msg-radius-sm, 8px);
+            background: var(--msg-bg, #fff);
+            color: var(--msg-text, #1e293b);
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--msg-primary, #2563eb);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        
+        .members-selection {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid var(--msg-border, #e2e8f0);
+            border-radius: var(--msg-radius-sm, 8px);
+            padding: 12px;
+        }
+        
+        .member-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--msg-border-light, #f1f5f9);
+        }
+        
+        .member-checkbox:last-child {
+            border-bottom: none;
+        }
+        
+        .member-checkbox input[type="checkbox"] {
+            width: auto;
+            margin: 0;
+        }
+        
+        .contacts-results {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid var(--msg-border, #e2e8f0);
+            border-radius: var(--msg-radius-sm, 8px);
+        }
+        
+        .contact-result-item {
+            padding: 12px;
+            cursor: pointer;
+            border-bottom: 1px solid var(--msg-border-light, #f1f5f9);
+            transition: all 0.2s ease;
+        }
+        
+        .contact-result-item:hover {
+            background: var(--msg-bg-tertiary, #f1f5f9);
+        }
+        
+        .contact-result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .contact-result-item .contact-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .contact-result-item .contact-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--msg-primary, #2563eb);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        
+        .contact-result-item .contact-details {
+            flex: 1;
+        }
+        
+        .contact-result-item .contact-name {
+            font-weight: 500;
+            color: var(--msg-text, #1e293b);
+            margin-bottom: 2px;
+        }
+        
+        .contact-result-item .contact-role {
+            font-size: 12px;
+            color: var(--msg-text-secondary, #64748b);
+        }
+        
+        /* Responsive modal adjustments */
+        @media (max-width: 768px) {
+            .modal-content {
+                margin: 10% auto;
+                width: 95%;
+                max-width: none;
+            }
+            
+            .modal-header,
+            .modal-body,
+            .modal-footer {
+                padding: 16px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Page Header -->
+    <header class="page-header">
+        <div class="page-container">
+            <h1 class="page-title">
+                <i class="fas fa-comments"></i>
+                Unified Messaging System
+            </h1>
+            <p class="page-subtitle">
+                Communicate seamlessly across internal chat, WhatsApp, Gmail, and Facebook platforms
+            </p>
+            <a href="index.html" class="back-to-dashboard">
+                <i class="fas fa-arrow-left"></i>
+                Back to Dashboard
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="page-container">
+        <!-- Modern Messaging System -->
+        <section class="messaging-system-container" aria-label="Modern messaging system">
+            <div class="section-header">
+                <h2><i class="fas fa-comments"></i> Unified Messaging Hub</h2>
+                <div class="messaging-actions">
+                    <div class="connection-status" id="connectionStatus">
+                        <div class="status-dot"></div>
+                        <span id="connectionText">Connecting...</span>
+                    </div>
+                    <button class="btn btn-secondary" id="toggleSidebarBtn">
+                        <i class="fas fa-bars"></i>
+                        Toggle Sidebar
+                    </button>
+                    <button class="btn btn-primary" id="newChatBtn">
+                        <i class="fas fa-plus"></i>
+                        New Chat
+                    </button>
+                    <button class="btn btn-secondary" id="toggleThemeBtn">
+                        <i class="fas fa-moon"></i>
+                        Toggle Theme
+                    </button>
+                </div>
+            </div>
+            
+            <div class="messaging-system">
+                <!-- Left Sidebar -->
+                <aside class="messaging-sidebar" id="messagingSidebar">
+                    <div class="sidebar-header">
+                        <h3><i class="fas fa-comments"></i> Conversations</h3>
+                        <div class="sidebar-tabs">
+                            <button class="sidebar-tab active" data-platform="internal">
+                                <i class="fas fa-comment-dots"></i>
+                                <span>Internal</span>
+                                <span class="badge" id="badgeInternal">0</span>
+                            </button>
+                            <button class="sidebar-tab whatsapp-tab" data-platform="whatsapp">
+                                <i class="fab fa-whatsapp"></i>
+                                <span>WhatsApp</span>
+                                <span class="badge" id="badgeWhatsApp">0</span>
+                            </button>
+                            <button class="sidebar-tab gmail-tab" data-platform="gmail">
+                                <i class="fas fa-envelope"></i>
+                                <span>Gmail</span>
+                                <span class="badge" id="badgeGmail">0</span>
+                            </button>
+                            <button class="sidebar-tab facebook-tab" data-platform="facebook">
+                                <i class="fab fa-facebook"></i>
+                                <span>Facebook</span>
+                                <span class="badge" id="badgeFacebook">0</span>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-search">
+                        <div class="search-container">
+                            <i class="fas fa-search search-icon"></i>
+                            <input type="text" class="search-input" id="contactSearchInput" placeholder="Search contacts and chats...">
+                        </div>
+                    </div>
+                    
+                    <div class="contacts-list" id="contactsList">
+                        <div class="loading-placeholder">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <span>Loading conversations...</span>
+                        </div>
+                    </div>
+                </aside>
+
+                <!-- Main Chat Area -->
+                <main class="messaging-main" id="messagingMain">
+                    <div class="chat-header" id="chatHeader" style="display: none;">
+                        <div class="chat-info">
+                            <div class="chat-avatar" id="chatAvatar">
+                                <i class="fas fa-user"></i>
+                            </div>
+                            <div class="chat-details">
+                                <h4 id="chatName">Select a conversation</h4>
+                                <div class="chat-status" id="chatStatus">Choose from the sidebar</div>
+                            </div>
+                        </div>
+                        <div class="chat-actions">
+                            <button class="chat-action-btn" id="chatSearchBtn" title="Search in chat">
+                                <i class="fas fa-search"></i>
+                            </button>
+                            <button class="chat-action-btn" id="chatInfoBtn" title="Chat info">
+                                <i class="fas fa-info-circle"></i>
+                            </button>
+                            <button class="chat-action-btn" id="chatMoreBtn" title="More options">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="welcome-message">
+                            <div class="welcome-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <h3>Welcome to Unified Messaging</h3>
+                            <p>Select a conversation from the sidebar to start messaging, or use the floating action buttons to create new chats.</p>
+                            <div class="platform-features">
+                                <div class="feature-item">
+                                    <i class="fas fa-comment-dots"></i>
+                                    <span>Internal Chat</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fab fa-whatsapp"></i>
+                                    <span>WhatsApp</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fas fa-envelope"></i>
+                                    <span>Gmail</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="fab fa-facebook"></i>
+                                    <span>Facebook</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input" id="chatInput" style="display: none;">
+                        <div class="input-container">
+                            <div class="input-actions">
+                                <button class="input-action-btn" id="emojiBtn" title="Insert emoji">
+                                    <i class="far fa-smile"></i>
+                                </button>
+                                <button class="input-action-btn" id="attachBtn" title="Attach file">
+                                    <i class="fas fa-paperclip"></i>
+                                </button>
+                                <button class="input-action-btn" id="imageBtn" title="Send image">
+                                    <i class="fas fa-image"></i>
+                                </button>
+                            </div>
+                            <textarea class="message-textarea" id="messageInput" placeholder="Type a message..."></textarea>
+                            <button class="send-btn" id="sendBtn" title="Send message">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                        
+                        <input type="file" id="imageInput" accept="image/*" style="display: none;">
+                        <input type="file" id="fileInput" accept="*/*" style="display: none;">
+                        
+                        <div class="emoji-picker" id="emojiPicker">
+                            <div class="emoji-grid" id="emojiGrid"></div>
+                        </div>
+                    </div>
+                </main>
+
+                <!-- Right Sidebar -->
+                <aside class="messaging-info" id="messagingInfo">
+                    <div class="info-header">
+                        <h4>Chat Information</h4>
+                    </div>
+                    <div class="info-content" id="infoContent">
+                        <div class="info-placeholder">
+                            <i class="fas fa-info-circle"></i>
+                            <p>Select a conversation to view details</p>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+
+            <!-- Floating Action Buttons -->
+            <div class="fab-container" id="fabContainer">
+                <button class="fab fab-primary" id="newChatFab" title="Start new chat">
+                    <i class="fas fa-plus"></i>
+                    <span class="fab-tooltip">New Chat</span>
+                </button>
+                <button class="fab fab-success" id="newGroupFab" title="Create group chat">
+                    <i class="fas fa-users"></i>
+                    <span class="fab-tooltip">New Group</span>
+                </button>
+                <button class="fab fab-warning" id="broadcastFab" title="Send broadcast message">
+                    <i class="fas fa-bullhorn"></i>
+                    <span class="fab-tooltip">Broadcast</span>
+                </button>
+            </div>
+
+            <!-- Typing Indicator -->
+            <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                <span id="typingText">Someone is typing</span>
+                <div class="typing-dots">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- New Chat Modal -->
+    <div class="modal" id="newChatModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Start New Chat</h3>
+                <button class="modal-close" id="closeNewChatModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="newChatSearch">Search Contacts</label>
+                    <input type="text" id="newChatSearch" placeholder="Type to search contacts...">
+                </div>
+                <div class="contacts-results" id="newChatContacts">
+                    <!-- Search results will appear here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- New Group Modal -->
+    <div class="modal" id="newGroupModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Create Group Chat</h3>
+                <button class="modal-close" id="closeNewGroupModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="groupNameInput">Group Name</label>
+                    <input type="text" id="groupNameInput" placeholder="Enter group name">
+                </div>
+                <div class="form-group">
+                    <label for="groupDescriptionInput">Description (Optional)</label>
+                    <textarea id="groupDescriptionInput" placeholder="Enter group description"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>Select Members</label>
+                    <div class="members-selection" id="groupMembersSelection">
+                        <!-- Member checkboxes will appear here -->
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelNewGroupBtn">Cancel</button>
+                <button class="btn btn-primary" id="createGroupBtn">Create Group</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Broadcast Modal -->
+    <div class="modal" id="broadcastModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Send Broadcast Message</h3>
+                <button class="modal-close" id="closeBroadcastModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="broadcastRecipients">Recipients</label>
+                    <select id="broadcastRecipients">
+                        <option value="all-students">All Students</option>
+                        <option value="all-employees">All Employees</option>
+                        <option value="all-instructors">All Instructors</option>
+                        <option value="custom">Custom Selection</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="broadcastMessage">Message</label>
+                    <textarea id="broadcastMessage" rows="4" placeholder="Enter your broadcast message..."></textarea>
+                </div>
+                <div class="form-group">
+                    <label for="broadcastSchedule">Schedule (Optional)</label>
+                    <input type="datetime-local" id="broadcastSchedule">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" id="cancelBroadcastBtn">Cancel</button>
+                <button class="btn btn-primary" id="sendBroadcastBtn">Send Broadcast</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- File Upload Progress Modal -->
+    <div class="modal" id="uploadProgressModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Uploading File</h3>
+            </div>
+            <div class="modal-body">
+                <div class="upload-progress">
+                    <h4 id="uploadFileName">File Name</h4>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="uploadProgressFill"></div>
+                    </div>
+                    <div class="progress-text" id="uploadProgressText">0%</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript Imports -->
+    <script type="module" src="../../js/messaging-system.js"></script>
+    <script type="module" src="../../js/messaging-ui.js"></script>
+    
+    <!-- Page-specific JavaScript -->
+    <script type="module">
+        import { MessagingUI } from '../../js/messaging-ui.js';
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            window.messagingUI = new MessagingUI();
+        });
+    </script>
+</body>
+</html> 
+

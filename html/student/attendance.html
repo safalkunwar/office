@@ -1,67 +1,126 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Attendance</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance - Student Portal</title>
+    <link rel="stylesheet" href="../../css/main.css">
+    <link rel="stylesheet" href="../../css/student.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
 <body>
-<header class="site-header"><div class="header-wrap">
-  <div class="brand"><div class="logo"></div> <span data-i18n="brand">Student Portal</span></div>
-  <nav class="site-nav">
-    <a href="index.html">📊 <span data-i18n="nav.dash">Dashboard</span></a>
-    <a href="courses.html">📘 <span data-i18n="nav.courses">Courses</span></a>
-    <a href="assignments.html">📝 <span data-i18n="nav.assign">Assignments</span></a>
-    <a href="attendance.html">🗓️ <span data-i18n="nav.attend">Attendance</span></a>
-    <a href="visa.html">🛂 <span data-i18n="nav.visa">Visa</span></a>
-    <a href="messages.html">✉️ <span data-i18n="nav.msg">Messages</span></a>
-    <a href="resources.html">📚 <span data-i18n="nav.res">Resources</span></a>
-    <a href="profile.html">👤 <span data-i18n="nav.profile">Profile</span></a>
-  </nav>
-  <div class="controls"><button id="langToggle" class="btn">EN/NE</button></div>
-</div></header>
+    <!-- Top Navigation Bar -->
+    <nav class="student-navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-graduation-cap"></i> Student Portal
+            </div>
+            <div class="nav-links">
+                <a href="index.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="documents.html"><i class="fas fa-folder"></i> Documents</a>
+                <a href="attendance.html" class="active"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="messages.html"><i class="fas fa-envelope"></i> Messages</a>
+                <a href="profile.html"><i class="fas fa-user"></i> Profile</a>
+            </div>
+        </div>
+    </nav>
 
-<main>
-  <section class="card panel">
-    <div class="head"><h2 data-i18n="nav.attend">Attendance</h2></div>
-    <table class="table" aria-label="Attendance table">
-      <thead>
-        <tr><th data-i18n="table.date">Date</th><th data-i18n="table.in">In</th><th data-i18n="table.out">Out</th><th data-i18n="table.remarks">Remarks</th></tr>
-      </thead>
-      <tbody id="attBody"></tbody>
-  </table>
-  <div class="filters">
-    <label>Month <select class="select" id="month"><option>All</option><option>August</option></select></label>
-    <label>Subject <select class="select" id="subject"><option>All</option><option>IELTS</option><option>PTE</option></select></label>
-  </div>
+    <main class="content" role="main">
+        <header class="page-header">
+            <div class="header-content">
+                <h1><i class="fas fa-calendar-check"></i> My Attendance</h1>
+                <p class="header-subtitle">Track your daily attendance and punctuality</p>
+            </div>
+        </header>
 
-    </table>
-  </section>
-</main>
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon primary"><i class="fas fa-calendar-day"></i></div>
+                <div class="stat-info">
+                    <h3>Total Days</h3>
+                    <p id="totalDays">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon success"><i class="fas fa-check"></i></div>
+                <div class="stat-info">
+                    <h3>Present</h3>
+                    <p id="presentDays">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon warning"><i class="fas fa-clock"></i></div>
+                <div class="stat-info">
+                    <h3>Late</h3>
+                    <p id="lateDays">0</p>
+                </div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon danger"><i class="fas fa-times"></i></div>
+                <div class="stat-info">
+                    <h3>Absent</h3>
+                    <p id="absentDays">0</p>
+                </div>
+            </div>
+        </div>
 
-<footer class="site-footer">© 2025 Student Portal • contact@example.com</footer>
-<script src="lang.js"></script>
-<script>
-  const rows = [
-    { date:'2025-08-01', in:'09:00', out:'15:30', remarks:'On time', subject:'IELTS', month:'August' },
-    { date:'2025-08-02', in:'09:10', out:'15:30', remarks:'Late', subject:'PTE', month:'August' }
-  ];
-  const tb = document.getElementById('attBody');
-  function render(r){ tb.innerHTML = r.map(x=>`<tr><td>${x.date}</td><td>${x.in}</td><td>${x.out}</td><td>${x.remarks}</td></tr>`).join(''); }
-  render(rows);
-  document.getElementById('month').addEventListener('change', filter);
-  document.getElementById('subject').addEventListener('change', filter);
-  function filter(){
-    const m = document.getElementById('month').value;
-    const s = document.getElementById('subject').value;
-    const f = rows.filter(x=> (m==='All'||x.month===m) && (s==='All'||x.subject===s));
-    render(f);
-  }
-</script>
+        <!-- Attendance Table -->
+        <div class="card" style="margin-top: 2rem;">
+            <div class="card-header">
+                <h3>Attendance History</h3>
+                <div class="card-actions">
+                    <select id="monthFilter" class="form-control">
+                        <option value="">All Months</option>
+                        <option value="2023-08">August 2023</option>
+                        <option value="2023-09">September 2023</option>
+                    </select>
+                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>In Time</th>
+                            <th>Out Time</th>
+                            <th>Remarks</th>
+                        </tr>
+                    </thead>
+                    <tbody id="attendanceTableBody">
+                        <!-- Rows will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
 
+    <script type="module">
+        import { AttendanceUI } from '../../js/attendance.js';
+        import { auth } from '../../js/firebase-init.js';
+        import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.17.1/firebase-auth.js";
 
+        document.addEventListener('DOMContentLoaded', () => {
+            const ui = new AttendanceUI();
+            
+            onAuthStateChanged(auth, (user) => {
+                if (user) {
+                    ui.loadStudentAttendance(user.uid, 'attendanceTableBody');
+                } else {
+                    window.location.href = '../login.html';
+                }
+            });
+
+            // Filter logic
+            document.getElementById('monthFilter').addEventListener('change', (e) => {
+                const user = auth.currentUser;
+                if (user) {
+                    // ui.loadStudentAttendance(user.uid, 'attendanceTableBody', e.target.value);
+                    // Update loadStudentAttendance to accept month
+                }
+            });
+        });
+    </script>
 </body>
 </html>
-

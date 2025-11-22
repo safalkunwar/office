@@ -7,7 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="../../css/main.css">
+  <link rel="stylesheet" href="../../css/student.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
 </head>
 <body>
   <header class="site-header" role="banner">
@@ -19,8 +21,8 @@
         <a href="assignments.html">📝 <span data-i18n="nav.assign">Assignments</span></a>
         <a href="attendance.html">🗓️ <span data-i18n="nav.attend">Attendance</span></a>
         <a href="visa.html">🛂 <span data-i18n="nav.visa">Visa</span></a>
-        <a href="../documents.html">📂 Documents</a>
-        <a href="../messages.html">✉️ <span data-i18n="nav.msg">Messages</span></a>
+        <a href="documents.html">📂 Documents</a>
+        <a href="messages.html">✉️ <span data-i18n="nav.msg">Messages</span></a>
         <a href="resources.html">📚 <span data-i18n="nav.res">Resources</span></a>
         <a href="profile.html">👤 <span data-i18n="nav.profile">Profile</span></a>
         <a href="profile.html" class="avatar-link" title="Profile"><img class="avatar" src="https://i.pravatar.cc/80?img=3" alt="Profile" /></a>
@@ -55,7 +57,7 @@
       <article class="card panel">
         <div class="head"><h3>Documents Overview</h3><a href="documents.html" class="btn">Open</a></div>
       <article class="card panel anim">
-        <div class="head"><h3>Documents</h3><a href="../documents.html" class="btn">Manage</a></div>
+        <div class="head"><h3>Documents</h3><a href="documents.html" class="btn">Manage</a></div>
         <div class="count-badges" id="docCounts"></div>
       </article>
 
@@ -68,7 +70,7 @@
       <div class="quick-links">
         <a class="card link-card" href="google-drive-setup.html"><div class="icon">☁️</div><div>Google Drive Setup</div></a>
         <a class="card link-card" href="profile.html"><div class="icon">👤</div><div>Profile</div></a>
-        <a class="card link-card" href="../documents.html"><div class="icon">📂</div><div>Documents</div></a>
+        <a class="card link-card" href="documents.html"><div class="icon">📂</div><div>Documents</div></a>
       </div>
     </section>
 
@@ -76,7 +78,7 @@
 
   <footer class="site-footer" role="contentinfo">© 2025 Student Portal • contact@example.com</footer>
 
-  <script src="lang.js"></script>
+  <script src="../../js/student/lang.js"></script>
   <script>
     const $ = (sel)=>document.querySelector(sel);
     const list = (id, items, r)=> $(id).innerHTML = items.map(r).join('');
